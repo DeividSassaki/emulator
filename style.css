@@ -1,8 +1,3 @@
-```css
-/* =========================
-   CONFIGURAÇÕES GERAIS
-   ========================= */
-
 * {
     box-sizing: border-box;
     margin: 0;
@@ -11,266 +6,82 @@
 
 body {
     min-height: 100vh;
+
     background: #111;
     color: white;
+
     font-family: Arial, sans-serif;
 
     display: flex;
     justify-content: center;
-    align-items: center;
 
     padding: 20px;
 }
 
-
-/* =========================
-   CONTAINER PRINCIPAL
-   ========================= */
-
 .container {
     width: 100%;
-    max-width: 900px;
+    max-width: 1000px;
 
     text-align: center;
 }
 
 h1 {
     margin-bottom: 20px;
+
     font-size: 32px;
 }
 
-
-/* =========================
-   TELA DO EMULADOR
-   ========================= */
-
-.screen-container {
-    width: 100%;
-    max-width: 800px;
-
-    margin: 0 auto 20px;
-
-    background: #000;
-
-    border: 4px solid #444;
-    border-radius: 10px;
-
-    overflow: hidden;
-
-    aspect-ratio: 4 / 3;
-}
-
-#screen {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    background: #000;
-}
-
-
-/* =========================
-   MENU
-   ========================= */
-
 .menu {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
-.button,
-.menu button {
-    border: none;
-    border-radius: 6px;
+.button {
+    display: inline-block;
 
-    padding: 12px 20px;
+    padding: 12px 22px;
 
     background: #333;
     color: white;
 
-    font-size: 16px;
+    border-radius: 6px;
 
     cursor: pointer;
+
+    font-size: 16px;
 }
 
-.button:hover,
-.menu button:hover {
+.button:hover {
     background: #555;
 }
 
+#game {
+    width: 100%;
+    height: auto;
 
-/* =========================
-   CONTROLES
-   ========================= */
+    min-height: 500px;
 
-.controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background: #000;
 
-    max-width: 600px;
-    margin: 0 auto 20px;
+    border-radius: 8px;
+
+    overflow: hidden;
 }
 
 
-/* =========================
-   DIRECIONAL
-   ========================= */
-
-.dpad {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.dpad > button,
-.dpad div button {
-    width: 50px;
-    height: 50px;
-
-    border: none;
-    background: #333;
-    color: white;
-
-    font-size: 22px;
-
-    cursor: pointer;
-}
-
-.dpad > button {
-    border-radius: 8px 8px 0 0;
-}
-
-.dpad div {
-    display: flex;
-}
-
-.dpad div button:first-child {
-    border-radius: 8px 0 0 8px;
-}
-
-.dpad div button:last-child {
-    border-radius: 0 8px 8px 0;
-}
-
-
-/* =========================
-   BOTÕES A B X Y
-   ========================= */
-
-.buttons {
-    display: grid;
-
-    grid-template-columns: repeat(2, 60px);
-    gap: 10px;
-
-    transform: rotate(-15deg);
-}
-
-.buttons button {
-    width: 60px;
-    height: 60px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: #444;
-    color: white;
-
-    font-size: 20px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-
-/* =========================
-   START / SELECT
-   ========================= */
-
-.system-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-}
-
-.system-buttons button {
-    padding: 8px 20px;
-
-    border: none;
-    border-radius: 20px;
-
-    background: #333;
-    color: white;
-
-    cursor: pointer;
-}
-
-
-/* =========================
-   EFEITO DOS BOTÕES
-   ========================= */
-
-button:active,
-.button:active {
-    transform: scale(0.95);
-}
-
-
-/* =========================
-   CELULAR
-   ========================= */
+/* Celular */
 
 @media (max-width: 600px) {
 
     body {
         padding: 10px;
-        align-items: flex-start;
     }
 
     h1 {
         font-size: 24px;
-        margin-bottom: 15px;
     }
 
-    .screen-container {
-        border-width: 2px;
-    }
-
-    .menu {
-        margin-bottom: 25px;
-    }
-
-    .button,
-    .menu button {
-        padding: 10px 12px;
-        font-size: 14px;
-    }
-
-    .controls {
-        padding: 0 10px;
-    }
-
-    .dpad > button,
-    .dpad div button {
-        width: 45px;
-        height: 45px;
-    }
-
-    .buttons {
-        grid-template-columns: repeat(2, 50px);
-        gap: 8px;
-    }
-
-    .buttons button {
-        width: 50px;
-        height: 50px;
-        font-size: 16px;
+    #game {
+        min-height: 300px;
     }
 
 }
-```
