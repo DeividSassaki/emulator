@@ -1,26 +1,4 @@
-```javascript
-// =========================
-// ELEMENTOS DA PÁGINA
-// =========================
-
 const romInput = document.getElementById("romInput");
-const screen = document.getElementById("screen");
-const fullscreenButton = document.getElementById("fullscreenButton");
-
-const ctx = screen.getContext("2d");
-
-
-// =========================
-// CONFIGURAÇÃO DA TELA
-// =========================
-
-screen.width = 256;
-screen.height = 224;
-
-
-// =========================
-// CARREGAR ROM
-// =========================
 
 romInput.addEventListener("change", function () {
 
@@ -30,193 +8,61 @@ romInput.addEventListener("change", function () {
         return;
     }
 
-    console.log("ROM selecionada:");
-    console.log(file.name);
-    console.log("Tamanho:", file.size, "bytes");
+    console.log("ROM selecionada:", file.name);
 
-    // Por enquanto apenas mostramos uma mensagem.
-    // O emulador será conectado aqui posteriormente.
+    // Cria uma URL temporária para a ROM
+    const romURL = URL.createObjectURL(file);
 
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, screen.width, screen.height);
-
-    ctx.fillStyle = "white";
-    ctx.font = "12px Arial";
-    ctx.textAlign = "center";
-
-    ctx.fillText(
-        "ROM carregada",
-        screen.width / 2,
-        screen.height / 2 - 10
-    );
-
-    ctx.fillText(
-        file.name,
-        screen.width / 2,
-        screen.height / 2 + 10
-    );
-
-    console.log("Aguardando o core SNES...");
+    iniciarEmulador(romURL, file.name);
 });
 
 
-// =========================
-// TELA CHEIA
-// =========================
+function iniciarEmulador(romURL, nomeArquivo) {
 
-fullscreenButton.addEventListener("click", function () {
+    // Limpa o emulador anterior
+    document.getElementById("game").innerHTML = "";
 
-    const container = document.querySelector(".screen-container");
+    // Configurações do EmulatorJS
+    window.EJS_player = "#game";
 
-    if (!document.fullscreenElement) {
+    window.EJS_gameName =
+        nomeArquivo.replace(/\.[^/.]+$/, "");
 
-        container.requestFullscreen().catch(function (error) {
-            console.log("Erro ao entrar em tela cheia:", error);
-        });
+    window.EJS_biosUrl = "";
 
-    } else {
+    window.EJS_gameUrl = romURL;
 
-        document.exitFullscreen();
+    window.EJS_core = "snes";
 
-    }
+    window.EJS_mouse = false;
 
-});
+    window.EJS_multitap = false;
 
+    window.EJS_startOnLoaded = true;
 
-// =========================
-// TECLADO
-// =========================
+    // CDN oficial do EmulatorJS
+    window.EJS_pathtodata =
+        "https://cdn.emulatorjs.org/4.2.2/data/";
 
-// Mapeamento do teclado para o SNES
+    // Carrega o EmulatorJS
+    const script = document.createElement("script");
 
-const keyboardMap = {
+    script.src =
+        "https://cdn.emulatorjs.org/4.2.2/data/loader.js";
 
-    ArrowUp: "up",
-    ArrowDown: "down",
-    ArrowLeft: "left",
-    ArrowRight: "right",
+    script.onload = function () {
 
-    z: "b",
-    x: "a",
+        console.log("EmulatorJS carregado.");
 
-    a: "y",
-    s: "x",
+    };
 
-    Enter: "start",
-    Shift: "select"
-};
+    script.onerror = function () {
 
+        console.error(
+            "Não foi possível carregar o EmulatorJS."
+        );
 
-// =========================
-// TECLADO - PRESSIONAR
-// =========================
+    };
 
-document.addEventListener("keydown", function (event) {
-
-    const key = keyboardMap[event.key];
-
-    if (!key) {
-        return;
-    }
-
-    event.preventDefault();
-
-    console.log("Pressionou:", key);
-
-    // Posteriormente:
-    // emulator.buttonDown(key);
-});
-
-
-// =========================
-// TECLADO - SOLTAR
-// =========================
-
-document.addEventListener("keyup", function (event) {
-
-    const key = keyboardMap[event.key];
-
-    if (!key) {
-        return;
-    }
-
-    event.preventDefault();
-
-    console.log("Soltou:", key);
-
-    // Posteriormente:
-    // emulator.buttonUp(key);
-});
-
-
-// =========================
-// BOTÕES NA TELA
-// =========================
-
-const buttons = document.querySelectorAll("[data-key]");
-
-buttons.forEach(function (button) {
-
-    // Pressionar botão
-
-    button.addEventListener("mousedown", function () {
-
-        const key = button.dataset.key;
-
-        console.log("Botão pressionado:", key);
-
-        // Posteriormente:
-        // emulator.buttonDown(key);
-    });
-
-
-    // Soltar botão
-
-    button.addEventListener("mouseup", function () {
-
-        const key = button.dataset.key;
-
-        console.log("Botão solto:", key);
-
-        // Posteriormente:
-        // emulator.buttonUp(key);
-    });
-
-
-    // Para telas sensíveis ao toque
-
-    button.addEventListener("touchstart", function (event) {
-
-        event.preventDefault();
-
-        const key = button.dataset.key;
-
-        console.log("Touch pressionado:", key);
-
-        // Posteriormente:
-        // emulator.buttonDown(key);
-    });
-
-
-    button.addEventListener("touchend", function (event) {
-
-        event.preventDefault();
-
-        const key = button.dataset.key;
-
-        console.log("Touch solto:", key);
-
-        // Posteriormente:
-        // emulator.buttonUp(key);
-    });
-
-});
-
-
-// =========================
-// INÍCIO
-// =========================
-
-console.log("SNES Emulator iniciado.");
-console.log("Aguardando ROM...");
-```
+    document.body.appendChild(script);
+}
