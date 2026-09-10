@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -17,66 +16,29 @@
 
         <h1>SNES Emulator</h1>
 
-        <!-- Tela do jogo -->
-        <div class="screen-container">
-            <canvas id="screen"></canvas>
-        </div>
-
-        <!-- Controles principais -->
         <div class="menu">
 
             <label for="romInput" class="button">
-                Carregar ROM
+                🎮 Carregar ROM
             </label>
 
             <input
                 type="file"
                 id="romInput"
-                accept=".smc,.sfc"
+                accept=".sfc,.smc"
                 hidden
             >
 
-            <button id="fullscreenButton">
-                Tela cheia
-            </button>
-
         </div>
 
-        <!-- Controles -->
-        <div class="controls">
-
-            <div class="dpad">
-
-                <button data-key="up">▲</button>
-
-                <div>
-                    <button data-key="left">◀</button>
-                    <button data-key="down">▼</button>
-                    <button data-key="right">▶</button>
-                </div>
-
-            </div>
-
-            <div class="buttons">
-
-                <button data-key="y">Y</button>
-                <button data-key="x">X</button>
-                <button data-key="b">B</button>
-                <button data-key="a">A</button>
-
-            </div>
-
-        </div>
-
-        <div class="system-buttons">
-            <button data-key="select">SELECT</button>
-            <button data-key="start">START</button>
-        </div>
+        <!-- Área onde o EmulatorJS será criado -->
+        <div id="game"></div>
 
     </div>
+
 
     <script src="script.js"></script>
 
 </body>
+
 </html>
-```
