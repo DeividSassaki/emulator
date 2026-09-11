@@ -105,24 +105,24 @@ const saveStateButton =
 saveStateButton.addEventListener("click", async function () {
 
     if (!window.EJS_emulator) {
-        alert("O emulador ainda não foi carregado.");
+        alert("O emulador ainda não está pronto.");
         return;
     }
 
     try {
 
         const state =
-            window.EJS_emulator.gameManager.getState();
+            await window.EJS_emulator.gameManager.getState();
 
         if (!state) {
-            alert("Não foi possível obter o estado do jogo.");
+            alert("Não foi possível salvar o State.");
             return;
         }
 
-        const blob =
-            new Blob([state], {
-                type: "application/octet-stream"
-            });
+        const blob = new Blob(
+            [state],
+            { type: "application/octet-stream" }
+        );
 
         const url =
             URL.createObjectURL(blob);
@@ -133,15 +133,11 @@ saveStateButton.addEventListener("click", async function () {
         link.href = url;
         link.download = "snes-save.state";
 
-        document.body.appendChild(link);
-
         link.click();
-
-        document.body.removeChild(link);
 
         URL.revokeObjectURL(url);
 
-        console.log("State salvo.");
+        console.log("State salvo com sucesso.");
 
     } catch (error) {
 
@@ -173,7 +169,7 @@ document.body.appendChild(stateInput);
 loadStateButton.addEventListener("click", function () {
 
     if (!window.EJS_emulator) {
-        alert("O emulador ainda não foi carregado.");
+        alert("O emulador ainda não está pronto.");
         return;
     }
 
@@ -192,15 +188,14 @@ stateInput.addEventListener("change", async function () {
 
     try {
 
-        const arrayBuffer =
-            await file.arrayBuffer();
-
         const state =
-            new Uint8Array(arrayBuffer);
+            new Uint8Array(
+                await file.arrayBuffer()
+            );
 
         window.EJS_emulator.gameManager.loadState(state);
 
-        console.log("State carregado.");
+        console.log("State carregado com sucesso.");
 
     } catch (error) {
 
