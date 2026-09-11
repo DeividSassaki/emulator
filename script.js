@@ -66,3 +66,32 @@ function iniciarEmulador(romURL, nomeArquivo) {
 
     document.body.appendChild(script);
 }
+// =========================
+// BOTÃO TELA CHEIA
+// =========================
+
+const fullscreenButton =
+    document.getElementById("fullscreenButton");
+
+fullscreenButton.addEventListener("click", function () {
+
+    const game = document.getElementById("game");
+
+    if (!document.fullscreenElement) {
+
+        game.requestFullscreen().catch(function (error) {
+
+            console.error(
+                "Erro ao entrar em tela cheia:",
+                error
+            );
+
+        });
+
+    } else {
+
+        document.exitFullscreen();
+
+    }
+
+});
