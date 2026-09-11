@@ -12,27 +12,30 @@
 
 <body>
 
-    <div class="container">
+    <div class="menu">
 
-        <h1>SNES Emulator</h1>
-
-        <div class="menu">
-
-            <label for="romInput" class="button">
-                🎮 Carregar ROM
-            </label>
-
-            <input
-                type="file"
-                id="romInput"
-                accept=".sfc,.smc"
-                hidden
-            >
-
-        </div>
-
-        <!-- Área onde o EmulatorJS será criado -->
-        <div id="game"></div>
+        <label for="romInput" class="button">
+            🎮 Carregar ROM
+        </label>
+    
+        <input
+            type="file"
+            id="romInput"
+            accept=".sfc,.smc"
+            hidden
+        >
+    
+        <button id="fullscreenButton" class="button">
+            ⛶ Tela cheia
+        </button>
+    
+        <button id="saveStateButton" class="button">
+            💾 Salvar State
+        </button>
+    
+        <button id="loadStateButton" class="button">
+            📂 Carregar State
+        </button>
 
     </div>
 
