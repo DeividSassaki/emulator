@@ -222,3 +222,31 @@ if (romPorLink) {
         "Jogo"
     );
 }
+// =========================
+// ABRIR ROM POR URL
+// =========================
+
+const romUrl =
+    document.getElementById("romUrl");
+
+const openUrlButton =
+    document.getElementById("openUrlButton");
+
+
+openUrlButton.addEventListener("click", function () {
+
+    const url = romUrl.value.trim();
+
+    if (!url) {
+        alert("Cole a URL da ROM primeiro.");
+        return;
+    }
+
+    console.log("Abrindo ROM pela URL:", url);
+
+    iniciarEmulador(
+        url,
+        "Jogo"
+    );
+
+});
