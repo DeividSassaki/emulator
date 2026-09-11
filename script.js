@@ -205,3 +205,20 @@ stateInput.addEventListener("change", async function () {
     }
 
 });
+// =========================
+// ABRIR ROM POR LINK
+// =========================
+
+const parametros = new URLSearchParams(window.location.search);
+
+const romPorLink = parametros.get("rom");
+
+if (romPorLink) {
+
+    console.log("ROM encontrada no link:", romPorLink);
+
+    iniciarEmulador(
+        romPorLink,
+        "Jogo"
+    );
+}
