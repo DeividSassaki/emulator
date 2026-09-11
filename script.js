@@ -95,3 +95,118 @@ fullscreenButton.addEventListener("click", function () {
     }
 
 });
+// =========================
+// SALVAR STATE
+// =========================
+
+const saveStateButton =
+    document.getElementById("saveStateButton");
+
+saveStateButton.addEventListener("click", async function () {
+
+    if (!window.EJS_emulator) {
+        alert("O emulador ainda não foi carregado.");
+        return;
+    }
+
+    try {
+
+        const state =
+            window.EJS_emulator.gameManager.getState();
+
+        if (!state) {
+            alert("Não foi possível obter o estado do jogo.");
+            return;
+        }
+
+        const blob =
+            new Blob([state], {
+                type: "application/octet-stream"
+            });
+
+        const url =
+            URL.createObjectURL(blob);
+
+        const link =
+            document.createElement("a");
+
+        link.href = url;
+        link.download = "snes-save.state";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+        console.log("State salvo.");
+
+    } catch (error) {
+
+        console.error("Erro ao salvar State:", error);
+
+        alert("Erro ao salvar o State.");
+    }
+
+});
+
+
+// =========================
+// CARREGAR STATE
+// =========================
+
+const loadStateButton =
+    document.getElementById("loadStateButton");
+
+const stateInput =
+    document.createElement("input");
+
+stateInput.type = "file";
+stateInput.accept = ".state";
+stateInput.style.display = "none";
+
+document.body.appendChild(stateInput);
+
+
+loadStateButton.addEventListener("click", function () {
+
+    if (!window.EJS_emulator) {
+        alert("O emulador ainda não foi carregado.");
+        return;
+    }
+
+    stateInput.click();
+
+});
+
+
+stateInput.addEventListener("change", async function () {
+
+    const file = stateInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    try {
+
+        const arrayBuffer =
+            await file.arrayBuffer();
+
+        const state =
+            new Uint8Array(arrayBuffer);
+
+        window.EJS_emulator.gameManager.loadState(state);
+
+        console.log("State carregado.");
+
+    } catch (error) {
+
+        console.error("Erro ao carregar State:", error);
+
+        alert("Erro ao carregar o State.");
+    }
+
+});
