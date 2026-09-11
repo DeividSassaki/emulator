@@ -10,6 +10,7 @@ romInput.addEventListener("change", function () {
 
     console.log("ROM selecionada:", file.name);
 
+    // Cria uma URL temporária para a ROM
     const romURL = URL.createObjectURL(file);
 
     iniciarEmulador(romURL, file.name);
@@ -18,8 +19,10 @@ romInput.addEventListener("change", function () {
 
 function iniciarEmulador(romURL, nomeArquivo) {
 
+    // Limpa o emulador anterior
     document.getElementById("game").innerHTML = "";
 
+    // Configurações do EmulatorJS
     window.EJS_player = "#game";
 
     window.EJS_gameName =
@@ -37,20 +40,28 @@ function iniciarEmulador(romURL, nomeArquivo) {
 
     window.EJS_startOnLoaded = true;
 
+    // CDN oficial do EmulatorJS
     window.EJS_pathtodata =
         "https://cdn.emulatorjs.org/4.2.2/data/";
 
+    // Carrega o EmulatorJS
     const script = document.createElement("script");
 
     script.src =
         "https://cdn.emulatorjs.org/4.2.2/data/loader.js";
 
     script.onload = function () {
+
         console.log("EmulatorJS carregado.");
+
     };
 
     script.onerror = function () {
-        console.error("Não foi possível carregar o EmulatorJS.");
+
+        console.error(
+            "Não foi possível carregar o EmulatorJS."
+        );
+
     };
 
     document.body.appendChild(script);
