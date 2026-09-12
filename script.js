@@ -12,9 +12,37 @@ const gamesList = document.getElementById("gamesList");
 
 const GAMES_FOLDER = "file";
 
+const mainMenu = document.getElementById("mainMenu");
+const gameMenu = document.getElementById("gameMenu");
+const gamesSection = document.getElementById("gamesSection");
+const pageTitle = document.getElementById("pageTitle");
+
 let nomeRomAtual = "snes";
 let emulatorScript = null;
 
+
+// =========================
+// ROTAS DOS JOGOS
+// =========================
+
+function obterBaseDoSite() {
+    const partes = window.location.pathname.split("/").filter(Boolean);
+    return partes.length > 0 ? "/" + partes[0] + "/" : "/";
+}
+
+function obterSlugDaPagina() {
+    const partes = window.location.pathname.split("/").filter(Boolean);
+    return partes.length > 1 ? decodeURIComponent(partes[1]).toLowerCase() : "";
+}
+
+const slugAtual = obterSlugDaPagina();
+const paginaDeJogo = slugAtual !== "";
+
+if (paginaDeJogo) {
+    mainMenu.style.display = "none";
+    gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
+}
 
 // =========================
 // CARREGAR ROM DO COMPUTADOR
@@ -47,18 +75,6 @@ openUrlButton.addEventListener("click", function () {
 
     iniciarEmulador(url, obterNomeArquivo(url));
 });
-
-
-// =========================
-// ABRIR ROM PELO LINK ?rom=
-// =========================
-
-const parametros = new URLSearchParams(window.location.search);
-const romPorLink = parametros.get("rom");
-
-if (romPorLink) {
-    iniciarEmulador(romPorLink, obterNomeArquivo(romPorLink));
-}
 
 
 // =========================
@@ -212,6 +228,20 @@ stateInput.addEventListener("change", async function () {
 
 
 // =========================
+// CRIAR SLUG DA URL
+// =========================
+
+function criarSlug(nome) {
+    return nome
+        .replace(/\.[^/.]+$/, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+// =========================
 // LISTAR JOGOS DA PASTA /file
 // =========================
 
@@ -270,6 +300,24 @@ async function carregarListaDeJogos() {
             return a.name.localeCompare(b.name);
         });
 
+        if (paginaDeJogo) {
+            const jogo = jogos.find(function (arquivo) {
+                return criarSlug(arquivo.name) === slugAtual;
+            });
+
+            if (!jogo) {
+                pageTitle.textContent = "Jogo não encontrado";
+                gameMenu.style.display = "none";
+                document.getElementById("game").innerHTML =
+                    "<p style='padding:20px;'>Não foi encontrada uma ROM correspondente a esta URL.</p>";
+                return;
+            }
+
+            pageTitle.textContent = jogo.name.replace(/\.[^/.]+$/, "");
+            iniciarEmulador(jogo.download_url, jogo.name);
+            return;
+        }
+
         jogos.forEach(function (jogo) {
             const item = document.createElement("div");
             item.className = "game-item";
@@ -283,10 +331,11 @@ async function carregarListaDeJogos() {
             botao.textContent = "▶ Abrir";
 
             botao.addEventListener("click", function () {
-                iniciarEmulador(
-                    jogo.download_url,
-                    jogo.name
-                );
+                const slug = criarSlug(jogo.name);
+                history.pushState({}, "", obterBaseDoSite() + slug);
+                mostrarPaginaDoJogo();
+                pageTitle.textContent = jogo.name.replace(/\.[^/.]+$/, "");
+                iniciarEmulador(jogo.download_url, jogo.name);
             });
 
             item.appendChild(nome);
@@ -369,3 +418,18 @@ function obterNomeArquivo(url) {
 // =========================
 
 carregarListaDeJogos();
+
+
+// =========================
+// MOSTRAR PÁGINA DO JOGO
+// =========================
+
+function mostrarPaginaDoJogo() {
+    mainMenu.style.display = "none";
+    gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
+}
+
+window.addEventListener("popstate", function () {
+    window.location.reload();
+});
