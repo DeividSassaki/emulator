@@ -70,16 +70,25 @@ const paginaComRomExterna =
 // Nas páginas de jogo mostramos apenas os controles do emulador.
 const paginaDeJogo = paginaDeJogoPorSlug || paginaComRomExterna;
 
-if (paginaDeJogo) {
+function mostrarMenuPrincipal() {
+    mainMenu.style.display = "block";
+    gamesSection.style.display = "none";
+    gameMenu.style.display = "none";
+    document.getElementById("game").style.display = "none";
+}
+
+function mostrarPaginaDoJogo() {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
-    gameMenu.style.display = "block";
-    document.getElementById("game").style.display = "block";
+    gameMenu.style.display = "flex";
+    const game = document.getElementById("game");
+    game.style.display = "block";
+}
+
+if (paginaDeJogo) {
+    mostrarPaginaDoJogo();
 } else {
-    mainMenu.style.display = "block";
-    gameMenu.style.display = "none";
-    gamesSection.style.display = "none";
-    document.getElementById("game").style.display = "none";
+    mostrarMenuPrincipal();
 }
 
 // Mostra/oculta a lista de jogos da pasta file
@@ -130,9 +139,21 @@ openUrlButton.addEventListener(
             return;
         }
 
+        const nome = obterNomeArquivo(url);
+        const slug = criarSlug(nome);
+
+        history.pushState(
+            {},
+            "",
+            obterBaseDoSite() + "?rom=" + encodeURIComponent(url)
+        );
+
+        mostrarPaginaDoJogo();
+        pageTitle.textContent = nome.replace(/\.[^/.]+$/, "");
+
         iniciarEmulador(
             url,
-            obterNomeArquivo(url)
+            nome
         );
     }
 );
@@ -175,7 +196,10 @@ function iniciarEmulador(
 
     game.innerHTML = "";
     game.style.display = "block";
-    gameMenu.style.display = "block";
+    game.style.width = "640px";
+    game.style.height = "480px";
+    game.style.maxWidth = "100%";
+    gameMenu.style.display = "flex";
 
     nomeRomAtual =
         nomeArquivo.replace(
@@ -840,17 +864,12 @@ function obterNomeArquivo(url) {
 
 
 // =========================
-// MOSTRAR PÁGINA DO JOGO
+// NAVEGAÇÃO DO NAVEGADOR
 // =========================
 
-function mostrarPaginaDoJogo() {
-
-    mainMenu.style.display = "none";
-    gamesSection.style.display = "none";
-    gameMenu.style.display = "block";
-    document.getElementById("game").style.display = "block";
-}
-
+window.addEventListener("popstate", function () {
+    window.location.reload();
+});
 
 // =========================
 // INICIAR
