@@ -65,7 +65,7 @@ romInput.addEventListener("change", function () {
 // ABRIR ROM POR URL
 // =========================
 
-openUrlButton.addEventListener("click", function () {
+openUrlButton.addEventListener("click", async function () {
     const url = romUrlInput.value.trim();
 
     if (!url) {
@@ -73,7 +73,31 @@ openUrlButton.addEventListener("click", function () {
         return;
     }
 
-    iniciarEmulador(url, obterNomeArquivo(url));
+    try {
+        console.log("Baixando ROM:", url);
+
+        const resposta = await fetch(url);
+
+        if (!resposta.ok) {
+            throw new Error("HTTP " + resposta.status);
+        }
+
+        const blob = await resposta.blob();
+
+        console.log("ROM baixada:", blob.size, "bytes");
+
+        const romURL = URL.createObjectURL(blob);
+
+        iniciarEmulador(romURL, obterNomeArquivo(url));
+
+    } catch (error) {
+        console.error("Erro ao baixar a ROM:", error);
+
+        alert(
+            "Não foi possível baixar a ROM pela URL.\n\n" +
+            "Veja o Console (F12) para mais detalhes."
+        );
+    }
 });
 
 
