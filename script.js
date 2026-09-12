@@ -138,6 +138,32 @@ fullscreenButton.addEventListener("click", function () {
 
 
 // =========================
+// RESTAURAR TAMANHO APÓS TELA CHEIA
+// =========================
+
+// O EmulatorJS pode manter o tamanho calculado para a tela cheia.
+// Ao sair, limpamos os tamanhos aplicados e pedimos um novo ajuste.
+document.addEventListener("fullscreenchange", function () {
+    if (!document.fullscreenElement) {
+        const game = document.getElementById("game");
+
+        setTimeout(function () {
+            game.style.width = "";
+            game.style.height = "";
+            game.style.maxWidth = "";
+            game.style.maxHeight = "";
+
+            window.dispatchEvent(new Event("resize"));
+        }, 300);
+
+        setTimeout(function () {
+            window.dispatchEvent(new Event("resize"));
+        }, 700);
+    }
+});
+
+
+// =========================
 // SALVAR STATE
 // =========================
 
