@@ -61,6 +61,10 @@ h1 {
     background: #555;
 }
 
+.game-controls {
+    display: none;
+}
+
 .games-section {
     margin-bottom: 20px;
     text-align: left;
@@ -150,5 +154,12 @@ h1 {
 
     #game {
         min-height: 300px;
+    }
+}
+
+
+@media (max-width: 600px) {
+    .game-controls {
+        display: none;
     }
 }
