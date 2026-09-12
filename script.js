@@ -38,12 +38,10 @@ function obterSlugDaPagina() {
 const slugAtual = obterSlugDaPagina();
 const paginaDeJogo = slugAtual !== "";
 
-// Os controles de emulação ficam visíveis em todas as páginas.
-gameMenu.style.display = "block";
-
 if (paginaDeJogo) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
 }
 
 // =========================
