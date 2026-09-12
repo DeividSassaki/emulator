@@ -14,6 +14,7 @@ const gamesList = document.getElementById("gamesList");
 const mainMenu = document.getElementById("mainMenu");
 const gameMenu = document.getElementById("gameMenu");
 const gamesSection = document.getElementById("gamesSection");
+const folderButton = document.getElementById("folderButton");
 const pageTitle = document.getElementById("pageTitle");
 
 const GAMES_FOLDER = "file";
@@ -65,14 +66,28 @@ const paginaComRomExterna =
 // CONTROLES
 // =========================
 
-// Os três controles do emulador aparecem sempre.
-gameMenu.style.display = "block";
+// Na página principal, só aparecem os controles para escolher a ROM.
+// A área do emulador e os controles de jogo ficam escondidos.
+const game = document.getElementById("game");
+game.style.display = "none";
+gameMenu.style.display = "none";
 
-// Em páginas de jogo, escondemos apenas os controles
-// exclusivos da página principal.
 if (paginaDeJogoPorSlug || paginaComRomExterna) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
+    if (folderButton) folderButton.style.display = "none";
+    game.style.display = "block";
+    gameMenu.style.display = "block";
+}
+
+if (folderButton) {
+    folderButton.addEventListener("click", function () {
+        const aberto = gamesSection.style.display !== "none";
+        gamesSection.style.display = aberto ? "none" : "block";
+        if (!aberto) {
+            carregarListaDeJogos();
+        }
+    });
 }
 
 
@@ -157,6 +172,11 @@ function iniciarEmulador(
     const game =
         document.getElementById("game");
 
+    // Mostra a área do emulador antes de o EmulatorJS criar o canvas.
+    game.style.display = "block";
+    gameMenu.style.display = "block";
+    mainMenu.style.display = "none";
+    if (folderButton) folderButton.style.display = "none";
     game.innerHTML = "";
 
     nomeRomAtual =
@@ -842,4 +862,7 @@ function mostrarPaginaDoJogo() {
 // INICIAR
 // =========================
 
-carregarListaDeJogos();
+// Só busca a lista automaticamente quando estamos em uma URL de jogo.
+if (paginaDeJogoPorSlug) {
+    carregarListaDeJogos();
+}
