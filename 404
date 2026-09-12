@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SNES Emulator</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1 id="pageTitle">SNES Emulator</h1>
+
+        <div id="mainMenu" class="menu">
+
+            <div class="url-rom">
+                <input
+                    type="text"
+                    id="romUrl"
+                    placeholder="Cole aqui a URL da ROM"
+                >
+
+                <button id="openUrlButton" class="button">
+                    🔗 Abrir URL
+                </button>
+            </div>
+
+            <label for="romInput" class="button">
+                🎮 Carregar ROM
+            </label>
+
+            <input
+                type="file"
+                id="romInput"
+                accept=".sfc,.smc"
+                hidden
+            >
+
+            <div id="gameMenu" class="game-controls">
+
+            <button id="fullscreenButton" class="button">
+                ⛶ Tela cheia
+            </button>
+
+            <button id="saveStateButton" class="button">
+                💾 Salvar State
+            </button>
+
+            <button id="loadStateButton" class="button">
+                📂 Carregar State
+            </button>
+
+            </div>
+
+        </div>
+
+        <section id="gamesSection" class="games-section">
+            <h2>Jogos disponíveis</h2>
+            <div id="gamesList">
+                <p>Carregando jogos...</p>
+            </div>
+        </section>
+
+        <div id="game"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
