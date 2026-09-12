@@ -5,49 +5,76 @@
 const romInput = document.getElementById("romInput");
 const romUrlInput = document.getElementById("romUrl");
 const openUrlButton = document.getElementById("openUrlButton");
+
 const fullscreenButton = document.getElementById("fullscreenButton");
 const saveStateButton = document.getElementById("saveStateButton");
 const loadStateButton = document.getElementById("loadStateButton");
+
 const gamesList = document.getElementById("gamesList");
-
-const GAMES_FOLDER = "file";
-
 const mainMenu = document.getElementById("mainMenu");
 const gameMenu = document.getElementById("gameMenu");
 const gamesSection = document.getElementById("gamesSection");
 const pageTitle = document.getElementById("pageTitle");
+
+const GAMES_FOLDER = "file";
 
 let nomeRomAtual = "snes";
 let emulatorScript = null;
 
 
 // =========================
-// ROTAS DOS JOGOS
+// ROTA ATUAL
 // =========================
 
 function obterBaseDoSite() {
-    const partes = window.location.pathname.split("/").filter(Boolean);
-    return partes.length > 0 ? "/" + partes[0] + "/" : "/";
+    const partes = window.location.pathname
+        .split("/")
+        .filter(Boolean);
+
+    return partes.length > 0
+        ? "/" + partes[0] + "/"
+        : "/";
 }
 
 function obterSlugDaPagina() {
-    const partes = window.location.pathname.split("/").filter(Boolean);
-    return partes.length > 1 ? decodeURIComponent(partes[1]).toLowerCase() : "";
+    const partes = window.location.pathname
+        .split("/")
+        .filter(Boolean);
+
+    return partes.length > 1
+        ? decodeURIComponent(partes[1]).toLowerCase()
+        : "";
 }
 
 const slugAtual = obterSlugDaPagina();
 
-const parametros = new URLSearchParams(window.location.search);
+const parametros = new URLSearchParams(
+    window.location.search
+);
+
 const romPorLink = parametros.get("rom");
 
-const paginaDeJogo = slugAtual !== "" || romPorLink !== "";
-const paginaDeJogoDaPasta = slugAtual !== "";
+const paginaDeJogoPorSlug =
+    slugAtual !== "";
 
-if (paginaDeJogo) {
+const paginaComRomExterna =
+    romPorLink !== "";
+
+
+// =========================
+// CONTROLES
+// =========================
+
+// Os três controles do emulador aparecem sempre.
+gameMenu.style.display = "block";
+
+// Em páginas de jogo, escondemos apenas os controles
+// exclusivos da página principal.
+if (paginaDeJogoPorSlug || paginaComRomExterna) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
-    gameMenu.style.display = "block";
 }
+
 
 // =========================
 // CARREGAR ROM DO COMPUTADOR
@@ -62,7 +89,10 @@ romInput.addEventListener("change", function () {
 
     const romURL = URL.createObjectURL(file);
 
-    iniciarEmulador(romURL, file.name);
+    iniciarEmulador(
+        romURL,
+        file.name
+    );
 });
 
 
@@ -70,53 +100,47 @@ romInput.addEventListener("change", function () {
 // ABRIR ROM POR URL
 // =========================
 
-openUrlButton.addEventListener("click", async function () {
-    const url = romUrlInput.value.trim();
+openUrlButton.addEventListener(
+    "click",
+    function () {
 
-    if (!url) {
-        alert("Cole a URL da ROM primeiro.");
-        return;
-    }
+        const url =
+            romUrlInput.value.trim();
 
-    try {
-        console.log("Baixando ROM:", url);
-
-        const resposta = await fetch(url);
-
-        if (!resposta.ok) {
-            throw new Error("HTTP " + resposta.status);
+        if (!url) {
+            alert(
+                "Cole a URL da ROM primeiro."
+            );
+            return;
         }
 
-        const blob = await resposta.blob();
-
-        console.log("ROM baixada:", blob.size, "bytes");
-
-        const romURL = URL.createObjectURL(blob);
-
-        iniciarEmulador(romURL, obterNomeArquivo(url));
-
-    } catch (error) {
-        console.error("Erro ao baixar a ROM:", error);
-
-        alert(
-            "Não foi possível baixar a ROM pela URL.\\n\\n" +
-            "Veja o Console (F12) para mais detalhes."
+        iniciarEmulador(
+            url,
+            obterNomeArquivo(url)
         );
     }
-});
+);
+
+
 // =========================
-// ABRIR ROM PELO LINK ?rom=
+// ABRIR ROM PELO ?rom=
 // =========================
 
-// Para ROM externa, não procuramos o jogo na pasta /file.
-// A própria URL já informa onde está a ROM.
 if (romPorLink) {
+
     pageTitle.textContent =
-        obterNomeArquivo(romPorLink).replace(/\.[^/.]+$/, "");
+        obterNomeArquivo(
+            romPorLink
+        ).replace(
+            /\.[^/.]+$/,
+            ""
+        );
 
     iniciarEmulador(
         romPorLink,
-        obterNomeArquivo(romPorLink)
+        obterNomeArquivo(
+            romPorLink
+        )
     );
 }
 
@@ -125,42 +149,78 @@ if (romPorLink) {
 // INICIAR EMULADOR
 // =========================
 
-function iniciarEmulador(romURL, nomeArquivo) {
-    const game = document.getElementById("game");
+function iniciarEmulador(
+    romURL,
+    nomeArquivo
+) {
+
+    const game =
+        document.getElementById("game");
 
     game.innerHTML = "";
 
-    nomeRomAtual = nomeArquivo.replace(/\.[^/.]+$/, "");
+    nomeRomAtual =
+        nomeArquivo.replace(
+            /\.[^/.]+$/,
+            ""
+        );
 
-    window.EJS_player = "#game";
-    window.EJS_gameName = nomeRomAtual;
-    window.EJS_biosUrl = "";
-    window.EJS_gameUrl = romURL;
-    window.EJS_core = "snes";
-    window.EJS_mouse = false;
-    window.EJS_multitap = false;
-    window.EJS_startOnLoaded = true;
+    window.EJS_player =
+        "#game";
+
+    window.EJS_gameName =
+        nomeRomAtual;
+
+    window.EJS_biosUrl =
+        "";
+
+    window.EJS_gameUrl =
+        romURL;
+
+    window.EJS_core =
+        "snes";
+
+    window.EJS_mouse =
+        false;
+
+    window.EJS_multitap =
+        false;
+
+    window.EJS_startOnLoaded =
+        true;
+
     window.EJS_pathtodata =
         "https://cdn.emulatorjs.org/4.2.2/data/";
 
-    // Evita adicionar vários loaders ao abrir mais de uma ROM.
     if (emulatorScript) {
         emulatorScript.remove();
     }
 
-    emulatorScript = document.createElement("script");
+    emulatorScript =
+        document.createElement(
+            "script"
+        );
+
     emulatorScript.src =
         "https://cdn.emulatorjs.org/4.2.2/data/loader.js";
 
-    emulatorScript.onload = function () {
-        console.log("EmulatorJS carregado.");
-    };
+    emulatorScript.onload =
+        function () {
+            console.log(
+                "EmulatorJS carregado."
+            );
+        };
 
-    emulatorScript.onerror = function () {
-        console.error("Não foi possível carregar o EmulatorJS.");
-    };
+    emulatorScript.onerror =
+        function () {
+            console.error(
+                "Não foi possível carregar o EmulatorJS."
+            );
+        };
 
-    document.body.appendChild(emulatorScript);
+    document.body.appendChild(
+        emulatorScript
+    );
 }
 
 
@@ -168,262 +228,505 @@ function iniciarEmulador(romURL, nomeArquivo) {
 // TELA CHEIA
 // =========================
 
-fullscreenButton.addEventListener("click", async function () {
-    const game = document.getElementById("game");
+fullscreenButton.addEventListener(
+    "click",
+    async function () {
 
-    if (!document.fullscreenElement) {
-        try {
-            // Entra em tela cheia.
-            await game.requestFullscreen();
+        const game =
+            document.getElementById("game");
 
-            // No celular, tenta usar a mesma orientação horizontal
-            // normalmente usada pelo botão de tela cheia do EmulatorJS.
-            if (screen.orientation && screen.orientation.lock) {
+        if (!document.fullscreenElement) {
+
+            try {
+
+                await game.requestFullscreen();
+
+                if (
+                    screen.orientation &&
+                    screen.orientation.lock
+                ) {
+
+                    try {
+
+                        await screen.orientation.lock(
+                            "landscape"
+                        );
+
+                    } catch (error) {
+
+                        console.warn(
+                            "Não foi possível travar a orientação em paisagem:",
+                            error
+                        );
+                    }
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Erro ao entrar em tela cheia:",
+                    error
+                );
+            }
+
+        } else {
+
+            if (
+                screen.orientation &&
+                screen.orientation.unlock
+            ) {
+
                 try {
-                    await screen.orientation.lock("landscape");
+
+                    screen.orientation.unlock();
+
                 } catch (error) {
-                    console.warn("Não foi possível travar a orientação em paisagem:", error);
+
+                    console.warn(
+                        "Não foi possível liberar a orientação:",
+                        error
+                    );
                 }
             }
-        } catch (error) {
-            console.error("Erro ao entrar em tela cheia:", error);
+
+            await document.exitFullscreen();
         }
-    } else {
-        // Libera a orientação antes de sair da tela cheia.
-        if (screen.orientation && screen.orientation.unlock) {
+    }
+);
+
+
+// =========================
+// SAIR DO FULLSCREEN
+// =========================
+
+document.addEventListener(
+    "fullscreenchange",
+    function () {
+
+        if (
+            !document.fullscreenElement &&
+            screen.orientation &&
+            screen.orientation.unlock
+        ) {
+
             try {
+
                 screen.orientation.unlock();
+
             } catch (error) {
-                console.warn("Não foi possível liberar a orientação:", error);
+
+                console.warn(
+                    "Não foi possível liberar a orientação:",
+                    error
+                );
             }
         }
-
-        await document.exitFullscreen();
     }
-});
-
-// Também libera a orientação se o usuário sair da tela cheia
-// pelo botão/gesto do próprio celular.
-document.addEventListener("fullscreenchange", function () {
-    if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
-        try {
-            screen.orientation.unlock();
-        } catch (error) {
-            console.warn("Não foi possível liberar a orientação:", error);
-        }
-    }
-});
+);
 
 
 // =========================
 // SALVAR STATE
 // =========================
 
-saveStateButton.addEventListener("click", async function () {
-    if (!window.EJS_emulator) {
-        alert("O emulador ainda não está carregado.");
-        return;
-    }
+saveStateButton.addEventListener(
+    "click",
+    async function () {
 
-    try {
-        let state =
-            await window.EJS_emulator.gameManager.getState();
+        if (!window.EJS_emulator) {
 
-        if (!state) {
-            alert("Não foi possível salvar o State.");
+            alert(
+                "O emulador ainda não está carregado."
+            );
+
             return;
         }
 
-        const blob = new Blob(
-            [state],
-            { type: "application/octet-stream" }
-        );
+        try {
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+            const state =
+                await window.EJS_emulator
+                    .gameManager
+                    .getState();
 
-        link.href = url;
-        link.download = criarNomeDoState();
+            if (!state) {
 
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+                alert(
+                    "Não foi possível salvar o State."
+                );
 
-        setTimeout(function () {
-            URL.revokeObjectURL(url);
-        }, 1000);
+                return;
+            }
 
-    } catch (error) {
-        console.error("Erro ao salvar State:", error);
-        alert("Não foi possível salvar o State.");
+            const blob =
+                new Blob(
+                    [state],
+                    {
+                        type:
+                            "application/octet-stream"
+                    }
+                );
+
+            const url =
+                URL.createObjectURL(
+                    blob
+                );
+
+            const link =
+                document.createElement(
+                    "a"
+                );
+
+            link.href = url;
+
+            link.download =
+                criarNomeDoState();
+
+            document.body.appendChild(
+                link
+            );
+
+            link.click();
+
+            document.body.removeChild(
+                link
+            );
+
+            setTimeout(
+                function () {
+
+                    URL.revokeObjectURL(
+                        url
+                    );
+
+                },
+                1000
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao salvar State:",
+                error
+            );
+
+            alert(
+                "Não foi possível salvar o State."
+            );
+        }
     }
-});
+);
 
 
 // =========================
 // CARREGAR STATE
 // =========================
 
-const stateInput = document.createElement("input");
+const stateInput =
+    document.createElement(
+        "input"
+    );
 
 stateInput.type = "file";
 stateInput.accept = ".state";
 stateInput.hidden = true;
 
-document.body.appendChild(stateInput);
+document.body.appendChild(
+    stateInput
+);
 
-loadStateButton.addEventListener("click", function () {
-    if (!window.EJS_emulator) {
-        alert("O emulador ainda não está carregado.");
-        return;
+loadStateButton.addEventListener(
+    "click",
+    function () {
+
+        if (!window.EJS_emulator) {
+
+            alert(
+                "O emulador ainda não está carregado."
+            );
+
+            return;
+        }
+
+        stateInput.value = "";
+        stateInput.click();
     }
+);
 
-    stateInput.value = "";
-    stateInput.click();
-});
+stateInput.addEventListener(
+    "change",
+    async function () {
 
-stateInput.addEventListener("change", async function () {
-    const file = stateInput.files[0];
+        const file =
+            stateInput.files[0];
 
-    if (!file) {
-        return;
+        if (!file) {
+            return;
+        }
+
+        try {
+
+            const state =
+                new Uint8Array(
+                    await file.arrayBuffer()
+                );
+
+            window.EJS_emulator
+                .gameManager
+                .loadState(state);
+
+            console.log(
+                "State carregado com sucesso."
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Erro ao carregar State:",
+                error
+            );
+
+            alert(
+                "Não foi possível carregar o State."
+            );
+        }
     }
-
-    try {
-        const state = new Uint8Array(
-            await file.arrayBuffer()
-        );
-
-        window.EJS_emulator.gameManager.loadState(state);
-
-        console.log("State carregado com sucesso.");
-
-    } catch (error) {
-        console.error("Erro ao carregar State:", error);
-        alert("Não foi possível carregar o State.");
-    }
-});
+);
 
 
 // =========================
-// CRIAR SLUG DA URL
+// SLUG DO JOGO
 // =========================
 
 function criarSlug(nome) {
+
     return nome
         .replace(/\.[^/.]+$/, "")
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        )
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+        .replace(
+            /[^a-z0-9]+/g,
+            "-"
+        )
+        .replace(
+            /^-+|-+$/g,
+            "");
 }
+
 
 // =========================
 // LISTAR JOGOS DA PASTA /file
 // =========================
 
 async function carregarListaDeJogos() {
+
     try {
-        // Descobre automaticamente o usuário e o repositório
-        // a partir do endereço do GitHub Pages.
-        const hostParts = window.location.hostname.split(".");
-        const usuario = hostParts[0];
 
-        const caminho = window.location.pathname
-            .split("/")
-            .filter(Boolean);
+        const partes =
+            window.location.pathname
+                .split("/")
+                .filter(Boolean);
 
-        const repositorio = caminho[0];
+        const usuario =
+            window.location.hostname
+                .split(".")[0];
 
-        if (!usuario || !repositorio) {
-            throw new Error("Não foi possível identificar o repositório.");
+        const repositorio =
+            partes[0];
+
+        if (
+            !usuario ||
+            !repositorio
+        ) {
+
+            throw new Error(
+                "Não foi possível identificar o repositório."
+            );
         }
 
         const apiURL =
             `https://api.github.com/repos/${usuario}/${repositorio}/contents/${GAMES_FOLDER}`;
 
-        const resposta = await fetch(apiURL);
+        const resposta =
+            await fetch(apiURL);
 
         if (!resposta.ok) {
+
             throw new Error(
                 `GitHub retornou HTTP ${resposta.status}`
             );
         }
 
-        const arquivos = await resposta.json();
+        const arquivos =
+            await resposta.json();
 
-        const jogos = arquivos.filter(function (arquivo) {
-            if (arquivo.type !== "file") {
-                return false;
-            }
+        const jogos =
+            arquivos.filter(
+                function (arquivo) {
 
-            const nome = arquivo.name.toLowerCase();
+                    if (
+                        arquivo.type !== "file"
+                    ) {
+                        return false;
+                    }
 
-            return (
-                nome.endsWith(".sfc") ||
-                nome.endsWith(".smc")
+                    const nome =
+                        arquivo.name.toLowerCase();
+
+                    return (
+                        nome.endsWith(".sfc") ||
+                        nome.endsWith(".smc") ||
+                        nome.endsWith(".zip")
+                    );
+                }
             );
-        });
 
-        gamesList.innerHTML = "";
+        jogos.sort(
+            function (a, b) {
 
-        if (jogos.length === 0) {
-            gamesList.innerHTML =
-                "<p>Nenhum jogo .sfc ou .smc encontrado na pasta file.</p>";
-            return;
-        }
+                return a.name.localeCompare(
+                    b.name
+                );
+            }
+        );
 
-        jogos.sort(function (a, b) {
-            return a.name.localeCompare(b.name);
-        });
+        // URL /emulator/nome-do-jogo
+        if (paginaDeJogoPorSlug) {
 
-        if (paginaDeJogoDaPasta) {
-            const jogo = jogos.find(function (arquivo) {
-                return criarSlug(arquivo.name) === slugAtual;
-            });
+            const jogo =
+                jogos.find(
+                    function (arquivo) {
+
+                        return (
+                            criarSlug(
+                                arquivo.name
+                            ) === slugAtual
+                        );
+                    }
+                );
 
             if (!jogo) {
-                pageTitle.textContent = "Jogo não encontrado";
-                gameMenu.style.display = "none";
-                document.getElementById("game").innerHTML =
+
+                pageTitle.textContent =
+                    "Jogo não encontrado";
+
+                gameMenu.style.display =
+                    "block";
+
+                document.getElementById(
+                    "game"
+                ).innerHTML =
                     "<p style='padding:20px;'>Não foi encontrada uma ROM correspondente a esta URL.</p>";
+
                 return;
             }
 
-            pageTitle.textContent = jogo.name.replace(/\.[^/.]+$/, "");
-            iniciarEmulador(jogo.download_url, jogo.name);
+            pageTitle.textContent =
+                jogo.name.replace(
+                    /\.[^/.]+$/,
+                    ""
+                );
+
+            iniciarEmulador(
+                jogo.download_url,
+                jogo.name
+            );
+
             return;
         }
 
-        jogos.forEach(function (jogo) {
-            const item = document.createElement("div");
-            item.className = "game-item";
+        // Página principal
+        gamesList.innerHTML = "";
 
-            const nome = document.createElement("span");
-            nome.className = "game-name";
-            nome.textContent = jogo.name;
+        if (jogos.length === 0) {
 
-            const botao = document.createElement("button");
-            botao.className = "button";
-            botao.textContent = "▶ Abrir";
+            gamesList.innerHTML =
+                "<p>Nenhum jogo .sfc, .smc ou .zip encontrado na pasta file.</p>";
 
-            botao.addEventListener("click", function () {
-                const slug = criarSlug(jogo.name);
-                history.pushState({}, "", obterBaseDoSite() + slug);
-                mostrarPaginaDoJogo();
-                pageTitle.textContent = jogo.name.replace(/\.[^/.]+$/, "");
-                iniciarEmulador(jogo.download_url, jogo.name);
-            });
+            return;
+        }
 
-            item.appendChild(nome);
-            item.appendChild(botao);
+        jogos.forEach(
+            function (jogo) {
 
-            gamesList.appendChild(item);
-        });
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+                item.className =
+                    "game-item";
+
+                const nome =
+                    document.createElement(
+                        "span"
+                    );
+
+                nome.className =
+                    "game-name";
+
+                nome.textContent =
+                    jogo.name;
+
+                const botao =
+                    document.createElement(
+                        "button"
+                    );
+
+                botao.className =
+                    "button";
+
+                botao.textContent =
+                    "▶ Abrir";
+
+                botao.addEventListener(
+                    "click",
+                    function () {
+
+                        const slug =
+                            criarSlug(
+                                jogo.name
+                            );
+
+                        history.pushState(
+                            {},
+                            "",
+                            obterBaseDoSite() +
+                                slug
+                        );
+
+                        mostrarPaginaDoJogo();
+
+                        pageTitle.textContent =
+                            jogo.name.replace(
+                                /\.[^/.]+$/,
+                                ""
+                            );
+
+                        iniciarEmulador(
+                            jogo.download_url,
+                            jogo.name
+                        );
+                    }
+                );
+
+                item.appendChild(nome);
+                item.appendChild(botao);
+
+                gamesList.appendChild(item);
+            }
+        );
 
     } catch (error) {
-        console.error("Erro ao procurar jogos:", error);
+
+        console.error(
+            "Erro ao procurar jogos:",
+            error
+        );
 
         gamesList.innerHTML =
             "<p>Não foi possível carregar a lista da pasta file.</p>";
@@ -432,30 +735,43 @@ async function carregarListaDeJogos() {
 
 
 // =========================
-// NOME DO STATE
-// Formato: Nome - AAMMDDHHMMSS.state
+// NOME DO SAVE
 // =========================
 
 function criarNomeDoState() {
-    const agora = new Date();
+
+    const agora =
+        new Date();
 
     const ano =
-        String(agora.getFullYear()).slice(-2);
+        String(
+            agora.getFullYear()
+        ).slice(-2);
 
     const mes =
-        String(agora.getMonth() + 1).padStart(2, "0");
+        String(
+            agora.getMonth() + 1
+        ).padStart(2, "0");
 
     const dia =
-        String(agora.getDate()).padStart(2, "0");
+        String(
+            agora.getDate()
+        ).padStart(2, "0");
 
     const hora =
-        String(agora.getHours()).padStart(2, "0");
+        String(
+            agora.getHours()
+        ).padStart(2, "0");
 
     const minuto =
-        String(agora.getMinutes()).padStart(2, "0");
+        String(
+            agora.getMinutes()
+        ).padStart(2, "0");
 
     const segundo =
-        String(agora.getSeconds()).padStart(2, "0");
+        String(
+            agora.getSeconds()
+        ).padStart(2, "0");
 
     return (
         nomeRomAtual +
@@ -472,19 +788,33 @@ function criarNomeDoState() {
 
 
 // =========================
-// OBTER NOME DO ARQUIVO
+// NOME DE ARQUIVO DA URL
 // =========================
 
 function obterNomeArquivo(url) {
+
     try {
-        const endereco = new URL(url);
-        const nome = endereco.pathname.split("/").pop();
+
+        const endereco =
+            new URL(url);
+
+        const nome =
+            endereco.pathname
+                .split("/")
+                .pop();
 
         if (nome) {
-            return decodeURIComponent(nome);
+
+            return decodeURIComponent(
+                nome
+            );
         }
+
     } catch (error) {
-        console.warn("Não foi possível obter o nome da URL.");
+
+        console.warn(
+            "Não foi possível obter o nome da URL."
+        );
     }
 
     return "Jogo";
@@ -492,22 +822,24 @@ function obterNomeArquivo(url) {
 
 
 // =========================
-// INICIAR LISTA DE JOGOS
-// =========================
-
-carregarListaDeJogos();
-
-
-// =========================
 // MOSTRAR PÁGINA DO JOGO
 // =========================
 
 function mostrarPaginaDoJogo() {
-    mainMenu.style.display = "none";
-    gamesSection.style.display = "none";
-    gameMenu.style.display = "block";
+
+    mainMenu.style.display =
+        "none";
+
+    gamesSection.style.display =
+        "none";
+
+    gameMenu.style.display =
+        "block";
 }
 
-window.addEventListener("popstate", function () {
-    window.location.reload();
-});
+
+// =========================
+// INICIAR
+// =========================
+
+carregarListaDeJogos();
