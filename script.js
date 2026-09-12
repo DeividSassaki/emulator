@@ -124,41 +124,49 @@ function iniciarEmulador(romURL, nomeArquivo) {
 // TELA CHEIA
 // =========================
 
-fullscreenButton.addEventListener("click", function () {
+fullscreenButton.addEventListener("click", async function () {
     const game = document.getElementById("game");
 
     if (!document.fullscreenElement) {
-        game.requestFullscreen().catch(function (error) {
+        try {
+            // Entra em tela cheia.
+            await game.requestFullscreen();
+
+            // No celular, tenta usar a mesma orientação horizontal
+            // normalmente usada pelo botão de tela cheia do EmulatorJS.
+            if (screen.orientation && screen.orientation.lock) {
+                try {
+                    await screen.orientation.lock("landscape");
+                } catch (error) {
+                    console.warn("Não foi possível travar a orientação em paisagem:", error);
+                }
+            }
+        } catch (error) {
             console.error("Erro ao entrar em tela cheia:", error);
-        });
+        }
     } else {
-        document.exitFullscreen();
+        // Libera a orientação antes de sair da tela cheia.
+        if (screen.orientation && screen.orientation.unlock) {
+            try {
+                screen.orientation.unlock();
+            } catch (error) {
+                console.warn("Não foi possível liberar a orientação:", error);
+            }
+        }
+
+        await document.exitFullscreen();
     }
 });
 
-
-// =========================
-// RESTAURAR TAMANHO APÓS TELA CHEIA
-// =========================
-
-// O EmulatorJS pode manter o tamanho calculado para a tela cheia.
-// Ao sair, limpamos os tamanhos aplicados e pedimos um novo ajuste.
+// Também libera a orientação se o usuário sair da tela cheia
+// pelo botão/gesto do próprio celular.
 document.addEventListener("fullscreenchange", function () {
-    if (!document.fullscreenElement) {
-        const game = document.getElementById("game");
-
-        setTimeout(function () {
-            game.style.width = "";
-            game.style.height = "";
-            game.style.maxWidth = "";
-            game.style.maxHeight = "";
-
-            window.dispatchEvent(new Event("resize"));
-        }, 300);
-
-        setTimeout(function () {
-            window.dispatchEvent(new Event("resize"));
-        }, 700);
+    if (!document.fullscreenElement && screen.orientation && screen.orientation.unlock) {
+        try {
+            screen.orientation.unlock();
+        } catch (error) {
+            console.warn("Não foi possível liberar a orientação:", error);
+        }
     }
 });
 
