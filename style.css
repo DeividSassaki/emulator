@@ -157,3 +157,9 @@ h1 {
     }
 }
 
+
+@media (max-width: 600px) {
+    .game-controls { display: block; margin-top: 12px; text-align: center; }
+
+.studio-title { font-size: 34px; font-weight: bold; margin-bottom: 6px; }
+}
