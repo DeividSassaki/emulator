@@ -99,6 +99,16 @@ openUrlButton.addEventListener("click", async function () {
         );
     }
 });
+// =========================
+// ABRIR ROM PELO LINK ?rom=
+// =========================
+
+const parametros = new URLSearchParams(window.location.search);
+const romPorLink = parametros.get("rom");
+
+if (romPorLink) {
+    iniciarEmulador(romPorLink, obterNomeArquivo(romPorLink));
+}
 
 
 // =========================
