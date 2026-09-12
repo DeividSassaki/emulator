@@ -40,8 +40,8 @@ const slugAtual = obterSlugDaPagina();
 const parametros = new URLSearchParams(window.location.search);
 const romPorLink = parametros.get("rom");
 
-const paginaDeJogo =
-    slugAtual !== "" || romPorLink !== "";
+const paginaDeJogo = slugAtual !== "" || romPorLink !== "";
+const paginaDeJogoDaPasta = slugAtual !== "";
 
 if (paginaDeJogo) {
     mainMenu.style.display = "none";
@@ -108,7 +108,12 @@ openUrlButton.addEventListener("click", async function () {
 // ABRIR ROM PELO LINK ?rom=
 // =========================
 
+// Para ROM externa, não procuramos o jogo na pasta /file.
+// A própria URL já informa onde está a ROM.
 if (romPorLink) {
+    pageTitle.textContent =
+        obterNomeArquivo(romPorLink).replace(/\.[^/.]+$/, "");
+
     iniciarEmulador(
         romPorLink,
         obterNomeArquivo(romPorLink)
@@ -373,7 +378,7 @@ async function carregarListaDeJogos() {
             return a.name.localeCompare(b.name);
         });
 
-        if (paginaDeJogo) {
+        if (paginaDeJogoDaPasta) {
             const jogo = jogos.find(function (arquivo) {
                 return criarSlug(arquivo.name) === slugAtual;
             });
