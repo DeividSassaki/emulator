@@ -105,12 +105,20 @@ h1 {
 }
 
 #game {
+    position: relative;
     width: 100%;
-    height: auto;
-    min-height: 500px;
+    aspect-ratio: 4 / 3;
     background: #000;
     border-radius: 8px;
     overflow: hidden;
+}
+
+#game canvas,
+#game video,
+#game iframe {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
 }
 
 #game:fullscreen {
@@ -152,9 +160,6 @@ h1 {
         text-align: center;
     }
 
-    #game {
-        min-height: 300px;
-    }
 }
 
 
