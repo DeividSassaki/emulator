@@ -43,12 +43,10 @@ const romPorLink = parametros.get("rom");
 const paginaDeJogo = slugAtual !== "" || romPorLink !== "";
 const paginaDeJogoDaPasta = slugAtual !== "";
 
-// Os controles de emulação ficam disponíveis em todas as páginas.
-gameMenu.style.display = "block";
-
 if (paginaDeJogo) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
 }
 
 // =========================
