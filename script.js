@@ -36,7 +36,12 @@ function obterSlugDaPagina() {
 }
 
 const slugAtual = obterSlugDaPagina();
-const paginaDeJogo = slugAtual !== "";
+
+const parametros = new URLSearchParams(window.location.search);
+const romPorLink = parametros.get("rom");
+
+const paginaDeJogo =
+    slugAtual !== "" || romPorLink !== "";
 
 if (paginaDeJogo) {
     mainMenu.style.display = "none";
@@ -103,11 +108,11 @@ openUrlButton.addEventListener("click", async function () {
 // ABRIR ROM PELO LINK ?rom=
 // =========================
 
-const parametros = new URLSearchParams(window.location.search);
-const romPorLink = parametros.get("rom");
-
 if (romPorLink) {
-    iniciarEmulador(romPorLink, obterNomeArquivo(romPorLink));
+    iniciarEmulador(
+        romPorLink,
+        obterNomeArquivo(romPorLink)
+    );
 }
 
 
