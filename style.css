@@ -114,8 +114,10 @@ h1 {
 
 #game {
     position: relative;
-    width: 50%;
+    width: 640px;
+    max-width: 100%;
     aspect-ratio: 4 / 3;
+    margin: 20px auto 0;
     background: #000;
     border-radius: 8px;
     overflow: hidden;
@@ -171,6 +173,8 @@ h1 {
     }
 
     #game {
+        width: 100%;
         aspect-ratio: 4 / 3;
+        margin-top: 15px;
     }
 }

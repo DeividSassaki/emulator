@@ -65,8 +65,8 @@ const paginaComRomExterna =
 // CONTROLES
 // =========================
 
-// Os três controles do emulador aparecem sempre.
-gameMenu.style.display = "block";
+// Os controles do emulador só aparecem quando existe um jogo aberto.
+gameMenu.style.display = "none";
 
 // Em páginas de jogo, escondemos apenas os controles
 // exclusivos da página principal.
@@ -114,9 +114,23 @@ openUrlButton.addEventListener(
             return;
         }
 
+        const nome = obterNomeArquivo(url);
+        const slug = criarSlug(nome);
+
+        // A URL externa abre uma página própria do jogo.
+        history.pushState(
+            {},
+            "",
+            obterBaseDoSite() + slug + "?rom=" + encodeURIComponent(url)
+        );
+
+        mainMenu.style.display = "none";
+        gamesSection.style.display = "none";
+        pageTitle.textContent = nome.replace(/\.[^/.]+$/, "");
+
         iniciarEmulador(
             url,
-            obterNomeArquivo(url)
+            nome
         );
     }
 );
@@ -158,6 +172,9 @@ function iniciarEmulador(
         document.getElementById("game");
 
     game.innerHTML = "";
+
+    // Ao abrir um jogo, mostra somente os controles do emulador.
+    gameMenu.style.display = "block";
 
     nomeRomAtual =
         nomeArquivo.replace(
@@ -836,6 +853,12 @@ function mostrarPaginaDoJogo() {
     gameMenu.style.display =
         "block";
 }
+
+
+// Voltar/avançar no navegador atualiza a interface.
+window.addEventListener("popstate", function () {
+    window.location.reload();
+});
 
 
 // =========================
