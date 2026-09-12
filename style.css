@@ -114,7 +114,7 @@ h1 {
 
 #game {
     position: relative;
-    width: 100%;
+    width: 50%;
     aspect-ratio: 4 / 3;
     background: #000;
     border-radius: 8px;
