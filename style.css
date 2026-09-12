@@ -6,28 +6,22 @@
 
 body {
     min-height: 100vh;
-
     background: #111;
     color: white;
-
     font-family: Arial, sans-serif;
-
     display: flex;
     justify-content: center;
-
     padding: 20px;
 }
 
 .container {
     width: 100%;
     max-width: 1000px;
-
     text-align: center;
 }
 
 h1 {
     margin-bottom: 20px;
-
     font-size: 32px;
 }
 
@@ -35,18 +29,31 @@ h1 {
     margin-bottom: 20px;
 }
 
+.url-rom {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.url-rom input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+}
+
 .button {
     display: inline-block;
-
     padding: 12px 22px;
-
+    margin: 4px;
     background: #333;
     color: white;
-
+    border: none;
     border-radius: 6px;
-
     cursor: pointer;
-
     font-size: 16px;
 }
 
@@ -54,21 +61,59 @@ h1 {
     background: #555;
 }
 
+.games-section {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.games-section h2 {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 22px;
+}
+
+#gamesList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #222;
+    border-radius: 6px;
+}
+
+.game-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-item .button {
+    margin: 0;
+    padding: 8px 14px;
+    flex-shrink: 0;
+}
+
 #game {
     width: 100%;
     height: auto;
-
     min-height: 500px;
-
     background: #000;
-
     border-radius: 8px;
-
     overflow: hidden;
 }
 
-
-/* Celular */
+#game:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+}
 
 @media (max-width: 600px) {
 
@@ -80,8 +125,30 @@ h1 {
         font-size: 24px;
     }
 
+    .url-rom {
+        flex-direction: column;
+    }
+
+    .url-rom input {
+        width: 100%;
+    }
+
+    .button {
+        width: 100%;
+        margin: 4px 0;
+    }
+
+    .game-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .game-name {
+        white-space: normal;
+        text-align: center;
+    }
+
     #game {
         min-height: 300px;
     }
-
 }
