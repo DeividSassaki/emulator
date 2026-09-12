@@ -173,8 +173,6 @@ h1 {
     }
 
     #game {
-        width: 100%;
         aspect-ratio: 4 / 3;
-        margin-top: 15px;
     }
 }

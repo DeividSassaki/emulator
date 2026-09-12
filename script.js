@@ -65,14 +65,18 @@ const paginaComRomExterna =
 // CONTROLES
 // =========================
 
-// Os controles do emulador só aparecem quando existe um jogo aberto.
-gameMenu.style.display = "none";
+// Na página principal mostramos os controles de abertura.
+// Nas páginas de jogo mostramos apenas os controles do emulador.
+const paginaDeJogo = paginaDeJogoPorSlug || paginaComRomExterna;
 
-// Em páginas de jogo, escondemos apenas os controles
-// exclusivos da página principal.
-if (paginaDeJogoPorSlug || paginaComRomExterna) {
+if (paginaDeJogo) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
+} else {
+    mainMenu.style.display = "block";
+    gameMenu.style.display = "none";
+    document.getElementById("game").style.display = "none";
 }
 
 
@@ -114,23 +118,9 @@ openUrlButton.addEventListener(
             return;
         }
 
-        const nome = obterNomeArquivo(url);
-        const slug = criarSlug(nome);
-
-        // A URL externa abre uma página própria do jogo.
-        history.pushState(
-            {},
-            "",
-            obterBaseDoSite() + slug + "?rom=" + encodeURIComponent(url)
-        );
-
-        mainMenu.style.display = "none";
-        gamesSection.style.display = "none";
-        pageTitle.textContent = nome.replace(/\.[^/.]+$/, "");
-
         iniciarEmulador(
             url,
-            nome
+            obterNomeArquivo(url)
         );
     }
 );
@@ -172,8 +162,7 @@ function iniciarEmulador(
         document.getElementById("game");
 
     game.innerHTML = "";
-
-    // Ao abrir um jogo, mostra somente os controles do emulador.
+    game.style.display = "block";
     gameMenu.style.display = "block";
 
     nomeRomAtual =
@@ -844,21 +833,11 @@ function obterNomeArquivo(url) {
 
 function mostrarPaginaDoJogo() {
 
-    mainMenu.style.display =
-        "none";
-
-    gamesSection.style.display =
-        "none";
-
-    gameMenu.style.display =
-        "block";
+    mainMenu.style.display = "none";
+    gamesSection.style.display = "none";
+    gameMenu.style.display = "block";
+    document.getElementById("game").style.display = "block";
 }
-
-
-// Voltar/avançar no navegador atualiza a interface.
-window.addEventListener("popstate", function () {
-    window.location.reload();
-});
 
 
 // =========================
