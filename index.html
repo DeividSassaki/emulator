@@ -14,9 +14,9 @@
 
     <div class="container">
 
-        <h1>SNES Emulator</h1>
+        <h1 id="pageTitle">SNES Emulator</h1>
 
-        <div class="menu">
+        <div id="mainMenu" class="menu">
 
             <div class="url-rom">
                 <input
@@ -41,6 +41,8 @@
                 hidden
             >
 
+            <div id="gameMenu" class="game-controls">
+
             <button id="fullscreenButton" class="button">
                 ⛶ Tela cheia
             </button>
@@ -53,9 +55,11 @@
                 📂 Carregar State
             </button>
 
+            </div>
+
         </div>
 
-        <section class="games-section">
+        <section id="gamesSection" class="games-section">
             <h2>Jogos disponíveis</h2>
             <div id="gamesList">
                 <p>Carregando jogos...</p>
