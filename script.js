@@ -94,7 +94,7 @@ openUrlButton.addEventListener("click", async function () {
         console.error("Erro ao baixar a ROM:", error);
 
         alert(
-            "Não foi possível baixar a ROM pela URL.\n\n" +
+            "Não foi possível baixar a ROM pela URL.\\n\\n" +
             "Veja o Console (F12) para mais detalhes."
         );
     }
