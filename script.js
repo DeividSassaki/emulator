@@ -14,6 +14,7 @@ const gamesList = document.getElementById("gamesList");
 const mainMenu = document.getElementById("mainMenu");
 const gameMenu = document.getElementById("gameMenu");
 const gamesSection = document.getElementById("gamesSection");
+const showGamesButton = document.getElementById("showGamesButton");
 const pageTitle = document.getElementById("pageTitle");
 
 const GAMES_FOLDER = "file";
@@ -73,11 +74,22 @@ if (paginaDeJogo) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
     gameMenu.style.display = "block";
+    document.getElementById("game").style.display = "block";
 } else {
     mainMenu.style.display = "block";
     gameMenu.style.display = "none";
+    gamesSection.style.display = "none";
     document.getElementById("game").style.display = "none";
 }
+
+// Mostra/oculta a lista de jogos da pasta file
+showGamesButton.addEventListener("click", function () {
+    const aberta = gamesSection.style.display !== "none";
+    gamesSection.style.display = aberta ? "none" : "block";
+    showGamesButton.textContent = aberta
+        ? "📁 Escolher ROM da pasta file"
+        : "📁 Ocultar jogos da pasta file";
+});
 
 
 // =========================
