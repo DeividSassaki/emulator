@@ -192,7 +192,7 @@ folderButton.addEventListener("click", function () {
 
 if (romPorLink) {
 
-    pageTitle.textContent =
+    Title.textContent =
         obterNomeArquivo(
             romPorLink
         ).replace(
@@ -693,10 +693,10 @@ async function carregarListaDeJogos() {
             }
 
             pageTitle.textContent =
-                jogo.name.replace(
-                    /\.[^/.]+$/,
-                    ""
-                );
+                jogo.name
+                    .replace(/\.[^/.]+$/, "")
+                    .replace(/\s*\([^)]*\)/g, "")
+                    .trim();
 
             iniciarEmulador(
                 jogo.download_url,
@@ -769,10 +769,10 @@ async function carregarListaDeJogos() {
                         mostrarPaginaDoJogo();
 
                         pageTitle.textContent =
-                            jogo.name.replace(
-                                /\.[^/.]+$/,
-                                ""
-                            );
+                            jogo.name
+                                .replace(/\.[^/.]+$/, "")
+                                .replace(/\s*\([^)]*\)/g, "")
+                                .trim();
 
                         iniciarEmulador(
                             jogo.download_url,
