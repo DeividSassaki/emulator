@@ -66,18 +66,20 @@ const paginaComRomExterna =
 // CONTROLES
 // =========================
 
-// Na página inicial mostramos somente os controles para escolher uma ROM.
-// Os controles do emulador aparecem depois que uma ROM é aberta.
-gameMenu.style.display = "none";
-
+// Na página inicial mostramos apenas os controles para escolher uma ROM.
+// Em páginas de jogo ou com ?rom= mostramos apenas o emulador e seus 3 controles.
 const game = document.getElementById("game");
-game.style.display = "none";
 
-// Em páginas de jogo, escondemos apenas os controles
-// exclusivos da página principal.
 if (paginaDeJogoPorSlug || paginaComRomExterna) {
     mainMenu.style.display = "none";
     gamesSection.style.display = "none";
+    game.style.display = "block";
+    gameMenu.style.display = "block";
+} else {
+    mainMenu.style.display = "block";
+    gamesSection.style.display = "none";
+    game.style.display = "none";
+    gameMenu.style.display = "none";
 }
 
 
@@ -98,15 +100,23 @@ romInput.addEventListener("change", function () {
         romURL,
         file.name
     );
-
-    mainMenu.style.display = "none";
 });
 
-// Mostrar/ocultar as ROMs que estão na pasta /file.
-fileGamesButton.addEventListener("click", function () {
-    gamesSection.style.display =
-        gamesSection.style.display === "none" ? "block" : "none";
-});
+
+// =========================
+// ESCOLHER ROM DA PASTA FILE
+// =========================
+
+if (fileGamesButton) {
+    fileGamesButton.addEventListener("click", function () {
+        const abrir = gamesSection.style.display === "none";
+        gamesSection.style.display = abrir ? "block" : "none";
+
+        if (abrir) {
+            gamesSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    });
+}
 
 
 // =========================
@@ -131,8 +141,6 @@ openUrlButton.addEventListener(
             url,
             obterNomeArquivo(url)
         );
-
-        mainMenu.style.display = "none";
     }
 );
 
@@ -172,9 +180,13 @@ function iniciarEmulador(
     const game =
         document.getElementById("game");
 
-    game.innerHTML = "";
+    // Uma ROM foi aberta: esconder o menu principal e mostrar o emulador.
+    mainMenu.style.display = "none";
+    gamesSection.style.display = "none";
     game.style.display = "block";
     gameMenu.style.display = "block";
+
+    game.innerHTML = "";
 
     nomeRomAtual =
         nomeArquivo.replace(
@@ -852,6 +864,8 @@ function mostrarPaginaDoJogo() {
 
     gameMenu.style.display =
         "block";
+
+    game.style.display = "block";
 }
 
 

@@ -68,27 +68,9 @@ h1 {
 }
 
 .game-controls {
-    display: none;
+    display: block;
     margin-top: 12px;
     text-align: center;
-}
-
-#game {
-    display: none;
-    width: 640px;
-    height: 480px;
-    max-width: 100%;
-    margin: 20px auto 0;
-    background: #000;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-#game:fullscreen {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    border-radius: 0;
 }
 
 .games-section {
@@ -130,6 +112,24 @@ h1 {
     flex-shrink: 0;
 }
 
+#game {
+    position: relative;
+    display: none;
+    width: 640px;
+    height: 480px;
+    max-width: 100%;
+    margin: 20px auto 0;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#game:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
+    border-radius: 0;
+}
 
 @media (max-width: 600px) {
 
@@ -169,8 +169,12 @@ h1 {
     }
 
     .game-controls {
-        display: flex;
         flex-direction: column;
     }
 
+    #game {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 4 / 3;
+    }
 }
