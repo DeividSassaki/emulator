@@ -59,7 +59,42 @@ const paginaDeJogoPorSlug =
     slugAtual !== "";
 
 const paginaComRomExterna =
-    romPorLink !== "";
+    Boolean(romPorLink);
+
+// =========================
+// NORMALIZAR URLS DO ARCHIVE.ORG
+// =========================
+
+function normalizarUrlRom(url) {
+    try {
+        const u = new URL(url);
+
+        // O endpoint /cors/ do Archive.org permite que o navegador
+        // faça a requisição cross-origin em arquivos diretos.
+        // Não alteramos URLs de arquivos dentro de ZIPs.
+        if (u.hostname === "archive.org" && u.pathname.startsWith("/download/")) {
+            const partes = u.pathname.split("/").filter(Boolean);
+
+            if (partes.length >= 3) {
+                const caminhoArquivo = partes.slice(2).join("/");
+                const caminhoMaiusculo = decodeURIComponent(caminhoArquivo).toUpperCase();
+
+                // Arquivo direto: .../download/id/jogo.smc
+                // Arquivo dentro de ZIP: .../download/id/arquivo.ZIP/jogo.smc
+                const arquivoDireto = !caminhoMaiusculo.includes(".ZIP/");
+
+                if (arquivoDireto) {
+                    u.pathname = "/cors/" + partes.slice(1).join("/");
+                    return u.toString();
+                }
+            }
+        }
+    } catch (e) {
+        // Mantém a URL original quando ela não for uma URL válida.
+    }
+
+    return url;
+}
 
 
 // =========================
@@ -122,7 +157,7 @@ openUrlButton.addEventListener(
     function () {
 
         const url =
-            romUrlInput.value.trim();
+            normalizarUrlRom(romUrlInput.value.trim());
 
         if (!url) {
             alert(
@@ -166,7 +201,7 @@ if (romPorLink) {
         );
 
     iniciarEmulador(
-        romPorLink,
+        normalizarUrlRom(romPorLink),
         obterNomeArquivo(
             romPorLink
         )

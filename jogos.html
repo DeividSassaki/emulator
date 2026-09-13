@@ -46,6 +46,24 @@ const base = (() => {
   return p.length ? '/' + p[0] + '/' : '/';
 })();
 const folderUrl = 'https://api.github.com/repos/' + location.hostname.split('.')[0] + '/' + base.split('/').filter(Boolean)[0] + '/contents/file';
+
+function normalizarUrlRom(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname === 'archive.org' && u.pathname.startsWith('/download/')) {
+      const partes = u.pathname.split('/').filter(Boolean);
+      if (partes.length >= 3) {
+        const caminho = decodeURIComponent(partes.slice(2).join('/')).toUpperCase();
+        if (!caminho.includes('.ZIP/')) {
+          u.pathname = '/cors/' + partes.slice(1).join('/');
+          return u.toString();
+        }
+      }
+    }
+  } catch (e) {}
+  return url;
+}
+
 const menu = document.getElementById('launcherMenu');
 const gameWrap = document.getElementById('launcherGame');
 const game = document.getElementById('launcherEmulator');
@@ -77,7 +95,7 @@ function showGame(romUrl, romName) {
 }
 
 document.getElementById('launcherOpenUrl').onclick = () => {
-  const url = document.getElementById('launcherUrl').value.trim();
+  const url = normalizarUrlRom(document.getElementById('launcherUrl').value.trim());
   if (!url) return alert('Cole a URL da ROM primeiro.');
   // Usa a página de emulador que já funciona com ?rom=
   location.href = base + '?rom=' + encodeURIComponent(url);
