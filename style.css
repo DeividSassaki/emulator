@@ -114,13 +114,17 @@ h1 {
 
 #game {
     position: relative;
-    width: 640px;
-    max-width: 100%;
+    width: min(640px, 100%);
+    height: min(480px, 75vw);
     margin: 0 auto;
-    aspect-ratio: 4 / 3;
     background: #000;
     border-radius: 8px;
     overflow: hidden;
+}
+
+#game > * {
+    max-width: 100% !important;
+    max-height: 100% !important;
 }
 
 #game:fullscreen {
@@ -173,6 +177,7 @@ h1 {
     }
 
     #game {
-        aspect-ratio: 4 / 3;
+        width: 100%;
+        height: calc(min(480px, 75vw));
     }
 }

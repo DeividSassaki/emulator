@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SNES Emulator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260912a">
 </head>
 
 <body>
@@ -16,7 +16,7 @@
         <h1 id="pageTitle">SNES Emulator</h1>
 
         <!-- CONTROLES DA PÁGINA PRINCIPAL -->
-        <div id="mainMenu" class="menu">
+        <div id="mainMenu" class="menu" style="display:block !important;">
 
             <div class="url-rom">
                 <input
@@ -45,7 +45,7 @@
                 📁 Escolher ROM da pasta file
             </button>
 
-            <section id="gamesSection" class="games-section">
+            <section id="gamesSection" class="games-section" style="display:none;">
                 <h2>Jogos disponíveis</h2>
 
                 <div id="gamesList">
@@ -56,10 +56,10 @@
         </div>
 
         <!-- ÁREA DO EMULADOR -->
-        <div id="game"></div>
+        <div id="game" style="display:none;"></div>
 
         <!-- ESTES 3 BOTÕES FICAM EM TODAS AS PÁGINAS -->
-        <div id="gameMenu" class="game-controls">
+        <div id="gameMenu" class="game-controls" style="display:none;">
 
             <button id="fullscreenButton" class="button">
                 ⛶ Tela cheia
@@ -77,7 +77,7 @@
 
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=20260912a"></script>
 
 </body>
 </html>

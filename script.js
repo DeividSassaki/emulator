@@ -71,17 +71,17 @@ const paginaComRomExterna =
 const gameElement = document.getElementById("game");
 
 function mostrarPaginaPrincipal() {
-    mainMenu.style.display = "block";
-    gamesSection.style.display = "none";
-    gameMenu.style.display = "none";
-    gameElement.style.display = "none";
+    mainMenu.style.setProperty("display", "block", "important");
+    gamesSection.style.setProperty("display", "none", "important");
+    gameMenu.style.setProperty("display", "none", "important");
+    gameElement.style.setProperty("display", "none", "important");
 }
 
 function mostrarPaginaDoJogo() {
-    mainMenu.style.display = "none";
-    gamesSection.style.display = "none";
-    gameMenu.style.display = "block";
-    gameElement.style.display = "block";
+    mainMenu.style.setProperty("display", "none", "important");
+    gamesSection.style.setProperty("display", "none", "important");
+    gameMenu.style.setProperty("display", "block", "important");
+    gameElement.style.setProperty("display", "block", "important");
 }
 
 if (paginaDeJogoPorSlug || paginaComRomExterna) {
@@ -146,7 +146,7 @@ openUrlButton.addEventListener(
 // =========================
 
 folderButton.addEventListener("click", function () {
-    gamesSection.style.display = "block";
+    gamesSection.style.setProperty("display", "block", "important");
     carregarListaDeJogos();
 });
 
