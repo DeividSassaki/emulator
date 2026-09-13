@@ -181,3 +181,32 @@ h1 {
         height: calc(min(480px, 75vw));
     }
 }
+
+
+.launcher-menu {
+    margin-bottom: 24px;
+}
+
+.launcher-menu .button {
+    min-width: 220px;
+}
+
+.back-button {
+    margin-top: 16px;
+}
+
+#launcherEmulator {
+    position: relative;
+    width: min(640px, 100%);
+    height: min(480px, 75vw);
+    margin: 0 auto;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#launcherEmulator:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+}

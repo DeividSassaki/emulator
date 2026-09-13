@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VC Studio - Jogos</title>
+  <link rel="stylesheet" href="style.css?v=20260912jogos">
+</head>
+<body>
+  <div class="container">
+    <div class="studio-title">VC Studio</div>
+    <h1>Jogos</h1>
+
+    <div id="launcherMenu" class="menu launcher-menu">
+      <div class="url-rom">
+        <input id="launcherUrl" type="text" placeholder="Cole aqui a URL da ROM">
+        <button id="launcherOpenUrl" class="button">🔗 Abrir URL</button>
+      </div>
+
+      <label for="launcherFile" class="button">🎮 Carregar ROM</label>
+      <input id="launcherFile" type="file" accept=".sfc,.smc,.zip" hidden>
+
+      <button id="launcherFolder" class="button">📁 Escolher ROM da pasta file</button>
+
+      <section id="launcherGames" class="games-section" hidden>
+        <h2>Jogos disponíveis</h2>
+        <div id="launcherGamesList"><p>Carregando jogos...</p></div>
+      </section>
+    </div>
+
+    <div id="launcherGame" hidden>
+      <h1 id="launcherTitle">SNES Emulator</h1>
+      <div id="launcherEmulator"></div>
+      <div class="game-controls">
+        <button id="launcherFullscreen" class="button">⛶ Tela cheia</button>
+        <button id="launcherSave" class="button">💾 Save State</button>
+        <button id="launcherLoad" class="button">📂 Load State</button>
+      </div>
+      <button id="backToGames" class="button back-button">← Voltar aos jogos</button>
+    </div>
+  </div>
+
+<script>
+const base = (() => {
+  const p = location.pathname.split('/').filter(Boolean);
+  return p.length ? '/' + p[0] + '/' : '/';
+})();
+const folderUrl = 'https://api.github.com/repos/' + location.hostname.split('.')[0] + '/' + base.split('/').filter(Boolean)[0] + '/contents/file';
+const menu = document.getElementById('launcherMenu');
+const gameWrap = document.getElementById('launcherGame');
+const game = document.getElementById('launcherEmulator');
+const title = document.getElementById('launcherTitle');
+const listSection = document.getElementById('launcherGames');
+const list = document.getElementById('launcherGamesList');
+let emulatorScript = null;
+let currentRomName = 'snes';
+
+function showGame(romUrl, romName) {
+  menu.hidden = true;
+  gameWrap.hidden = false;
+  game.hidden = false;
+  game.innerHTML = '';
+  currentRomName = romName.replace(/\.[^/.]+$/, '');
+  title.textContent = currentRomName;
+  window.EJS_player = '#launcherEmulator';
+  window.EJS_gameName = currentRomName;
+  window.EJS_gameUrl = romUrl;
+  window.EJS_core = 'snes';
+  window.EJS_mouse = false;
+  window.EJS_multitap = false;
+  window.EJS_startOnLoaded = true;
+  window.EJS_pathtodata = 'https://cdn.emulatorjs.org/4.2.2/data/';
+  if (emulatorScript) emulatorScript.remove();
+  emulatorScript = document.createElement('script');
+  emulatorScript.src = 'https://cdn.emulatorjs.org/4.2.2/data/loader.js';
+  document.body.appendChild(emulatorScript);
+}
+
+document.getElementById('launcherOpenUrl').onclick = () => {
+  const url = document.getElementById('launcherUrl').value.trim();
+  if (!url) return alert('Cole a URL da ROM primeiro.');
+  // Usa a página de emulador que já funciona com ?rom=
+  location.href = base + '?rom=' + encodeURIComponent(url);
+};
+
+document.getElementById('launcherFile').onchange = e => {
+  const file = e.target.files[0];
+  if (file) showGame(URL.createObjectURL(file), file.name);
+};
+
+document.getElementById('launcherFolder').onclick = async () => {
+  listSection.hidden = false;
+  list.innerHTML = '<p>Carregando jogos...</p>';
+  try {
+    const r = await fetch(folderUrl);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const files = (await r.json()).filter(f => f.type === 'file' && /\.(sfc|smc|zip)$/i.test(f.name));
+    files.sort((a,b) => a.name.localeCompare(b.name));
+    list.innerHTML = '';
+    if (!files.length) { list.innerHTML = '<p>Nenhum jogo encontrado na pasta file.</p>'; return; }
+    for (const f of files) {
+      const row = document.createElement('div');
+      row.className = 'game-item';
+      const name = document.createElement('span');
+      name.className = 'game-name';
+      name.textContent = f.name;
+      const btn = document.createElement('button');
+      btn.className = 'button';
+      btn.textContent = '▶ Abrir';
+      btn.onclick = () => location.href = base + '?rom=' + encodeURIComponent(f.download_url);
+      row.append(name, btn);
+      list.appendChild(row);
+    }
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = '<p>Não foi possível carregar a pasta file.</p>';
+  }
+};
+
+document.getElementById('backToGames').onclick = () => location.href = base + 'jogos.html';
+document.getElementById('launcherFullscreen').onclick = async () => {
+  if (!document.fullscreenElement) {
+    try { await game.requestFullscreen(); try { await screen.orientation?.lock?.('landscape'); } catch(e){} } catch(e) { console.error(e); }
+  } else { screen.orientation?.unlock?.(); await document.exitFullscreen(); }
+};
+document.getElementById('launcherSave').onclick = async () => {
+  if (!window.EJS_emulator) return alert('O emulador ainda não está carregado.');
+  try {
+    const state = await window.EJS_emulator.gameManager.getState();
+    const blob = new Blob([state], {type:'application/octet-stream'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    const d = new Date(); const ts = String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+String(d.getSeconds()).padStart(2,'0');
+    a.download = currentRomName + ' - ' + ts + '.state';
+    a.click(); URL.revokeObjectURL(url);
+  } catch(e) { console.error(e); alert('Não foi possível salvar o State.'); }
+};
+const stateInput = document.createElement('input'); stateInput.type='file'; stateInput.accept='.state'; stateInput.hidden=true; document.body.appendChild(stateInput);
+document.getElementById('launcherLoad').onclick = () => { if (!window.EJS_emulator) return alert('O emulador ainda não está carregado.'); stateInput.value=''; stateInput.click(); };
+stateInput.onchange = async () => { const f=stateInput.files[0]; if(!f) return; try { const s=new Uint8Array(await f.arrayBuffer()); window.EJS_emulator.gameManager.loadState(s); } catch(e) { console.error(e); alert('Não foi possível carregar o State.'); } };
+</script>
+</body>
+</html>
