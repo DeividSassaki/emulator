@@ -5,6 +5,7 @@
 const romInput = document.getElementById("romInput");
 const romUrlInput = document.getElementById("romUrl");
 const openUrlButton = document.getElementById("openUrlButton");
+const fileGamesButton = document.getElementById("fileGamesButton");
 
 const fullscreenButton = document.getElementById("fullscreenButton");
 const saveStateButton = document.getElementById("saveStateButton");
@@ -62,29 +63,23 @@ const paginaComRomExterna =
 
 
 // =========================
-// CONTROLES DA INTERFACE
+// CONTROLES
 // =========================
 
+// Na página inicial mostramos somente os controles para escolher uma ROM.
+// Os controles do emulador aparecem depois que uma ROM é aberta.
+gameMenu.style.display = "none";
+
 const game = document.getElementById("game");
+game.style.display = "none";
 
-// A página principal mostra os 3 botões.
-// A página de jogo mostra apenas os controles do emulador.
-function atualizarInterface() {
-    const estaEmJogo = paginaDeJogoPorSlug || paginaComRomExterna;
-    document.body.classList.toggle("game-page", estaEmJogo);
-    mainMenu.style.display = estaEmJogo ? "none" : "block";
-    gameMenu.style.display = estaEmJogo ? "flex" : "none";
+// Em páginas de jogo, escondemos apenas os controles
+// exclusivos da página principal.
+if (paginaDeJogoPorSlug || paginaComRomExterna) {
+    mainMenu.style.display = "none";
+    gamesSection.style.display = "none";
 }
 
-atualizarInterface();
-
-if (folderButton) {
-    folderButton.addEventListener("click", function () {
-        const aberto = gamesSection.style.display !== "none";
-        gamesSection.style.display = aberto ? "none" : "block";
-        if (!aberto) carregarListaDeJogos();
-    });
-}
 
 // =========================
 // CARREGAR ROM DO COMPUTADOR
@@ -103,6 +98,14 @@ romInput.addEventListener("change", function () {
         romURL,
         file.name
     );
+
+    mainMenu.style.display = "none";
+});
+
+// Mostrar/ocultar as ROMs que estão na pasta /file.
+fileGamesButton.addEventListener("click", function () {
+    gamesSection.style.display =
+        gamesSection.style.display === "none" ? "block" : "none";
 });
 
 
@@ -128,6 +131,8 @@ openUrlButton.addEventListener(
             url,
             obterNomeArquivo(url)
         );
+
+        mainMenu.style.display = "none";
     }
 );
 
@@ -167,10 +172,9 @@ function iniciarEmulador(
     const game =
         document.getElementById("game");
 
-    document.body.classList.add("game-page");
-    mainMenu.style.display = "none";
-    gameMenu.style.display = "flex";
     game.innerHTML = "";
+    game.style.display = "block";
+    gameMenu.style.display = "block";
 
     nomeRomAtual =
         nomeArquivo.replace(
@@ -203,7 +207,7 @@ function iniciarEmulador(
         true;
 
     window.EJS_pathtodata =
-        "https://cdn.emulatorjs.org/4.2.3/data/";
+        "https://cdn.emulatorjs.org/4.2.2/data/";
 
     if (emulatorScript) {
         emulatorScript.remove();
@@ -215,7 +219,7 @@ function iniciarEmulador(
         );
 
     emulatorScript.src =
-        "https://cdn.emulatorjs.org/4.2.3/data/loader.js";
+        "https://cdn.emulatorjs.org/4.2.2/data/loader.js";
 
     emulatorScript.onload =
         function () {
@@ -855,6 +859,4 @@ function mostrarPaginaDoJogo() {
 // INICIAR
 // =========================
 
-if (paginaDeJogoPorSlug) {
-    carregarListaDeJogos();
-}
+carregarListaDeJogos();

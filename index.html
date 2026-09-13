@@ -6,36 +6,78 @@
     <title>SNES Emulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="container">
-    <div class="studio-title">VC Studio</div>
-    <h1 id="pageTitle">SNES Emulator</h1>
 
-    <div id="mainMenu" class="menu">
-        <div class="url-rom">
-            <input type="text" id="romUrl" placeholder="Cole aqui a URL da ROM">
-            <button id="openUrlButton" class="button">🔗 Abrir ROM por URL</button>
+<body>
+
+    <div class="container">
+
+        <div class="studio-title">VC Studio</div>
+
+        <h1 id="pageTitle">SNES Emulator</h1>
+
+        <!-- CONTROLES DA PÁGINA PRINCIPAL -->
+        <div id="mainMenu" class="menu">
+
+            <div class="url-rom">
+                <input
+                    type="text"
+                    id="romUrl"
+                    placeholder="Cole aqui a URL da ROM"
+                >
+
+                <button id="openUrlButton" class="button">
+                    🔗 Abrir URL
+                </button>
+            </div>
+
+            <label for="romInput" class="button">
+                🎮 Carregar ROM
+            </label>
+
+            <button id="fileGamesButton" class="button" type="button">
+                📁 Escolher ROM da pasta file
+            </button>
+
+            <input
+                type="file"
+                id="romInput"
+                accept=".sfc,.smc,.zip"
+                hidden
+            >
+
+            <section id="gamesSection" class="games-section">
+                <h2>Jogos disponíveis</h2>
+
+                <div id="gamesList">
+                    <p>Carregando jogos...</p>
+                </div>
+            </section>
+
         </div>
 
-        <label for="romInput" class="button">🎮 Carregar ROM</label>
-        <input type="file" id="romInput" accept=".sfc,.smc,.zip" hidden>
+        <!-- ÁREA DO EMULADOR -->
+        <div id="game"></div>
 
-        <button id="folderButton" class="button">📁 Escolher ROM da pasta file</button>
+        <!-- ESTES 3 BOTÕES FICAM EM TODAS AS PÁGINAS -->
+        <div id="gameMenu" class="game-controls">
 
-        <section id="gamesSection" class="games-section">
-            <h2>Jogos disponíveis</h2>
-            <div id="gamesList"><p>Carregando jogos...</p></div>
-        </section>
+            <button id="fullscreenButton" class="button">
+                ⛶ Tela cheia
+            </button>
+
+            <button id="saveStateButton" class="button">
+                💾 Save State
+            </button>
+
+            <button id="loadStateButton" class="button">
+                📂 Load State
+            </button>
+
+        </div>
+
     </div>
 
-    <div id="game" aria-label="Emulador SNES"></div>
+    <script src="script.js"></script>
 
-    <div id="gameMenu" class="game-controls">
-        <button id="fullscreenButton" class="button">⛶ Tela cheia</button>
-        <button id="saveStateButton" class="button">💾 Save State</button>
-        <button id="loadStateButton" class="button">📂 Load State</button>
-    </div>
-</div>
-<script src="script.js"></script>
 </body>
 </html>

@@ -1,28 +1,176 @@
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { min-height: 100vh; background:#111; color:white; font-family:Arial,sans-serif; display:flex; justify-content:center; padding:20px; }
-.container { width:100%; max-width:1000px; text-align:center; }
-.studio-title { font-size:34px; font-weight:bold; margin-bottom:6px; }
-h1 { margin-bottom:20px; font-size:32px; }
-.menu { margin-bottom:20px; }
-.url-rom { display:flex; gap:10px; margin-bottom:15px; }
-.url-rom input { flex:1; min-width:0; padding:12px; font-size:16px; border:none; border-radius:6px; outline:none; }
-.button { display:inline-block; padding:12px 22px; margin:4px; background:#333; color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; }
-.button:hover { background:#555; }
-.games-section { margin-top:20px; text-align:left; display:none; }
-.games-section h2 { margin-bottom:10px; text-align:center; font-size:22px; }
-#gamesList { display:flex; flex-direction:column; gap:8px; }
-.game-item { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px; background:#222; border-radius:6px; }
-.game-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.game-item .button { margin:0; padding:8px 14px; flex-shrink:0; }
-#game { display:none; position:relative; width:640px; height:480px; max-width:100%; margin:20px auto 0; background:#000; border-radius:8px; overflow:hidden; }
-body.game-page #game { display:block; }
-.game-controls { display:none; margin-top:12px; justify-content:center; flex-wrap:wrap; }
-#game:fullscreen { width:100vw; height:100vh; max-width:none; margin:0; border-radius:0; }
-body.game-page .mainMenu { display:none; }
-@media(max-width:600px){
- body{padding:10px}.studio-title{font-size:28px}h1{font-size:24px}
- .url-rom{flex-direction:column}.url-rom input{width:100%}
- .button{width:100%;margin:4px 0}.game-controls{flex-direction:column}
- .game-item{flex-direction:column;align-items:stretch}.game-name{white-space:normal;text-align:center}
- #game{width:100%;height:auto;aspect-ratio:4/3}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 1000px;
+    text-align: center;
+}
+
+.studio-title {
+    font-size: 34px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+h1 {
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+.menu {
+    margin-bottom: 20px;
+}
+
+.url-rom {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.url-rom input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    outline: none;
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 22px;
+    margin: 4px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.button:hover {
+    background: #555;
+}
+
+.game-controls {
+    display: none;
+    margin-top: 12px;
+    text-align: center;
+}
+
+#game {
+    display: none;
+    width: 640px;
+    height: 480px;
+    max-width: 100%;
+    margin: 20px auto 0;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#game:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+}
+
+.games-section {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.games-section h2 {
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 22px;
+}
+
+#gamesList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.game-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #222;
+    border-radius: 6px;
+}
+
+.game-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.game-item .button {
+    margin: 0;
+    padding: 8px 14px;
+    flex-shrink: 0;
+}
+
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .studio-title {
+        font-size: 28px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .url-rom {
+        flex-direction: column;
+    }
+
+    .url-rom input {
+        width: 100%;
+    }
+
+    .button {
+        width: 100%;
+        margin: 4px 0;
+    }
+
+    .game-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .game-name {
+        white-space: normal;
+        text-align: center;
+    }
+
+    .game-controls {
+        display: flex;
+        flex-direction: column;
+    }
+
 }
