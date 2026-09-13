@@ -14,7 +14,6 @@ const gamesList = document.getElementById("gamesList");
 const mainMenu = document.getElementById("mainMenu");
 const gameMenu = document.getElementById("gameMenu");
 const gamesSection = document.getElementById("gamesSection");
-const folderButton = document.getElementById("folderButton");
 const pageTitle = document.getElementById("pageTitle");
 
 const GAMES_FOLDER = "file";
@@ -63,33 +62,29 @@ const paginaComRomExterna =
 
 
 // =========================
-// CONTROLES
+// CONTROLES DA INTERFACE
 // =========================
 
-// Na página principal, só aparecem os controles para escolher a ROM.
-// A área do emulador e os controles de jogo ficam escondidos.
 const game = document.getElementById("game");
-game.style.display = "none";
-gameMenu.style.display = "none";
 
-if (paginaDeJogoPorSlug || paginaComRomExterna) {
-    mainMenu.style.display = "none";
-    gamesSection.style.display = "none";
-    if (folderButton) folderButton.style.display = "none";
-    game.style.display = "block";
-    gameMenu.style.display = "block";
+// A página principal mostra os 3 botões.
+// A página de jogo mostra apenas os controles do emulador.
+function atualizarInterface() {
+    const estaEmJogo = paginaDeJogoPorSlug || paginaComRomExterna;
+    document.body.classList.toggle("game-page", estaEmJogo);
+    mainMenu.style.display = estaEmJogo ? "none" : "block";
+    gameMenu.style.display = estaEmJogo ? "flex" : "none";
 }
+
+atualizarInterface();
 
 if (folderButton) {
     folderButton.addEventListener("click", function () {
         const aberto = gamesSection.style.display !== "none";
         gamesSection.style.display = aberto ? "none" : "block";
-        if (!aberto) {
-            carregarListaDeJogos();
-        }
+        if (!aberto) carregarListaDeJogos();
     });
 }
-
 
 // =========================
 // CARREGAR ROM DO COMPUTADOR
@@ -172,11 +167,9 @@ function iniciarEmulador(
     const game =
         document.getElementById("game");
 
-    // Mostra a área do emulador antes de o EmulatorJS criar o canvas.
-    game.style.display = "block";
-    gameMenu.style.display = "block";
+    document.body.classList.add("game-page");
     mainMenu.style.display = "none";
-    if (folderButton) folderButton.style.display = "none";
+    gameMenu.style.display = "flex";
     game.innerHTML = "";
 
     nomeRomAtual =
@@ -210,7 +203,7 @@ function iniciarEmulador(
         true;
 
     window.EJS_pathtodata =
-        "https://cdn.emulatorjs.org/4.2.2/data/";
+        "https://cdn.emulatorjs.org/4.2.3/data/";
 
     if (emulatorScript) {
         emulatorScript.remove();
@@ -222,7 +215,7 @@ function iniciarEmulador(
         );
 
     emulatorScript.src =
-        "https://cdn.emulatorjs.org/4.2.2/data/loader.js";
+        "https://cdn.emulatorjs.org/4.2.3/data/loader.js";
 
     emulatorScript.onload =
         function () {
@@ -862,7 +855,6 @@ function mostrarPaginaDoJogo() {
 // INICIAR
 // =========================
 
-// Só busca a lista automaticamente quando estamos em uma URL de jogo.
 if (paginaDeJogoPorSlug) {
     carregarListaDeJogos();
 }

@@ -6,76 +6,36 @@
     <title>SNES Emulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+<div class="container">
+    <div class="studio-title">VC Studio</div>
+    <h1 id="pageTitle">SNES Emulator</h1>
 
-    <div class="container">
-
-        <div class="studio-title">VC Studio</div>
-
-        <h1 id="pageTitle">SNES Emulator</h1>
-
-        <!-- CONTROLES DA PÁGINA PRINCIPAL -->
-        <div id="mainMenu" class="menu">
-
-            <div class="url-rom">
-                <input
-                    type="text"
-                    id="romUrl"
-                    placeholder="Cole aqui a URL da ROM"
-                >
-
-                <button id="openUrlButton" class="button">
-                    🔗 Abrir URL
-                </button>
-            </div>
-
-            <label for="romInput" class="button">
-                🎮 Carregar ROM
-            </label>
-
-            <input
-                type="file"
-                id="romInput"
-                accept=".sfc,.smc,.zip"
-                hidden
-            >
-
-            <button id="folderButton" class="button">📁 Escolher ROM da pasta file</button>
-
-            <section id="gamesSection" class="games-section" style="display:none;">
-                <h2>Jogos disponíveis</h2>
-
-                <div id="gamesList">
-                    <p>Carregando jogos...</p>
-                </div>
-            </section>
-
+    <div id="mainMenu" class="menu">
+        <div class="url-rom">
+            <input type="text" id="romUrl" placeholder="Cole aqui a URL da ROM">
+            <button id="openUrlButton" class="button">🔗 Abrir ROM por URL</button>
         </div>
 
-        <!-- ÁREA DO EMULADOR -->
-        <div id="game"></div>
+        <label for="romInput" class="button">🎮 Carregar ROM</label>
+        <input type="file" id="romInput" accept=".sfc,.smc,.zip" hidden>
 
-        <!-- ESTES 3 BOTÕES FICAM EM TODAS AS PÁGINAS -->
-        <div id="gameMenu" class="game-controls">
+        <button id="folderButton" class="button">📁 Escolher ROM da pasta file</button>
 
-            <button id="fullscreenButton" class="button">
-                ⛶ Tela cheia
-            </button>
-
-            <button id="saveStateButton" class="button">
-                💾 Save State
-            </button>
-
-            <button id="loadStateButton" class="button">
-                📂 Load State
-            </button>
-
-        </div>
-
+        <section id="gamesSection" class="games-section">
+            <h2>Jogos disponíveis</h2>
+            <div id="gamesList"><p>Carregando jogos...</p></div>
+        </section>
     </div>
 
-    <script src="script.js"></script>
+    <div id="game" aria-label="Emulador SNES"></div>
 
+    <div id="gameMenu" class="game-controls">
+        <button id="fullscreenButton" class="button">⛶ Tela cheia</button>
+        <button id="saveStateButton" class="button">💾 Save State</button>
+        <button id="loadStateButton" class="button">📂 Load State</button>
+    </div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
