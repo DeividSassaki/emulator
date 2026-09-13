@@ -114,11 +114,10 @@ h1 {
 
 #game {
     position: relative;
-    display: none;
     width: 640px;
-    height: 480px;
     max-width: 100%;
-    margin: 20px auto 0;
+    margin: 0 auto;
+    aspect-ratio: 4 / 3;
     background: #000;
     border-radius: 8px;
     overflow: hidden;
@@ -169,12 +168,11 @@ h1 {
     }
 
     .game-controls {
+        display: flex;
         flex-direction: column;
     }
 
     #game {
-        width: 100%;
-        height: auto;
         aspect-ratio: 4 / 3;
     }
 }
