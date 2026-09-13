@@ -218,13 +218,16 @@ h1 {
     overflow: hidden;
     position: relative;
     z-index: 1;
+    background: #000;
 }
 
 .game-decoration img {
-    width: 700px;
+    width: 180px;
+    height: auto;
     max-width: none;
     position: absolute;
     left: 50%;
-    bottom: 0;
+    top: -20px;
+    bottom: auto;
     transform: translateX(-50%);
 }

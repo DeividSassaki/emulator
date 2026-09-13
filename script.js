@@ -192,13 +192,13 @@ folderButton.addEventListener("click", function () {
 
 if (romPorLink) {
 
-    Title.textContent =
+    pageTitle.textContent =
         obterNomeArquivo(
             romPorLink
-        ).replace(
-            /\.[^/.]+$/,
-            ""
-        );
+        )
+            .replace(/\.[^/.]+$/, "")
+            .replace(/\s*\([^)]*\)/g, "")
+            .trim();
 
     iniciarEmulador(
         normalizarUrlRom(romPorLink),
@@ -232,9 +232,6 @@ function iniciarEmulador(
     window.EJS_player =
         "#game";
     
-    nomeRomAtual = 
-        nomeRomAtual.replace(/\s*\([^)]*\)/g, "").trim();
-
     window.EJS_gameName =
         nomeRomAtual;
 
