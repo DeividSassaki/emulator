@@ -231,6 +231,9 @@ function iniciarEmulador(
 
     window.EJS_player =
         "#game";
+    
+    nomeRomAtual = 
+        nomeRomAtual.replace(/\s*\([^)]*\)/g, "").trim();
 
     window.EJS_gameName =
         nomeRomAtual;
