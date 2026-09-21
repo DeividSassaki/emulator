@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Contador de Truco</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="truco-container">
+
+        <h1>TRUCO</h1>
+
+        <div class="placar">
+
+            <section class="time">
+                <h2>NÓS</h2>
+
+                <div id="nos" class="pontuacao">0</div>
+
+                <button id="btnNos" onclick="adicionarPonto('nos')">
+                    +1
+                </button>
+            </section>
+
+            <div class="divisor"></div>
+
+            <section class="time">
+                <h2>ELES</h2>
+
+                <div id="eles" class="pontuacao">0</div>
+
+                <button id="btnEles" onclick="adicionarPonto('eles')">
+                    +1
+                </button>
+            </section>
+
+        </div>
+
+        <div class="botoes">
+
+            <button class="btn-reset" onclick="zerarJogo()">
+                ↺ Zerar
+            </button>
+
+            <button class="btn-fullscreen" onclick="alternarTelaCheia()">
+                ⛶ Tela cheia
+            </button>
+
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
