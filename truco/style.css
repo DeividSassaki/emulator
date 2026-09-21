@@ -43,15 +43,15 @@ padding: 15px;
 
 }
 
-/* Gato acima do título */
+/* Gato com tamanho próximo ao título */
 .gato {
-width: 90px;
-height: 90px;
+width: 115px;
+height: auto;
 object-fit: contain;
 display: block;
 
 ```
-margin-bottom: 5px;
+margin-bottom: 2px;
 ```
 
 }
@@ -88,43 +88,17 @@ align-items: center;
 
 .time h2 {
 font-size: 24px;
-margin-bottom: 15px;
+margin-bottom: 12px;
 }
 
-.pontuacao {
-font-size: clamp(90px, 25vw, 150px);
-font-weight: bold;
-line-height: 1;
-margin-bottom: 25px;
-}
-
-.divisor {
-width: 2px;
-height: 220px;
-background: #333;
-}
-
-/* Botões +1 e -1 */
-.controles-time {
-width: 100%;
-max-width: 190px;
+/* Botão de +1 */
+.botao-ponto {
+width: 110px;
+height: 55px;
 
 ```
-display: flex;
-justify-content: center;
-gap: 10px;
-```
-
-}
-
-.controles-time button {
-flex: 1;
-
-```
-height: 65px;
-
 border: none;
-border-radius: 15px;
+border-radius: 14px;
 
 background: #fff;
 color: #000;
@@ -133,17 +107,38 @@ font-size: 25px;
 font-weight: bold;
 
 cursor: pointer;
+
+margin: 5px 0;
 ```
 
 }
 
-.controles-time button:active {
+.botao-ponto:active {
 transform: scale(0.94);
 }
 
-.controles-time button:disabled {
+.botao-ponto:disabled {
 opacity: 0.25;
 cursor: default;
+}
+
+/* Número */
+.pontuacao {
+font-size: clamp(90px, 25vw, 150px);
+font-weight: bold;
+line-height: 1;
+
+```
+margin: 8px 0;
+```
+
+}
+
+/* Linha central */
+.divisor {
+width: 2px;
+height: 250px;
+background: #333;
 }
 
 .botoes {
@@ -154,7 +149,7 @@ display: flex;
 justify-content: center;
 gap: 15px;
 
-margin-top: 40px;
+margin-top: 35px;
 ```
 
 }
@@ -186,18 +181,17 @@ transform: scale(0.95);
 
 ```
 .truco-container {
-    padding: 12px;
+    padding: 10px;
 }
 
 .gato {
-    width: 75px;
-    height: 75px;
-    margin-bottom: 2px;
+    width: 90px;
+    margin-bottom: 0;
 }
 
 h1 {
     font-size: 28px;
-    margin-bottom: 28px;
+    margin-bottom: 25px;
 }
 
 .placar {
@@ -210,30 +204,27 @@ h1 {
 
 .time h2 {
     font-size: 20px;
+    margin-bottom: 8px;
 }
 
-.pontuacao {
-    font-size: 90px;
-    margin-bottom: 20px;
-}
-
-.divisor {
-    height: 170px;
-}
-
-.controles-time {
-    max-width: 170px;
-    gap: 7px;
-}
-
-.controles-time button {
-    height: 60px;
+.botao-ponto {
+    width: 95px;
+    height: 52px;
     font-size: 23px;
     border-radius: 13px;
 }
 
+.pontuacao {
+    font-size: 90px;
+    margin: 6px 0;
+}
+
+.divisor {
+    height: 220px;
+}
+
 .botoes {
-    margin-top: 28px;
+    margin-top: 25px;
     gap: 10px;
 }
 
