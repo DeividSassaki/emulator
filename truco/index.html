@@ -1,70 +1,111 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-```
-<title>Contador de Truco</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
 
-<link rel="stylesheet" href="style.css">
-```
+    <title>Contador de Truco</title>
 
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-```
-<main class="truco-container">
+    <main class="truco-container">
 
-    <img src="../imagens/gato.png" alt="Gato" class="gato">
+        <img
+            src="../imagens/gato.png"
+            alt="Gato"
+            class="gato"
+        >
 
-    <h1>TRUCO</h1>
+        <h1>TRUCO</h1>
 
-    <div class="placar">
+        <div class="placar">
 
-        <section class="time">
-            <h2>NÓS</h2>
+            <section class="time">
 
-            <button id="btnNosMais" class="botao-ponto" onclick="adicionarPonto('nos')">
-                +1
+                <h2>NÓS</h2>
+
+                <button
+                    id="btnNosMais"
+                    class="botao-ponto"
+                    onclick="adicionarPonto('nos')"
+                >
+                    +1
+                </button>
+
+                <div
+                    id="nos"
+                    class="pontuacao"
+                >
+                    0
+                </div>
+
+                <button
+                    id="btnNosMenos"
+                    class="botao-ponto"
+                    onclick="removerPonto('nos')"
+                >
+                    −1
+                </button>
+
+            </section>
+
+            <div class="divisor"></div>
+
+            <section class="time">
+
+                <h2>ELES</h2>
+
+                <button
+                    id="btnElesMais"
+                    class="botao-ponto"
+                    onclick="adicionarPonto('eles')"
+                >
+                    +1
+                </button>
+
+                <div
+                    id="eles"
+                    class="pontuacao"
+                >
+                    0
+                </div>
+
+                <button
+                    id="btnElesMenos"
+                    class="botao-ponto"
+                    onclick="removerPonto('eles')"
+                >
+                    −1
+                </button>
+
+            </section>
+
+        </div>
+
+        <div class="botoes">
+
+            <button onclick="zerarJogo()">
+                ↺ Zerar
             </button>
 
-            <div id="nos" class="pontuacao">0</div>
-
-            <button id="btnNosMenos" class="botao-ponto" onclick="removerPonto('nos')">
-                −1
-            </button>
-        </section>
-
-        <div class="divisor"></div>
-
-        <section class="time">
-            <h2>ELES</h2>
-
-            <button id="btnElesMais" class="botao-ponto" onclick="adicionarPonto('eles')">
-                +1
+            <button onclick="alternarTelaCheia()">
+                ⛶ Tela cheia
             </button>
 
-            <div id="eles" class="pontuacao">0</div>
+        </div>
 
-            <button id="btnElesMenos" class="botao-ponto" onclick="removerPonto('eles')">
-                −1
-            </button>
-        </section>
+    </main>
 
-    </div>
-
-    <div class="botoes">
-        <button onclick="zerarJogo()">↺ Zerar</button>
-        <button onclick="alternarTelaCheia()">⛶ Tela cheia</button>
-    </div>
-
-</main>
-
-<script src="script.js"></script>
-```
+    <script src="script.js"></script>
 
 </body>
+
 </html>
