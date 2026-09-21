@@ -1,61 +1,81 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-    <title>Contador de Truco</title>
+```
+<title>Contador de Truco</title>
 
-    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
+```
+
 </head>
 
 <body>
 
-    <main class="truco-container">
+```
+<main class="truco-container">
 
-        <h1>TRUCO</h1>
+    <img src="../imagens/gato.png" alt="Gato" class="gato">
 
-        <div class="placar">
+    <h1>TRUCO</h1>
 
-            <section class="time">
-                <h2>NÓS</h2>
+    <div class="placar">
 
-                <div id="nos" class="pontuacao">0</div>
+        <section class="time">
+            <h2>NÓS</h2>
 
-                <button id="btnNos" onclick="adicionarPonto('nos')">
+            <div id="nos" class="pontuacao">0</div>
+
+            <div class="controles-time">
+                <button id="btnNosMenos" onclick="removerPonto('nos')">
+                    −1
+                </button>
+
+                <button id="btnNosMais" onclick="adicionarPonto('nos')">
                     +1
                 </button>
-            </section>
+            </div>
+        </section>
 
-            <div class="divisor"></div>
+        <div class="divisor"></div>
 
-            <section class="time">
-                <h2>ELES</h2>
+        <section class="time">
+            <h2>ELES</h2>
 
-                <div id="eles" class="pontuacao">0</div>
+            <div id="eles" class="pontuacao">0</div>
 
-                <button id="btnEles" onclick="adicionarPonto('eles')">
+            <div class="controles-time">
+                <button id="btnElesMenos" onclick="removerPonto('eles')">
+                    −1
+                </button>
+
+                <button id="btnElesMais" onclick="adicionarPonto('eles')">
                     +1
                 </button>
-            </section>
+            </div>
+        </section>
 
-        </div>
+    </div>
 
-        <div class="botoes">
+    <div class="botoes">
 
-            <button class="btn-reset" onclick="zerarJogo()">
-                ↺ Zerar
-            </button>
+        <button class="btn-reset" onclick="zerarJogo()">
+            ↺ Zerar
+        </button>
 
-            <button class="btn-fullscreen" onclick="alternarTelaCheia()">
-                ⛶ Tela cheia
-            </button>
+        <button class="btn-fullscreen" onclick="alternarTelaCheia()">
+            ⛶ Tela cheia
+        </button>
 
-        </div>
+    </div>
 
-    </main>
+</main>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
+```
 
 </body>
 </html>
