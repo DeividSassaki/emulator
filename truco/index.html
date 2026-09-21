@@ -27,17 +27,15 @@
         <section class="time">
             <h2>NÓS</h2>
 
+            <button id="btnNosMais" class="botao-ponto" onclick="adicionarPonto('nos')">
+                +1
+            </button>
+
             <div id="nos" class="pontuacao">0</div>
 
-            <div class="controles-time">
-                <button id="btnNosMenos" onclick="removerPonto('nos')">
-                    −1
-                </button>
-
-                <button id="btnNosMais" onclick="adicionarPonto('nos')">
-                    +1
-                </button>
-            </div>
+            <button id="btnNosMenos" class="botao-ponto" onclick="removerPonto('nos')">
+                −1
+            </button>
         </section>
 
         <div class="divisor"></div>
@@ -45,17 +43,15 @@
         <section class="time">
             <h2>ELES</h2>
 
+            <button id="btnElesMais" class="botao-ponto" onclick="adicionarPonto('eles')">
+                +1
+            </button>
+
             <div id="eles" class="pontuacao">0</div>
 
-            <div class="controles-time">
-                <button id="btnElesMenos" onclick="removerPonto('eles')">
-                    −1
-                </button>
-
-                <button id="btnElesMais" onclick="adicionarPonto('eles')">
-                    +1
-                </button>
-            </div>
+            <button id="btnElesMenos" class="botao-ponto" onclick="removerPonto('eles')">
+                −1
+            </button>
         </section>
 
     </div>
