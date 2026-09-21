@@ -1,184 +1,247 @@
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
-}
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  }
 
 html,
 body {
-    width: 100%;
-    height: 100%;
+width: 100%;
+height: 100%;
 }
 
 body {
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
+background: #000;
+color: #fff;
+font-family: Arial, sans-serif;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+```
+display: flex;
+justify-content: center;
+align-items: center;
 
-    overflow: hidden;
+overflow: hidden;
+touch-action: manipulation;
+```
 
-    touch-action: manipulation;
 }
 
 .truco-container {
-    width: 100%;
-    max-width: 600px;
-    height: 100vh;
+width: 100%;
+max-width: 600px;
+height: 100vh;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+```
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
 
-    padding: 20px;
+padding: 15px;
+```
+
+}
+
+/* Gato acima do título */
+.gato {
+width: 90px;
+height: 90px;
+object-fit: contain;
+display: block;
+
+```
+margin-bottom: 5px;
+```
+
 }
 
 h1 {
-    font-size: 34px;
-    margin-bottom: 35px;
-    letter-spacing: 3px;
+font-size: 34px;
+margin-bottom: 35px;
+letter-spacing: 3px;
 }
 
 .placar {
-    width: 100%;
+width: 100%;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+```
+display: flex;
+align-items: center;
+justify-content: center;
 
-    gap: 20px;
+gap: 20px;
+```
+
 }
 
 .time {
-    width: 45%;
+width: 45%;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+```
+display: flex;
+flex-direction: column;
+align-items: center;
+```
+
 }
 
 .time h2 {
-    font-size: 24px;
-    margin-bottom: 15px;
+font-size: 24px;
+margin-bottom: 15px;
 }
 
 .pontuacao {
-    font-size: clamp(90px, 25vw, 150px);
-    font-weight: bold;
-    line-height: 1;
-    margin-bottom: 25px;
+font-size: clamp(90px, 25vw, 150px);
+font-weight: bold;
+line-height: 1;
+margin-bottom: 25px;
 }
 
 .divisor {
-    width: 2px;
-    height: 220px;
-    background: #333;
+width: 2px;
+height: 220px;
+background: #333;
 }
 
-.time button {
-    width: 100%;
-    max-width: 170px;
+/* Botões +1 e -1 */
+.controles-time {
+width: 100%;
+max-width: 190px;
 
-    height: 70px;
+```
+display: flex;
+justify-content: center;
+gap: 10px;
+```
 
-    border: none;
-    border-radius: 15px;
-
-    background: #fff;
-    color: #000;
-
-    font-size: 32px;
-    font-weight: bold;
-
-    cursor: pointer;
 }
 
-.time button:active {
-    transform: scale(0.94);
+.controles-time button {
+flex: 1;
+
+```
+height: 65px;
+
+border: none;
+border-radius: 15px;
+
+background: #fff;
+color: #000;
+
+font-size: 25px;
+font-weight: bold;
+
+cursor: pointer;
+```
+
 }
 
-.time button:disabled {
-    opacity: 0.25;
-    cursor: default;
+.controles-time button:active {
+transform: scale(0.94);
+}
+
+.controles-time button:disabled {
+opacity: 0.25;
+cursor: default;
 }
 
 .botoes {
-    width: 100%;
+width: 100%;
 
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+```
+display: flex;
+justify-content: center;
+gap: 15px;
 
-    margin-top: 40px;
+margin-top: 40px;
+```
+
 }
 
 .botoes button {
-    min-width: 140px;
-    height: 55px;
+min-width: 140px;
+height: 55px;
 
-    border: 1px solid #444;
-    border-radius: 12px;
+```
+border: 1px solid #444;
+border-radius: 12px;
 
-    background: #111;
-    color: #fff;
+background: #111;
+color: #fff;
 
-    font-size: 18px;
-    font-weight: bold;
+font-size: 18px;
+font-weight: bold;
 
-    cursor: pointer;
+cursor: pointer;
+```
+
 }
 
 .botoes button:active {
-    transform: scale(0.95);
+transform: scale(0.95);
 }
 
 @media (max-width: 500px) {
 
-    .truco-container {
-        padding: 15px;
-    }
+```
+.truco-container {
+    padding: 12px;
+}
 
-    h1 {
-        font-size: 28px;
-        margin-bottom: 30px;
-    }
+.gato {
+    width: 75px;
+    height: 75px;
+    margin-bottom: 2px;
+}
 
-    .placar {
-        gap: 10px;
-    }
+h1 {
+    font-size: 28px;
+    margin-bottom: 28px;
+}
 
-    .time {
-        width: 46%;
-    }
+.placar {
+    gap: 8px;
+}
 
-    .time h2 {
-        font-size: 20px;
-    }
+.time {
+    width: 46%;
+}
 
-    .pontuacao {
-        font-size: 90px;
-    }
+.time h2 {
+    font-size: 20px;
+}
 
-    .divisor {
-        height: 170px;
-    }
+.pontuacao {
+    font-size: 90px;
+    margin-bottom: 20px;
+}
 
-    .time button {
-        height: 65px;
-        font-size: 28px;
-    }
+.divisor {
+    height: 170px;
+}
 
-    .botoes {
-        margin-top: 30px;
-    }
+.controles-time {
+    max-width: 170px;
+    gap: 7px;
+}
 
-    .botoes button {
-        min-width: 120px;
-        font-size: 16px;
-    }
+.controles-time button {
+    height: 60px;
+    font-size: 23px;
+    border-radius: 13px;
+}
+
+.botoes {
+    margin-top: 28px;
+    gap: 10px;
+}
+
+.botoes button {
+    min-width: 120px;
+    height: 52px;
+    font-size: 16px;
+}
+```
+
 }
