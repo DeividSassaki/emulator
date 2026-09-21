@@ -17,10 +17,6 @@ color: #fff;
 font-family: Arial, sans-serif;
 
 ```
-display: flex;
-justify-content: center;
-align-items: center;
-
 overflow: hidden;
 touch-action: manipulation;
 ```
@@ -35,20 +31,20 @@ height: 100vh;
 ```
 display: flex;
 flex-direction: column;
-justify-content: center;
 align-items: center;
+justify-content: center;
 
-padding: 15px;
+padding: 10px;
 ```
 
 }
 
-/* Gato com tamanho próximo ao título */
+/* GATO */
 .gato {
 width: 115px;
-height: auto;
+height: 40px;
 object-fit: contain;
-display: block;
+object-position: center;
 
 ```
 margin-bottom: 2px;
@@ -56,25 +52,29 @@ margin-bottom: 2px;
 
 }
 
+/* TÍTULO */
 h1 {
 font-size: 34px;
-margin-bottom: 35px;
 letter-spacing: 3px;
+margin-bottom: 25px;
 }
 
+/* ÁREA DOS DOIS TIMES */
 .placar {
 width: 100%;
 
 ```
 display: flex;
+flex-direction: row;
 align-items: center;
 justify-content: center;
 
-gap: 20px;
+gap: 15px;
 ```
 
 }
 
+/* CADA TIME */
 .time {
 width: 45%;
 
@@ -82,33 +82,32 @@ width: 45%;
 display: flex;
 flex-direction: column;
 align-items: center;
+justify-content: center;
 ```
 
 }
 
 .time h2 {
-font-size: 24px;
-margin-bottom: 12px;
+font-size: 23px;
+margin-bottom: 8px;
 }
 
-/* Botão de +1 */
+/* BOTÕES +1 / -1 */
 .botao-ponto {
-width: 110px;
-height: 55px;
+width: 100px;
+height: 48px;
 
 ```
 border: none;
-border-radius: 14px;
+border-radius: 12px;
 
 background: #fff;
 color: #000;
 
-font-size: 25px;
+font-size: 23px;
 font-weight: bold;
 
 cursor: pointer;
-
-margin: 5px 0;
 ```
 
 }
@@ -119,12 +118,11 @@ transform: scale(0.94);
 
 .botao-ponto:disabled {
 opacity: 0.25;
-cursor: default;
 }
 
-/* Número */
+/* NÚMERO */
 .pontuacao {
-font-size: clamp(90px, 25vw, 150px);
+font-size: 95px;
 font-weight: bold;
 line-height: 1;
 
@@ -134,29 +132,28 @@ margin: 8px 0;
 
 }
 
-/* Linha central */
+/* DIVISOR */
 .divisor {
 width: 2px;
 height: 250px;
 background: #333;
 }
 
+/* BOTÕES INFERIORES */
 .botoes {
-width: 100%;
-
-```
 display: flex;
 justify-content: center;
-gap: 15px;
+gap: 12px;
 
-margin-top: 35px;
+```
+margin-top: 25px;
 ```
 
 }
 
 .botoes button {
-min-width: 140px;
-height: 55px;
+width: 135px;
+height: 50px;
 
 ```
 border: 1px solid #444;
@@ -165,37 +162,32 @@ border-radius: 12px;
 background: #111;
 color: #fff;
 
-font-size: 18px;
+font-size: 16px;
 font-weight: bold;
-
-cursor: pointer;
 ```
 
 }
 
-.botoes button:active {
-transform: scale(0.95);
-}
-
+/* CELULAR */
 @media (max-width: 500px) {
 
 ```
 .truco-container {
-    padding: 10px;
+    padding: 8px;
 }
 
 .gato {
-    width: 90px;
-    margin-bottom: 0;
+    width: 95px;
+    height: 32px;
 }
 
 h1 {
     font-size: 28px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .placar {
-    gap: 8px;
+    gap: 6px;
 }
 
 .time {
@@ -204,18 +196,17 @@ h1 {
 
 .time h2 {
     font-size: 20px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .botao-ponto {
-    width: 95px;
-    height: 52px;
-    font-size: 23px;
-    border-radius: 13px;
+    width: 85px;
+    height: 45px;
+    font-size: 21px;
 }
 
 .pontuacao {
-    font-size: 90px;
+    font-size: 85px;
     margin: 6px 0;
 }
 
@@ -224,14 +215,14 @@ h1 {
 }
 
 .botoes {
-    margin-top: 25px;
-    gap: 10px;
+    margin-top: 20px;
+    gap: 8px;
 }
 
 .botoes button {
-    min-width: 120px;
-    height: 52px;
-    font-size: 16px;
+    width: 120px;
+    height: 48px;
+    font-size: 15px;
 }
 ```
 
