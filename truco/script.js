@@ -6,6 +6,7 @@ let vitoriasEles = 0;
 
 let vencedorPendente = null;
 
+
 function atualizarPlacar() {
 
     document.getElementById("nos").textContent = placarNos;
@@ -14,14 +15,21 @@ function atualizarPlacar() {
     document.getElementById("vitoriasNos").textContent = vitoriasNos;
     document.getElementById("vitoriasEles").textContent = vitoriasEles;
 
-    document.getElementById("btnNosMais").disabled = placarNos >= 12;
-    document.getElementById("btnElesMais").disabled = placarEles >= 12;
+    document.getElementById("btnNosMais").disabled =
+        placarNos >= 12 || vencedorPendente !== null;
 
-    document.getElementById("btnNosMenos").disabled = placarNos <= 0;
-    document.getElementById("btnElesMenos").disabled = placarEles <= 0;
+    document.getElementById("btnElesMais").disabled =
+        placarEles >= 12 || vencedorPendente !== null;
+
+    document.getElementById("btnNosMenos").disabled =
+        placarNos <= 0 || vencedorPendente !== null;
+
+    document.getElementById("btnElesMenos").disabled =
+        placarEles <= 0 || vencedorPendente !== null;
 
     atualizarSimbolos();
 }
+
 
 function atualizarSimbolos() {
 
@@ -45,7 +53,12 @@ function atualizarSimbolos() {
     }
 }
 
+
 function adicionarPonto(time) {
+
+    if (vencedorPendente !== null) {
+        return;
+    }
 
     if (time === "nos" && placarNos < 12) {
 
@@ -68,7 +81,12 @@ function adicionarPonto(time) {
     atualizarPlacar();
 }
 
+
 function removerPonto(time) {
+
+    if (vencedorPendente !== null) {
+        return;
+    }
 
     if (time === "nos" && placarNos > 0) {
         placarNos--;
@@ -78,12 +96,9 @@ function removerPonto(time) {
         placarEles--;
     }
 
-    if (vencedorPendente !== null) {
-        cancelarVitoria();
-    }
-
     atualizarPlacar();
 }
+
 
 function abrirConfirmacao(time) {
 
@@ -94,10 +109,19 @@ function abrirConfirmacao(time) {
     document.getElementById("mensagemVitoria").textContent =
         nome + " venceu a partida?";
 
-    document.getElementById("confirmacao").classList.remove("oculto");
+    document.getElementById("confirmacao")
+        .classList.remove("oculto");
+
+    atualizarPlacar();
 }
 
+
 function confirmarVitoria() {
+
+    // Impede o botão de funcionar sem uma vitória pendente
+    if (vencedorPendente === null) {
+        return;
+    }
 
     if (vencedorPendente === "nos") {
         vitoriasNos++;
@@ -112,19 +136,23 @@ function confirmarVitoria() {
 
     vencedorPendente = null;
 
-    document.getElementById("confirmacao").classList.add("oculto");
+    document.getElementById("confirmacao")
+        .classList.add("oculto");
 
     atualizarPlacar();
 }
+
 
 function cancelarVitoria() {
 
     vencedorPendente = null;
 
-    document.getElementById("confirmacao").classList.add("oculto");
+    document.getElementById("confirmacao")
+        .classList.add("oculto");
 
     atualizarPlacar();
 }
+
 
 function zerarPartida() {
 
@@ -133,10 +161,12 @@ function zerarPartida() {
 
     vencedorPendente = null;
 
-    document.getElementById("confirmacao").classList.add("oculto");
+    document.getElementById("confirmacao")
+        .classList.add("oculto");
 
     atualizarPlacar();
 }
+
 
 function obterNome(time) {
 
@@ -161,6 +191,7 @@ function obterNome(time) {
         return seletor.value;
     }
 
+
     if (time === "eles") {
 
         const seletor = document.getElementById("seletorEles");
@@ -184,6 +215,7 @@ function obterNome(time) {
 
     return "";
 }
+
 
 function configurarSeletor(idSeletor, idInput) {
 
@@ -216,6 +248,7 @@ function configurarSeletor(idSeletor, idInput) {
     });
 }
 
+
 function alternarTelaCheia() {
 
     if (!document.fullscreenElement) {
@@ -230,6 +263,7 @@ function alternarTelaCheia() {
             .catch(() => {});
     }
 }
+
 
 configurarSeletor("seletorNos", "nomeNos");
 configurarSeletor("seletorEles", "nomeEles");
