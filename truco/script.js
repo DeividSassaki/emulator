@@ -118,7 +118,6 @@ function abrirConfirmacao(time) {
 
 function confirmarVitoria() {
 
-    // Impede o botão de funcionar sem uma vitória pendente
     if (vencedorPendente === null) {
         return;
     }
@@ -174,41 +173,12 @@ function obterNome(time) {
 
         const seletor = document.getElementById("seletorNos");
 
-        if (seletor.value === "personalizado") {
-
-            const nome = document
-                .getElementById("nomeNos")
-                .value
-                .trim();
-
-            if (nome !== "") {
-                return nome;
-            }
-
-            return "NÓS";
-        }
-
         return seletor.value;
     }
-
 
     if (time === "eles") {
 
         const seletor = document.getElementById("seletorEles");
-
-        if (seletor.value === "personalizado") {
-
-            const nome = document
-                .getElementById("nomeEles")
-                .value
-                .trim();
-
-            if (nome !== "") {
-                return nome;
-            }
-
-            return "ELES";
-        }
 
         return seletor.value;
     }
@@ -226,6 +196,7 @@ function configurarSeletor(idSeletor, idInput) {
 
         if (seletor.value === "personalizado") {
 
+            input.value = "";
             input.classList.add("mostrar");
             input.focus();
 
@@ -236,14 +207,60 @@ function configurarSeletor(idSeletor, idInput) {
         }
     });
 
-    input.addEventListener("input", function () {
 
+    input.addEventListener("keydown", function(event) {
+
+        if (event.key !== "Enter") {
+            return;
+        }
+
+        event.preventDefault();
+
+        const nome = input.value.trim();
+
+        if (nome === "") {
+            return;
+        }
+
+        /*
+         * Procura se já existe uma opção com esse nome.
+         */
+        let opcaoExistente = Array.from(seletor.options)
+            .find(opcao => opcao.value === nome);
+
+        /*
+         * Se não existir, cria uma nova opção.
+         */
+        if (!opcaoExistente) {
+
+            opcaoExistente = document.createElement("option");
+
+            opcaoExistente.value = nome;
+            opcaoExistente.textContent = nome;
+
+            seletor.appendChild(opcaoExistente);
+        }
+
+        /*
+         * Coloca o nome dentro do próprio botão/seletor.
+         */
+        seletor.value = nome;
+
+        /*
+         * Esconde o campo de digitação.
+         */
+        input.classList.remove("mostrar");
+        input.value = "";
+
+        /*
+         * Atualiza a confirmação caso ela esteja aberta.
+         */
         if (vencedorPendente !== null) {
 
-            const nome = obterNome(vencedorPendente);
+            const nomeVencedor = obterNome(vencedorPendente);
 
             document.getElementById("mensagemVitoria").textContent =
-                nome + " venceu a partida?";
+                nomeVencedor + " venceu a partida?";
         }
     });
 }
