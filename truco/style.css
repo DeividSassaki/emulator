@@ -15,77 +15,145 @@ body {
     background: #000;
     color: #fff;
     font-family: Arial, sans-serif;
+
     overflow: hidden;
     touch-action: manipulation;
 }
 
+button,
+select,
+input {
+    font-family: Arial, sans-serif;
+}
+
 .truco-container {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
+    min-height: 100dvh;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 
-    padding: 10px;
+    padding: 8px;
 }
 
 /* GATO */
 .gato {
-    width: 110px;
+    width: 100px;
     height: auto;
     display: block;
+
     margin-bottom: 2px;
 }
 
 /* TÍTULO */
 h1 {
-    font-size: 32px;
+    font-size: 30px;
     letter-spacing: 3px;
-    margin-bottom: 25px;
+
+    margin-bottom: 16px;
 }
 
-/* NÓS E ELES LADO A LADO */
+/* ÁREA DOS DOIS TIMES */
 .placar {
     width: 100%;
     max-width: 500px;
 
     display: flex;
     flex-direction: row;
+
     align-items: center;
     justify-content: center;
 
-    gap: 20px;
+    gap: 8px;
 }
 
 /* CADA TIME */
 .time {
-    width: 180px;
+    width: 46%;
 
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.time h2 {
+/* SELEÇÃO DO NOME */
+.seletor-time {
+    width: 130px;
+    height: 42px;
+
+    padding: 0 8px;
+
+    border: 1px solid #444;
+    border-radius: 10px;
+
+    background: #111;
+    color: #fff;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    text-align: center;
+}
+
+/* NOME PERSONALIZADO */
+.nome-personalizado {
+    display: none;
+
+    width: 130px;
+    height: 38px;
+
+    margin-top: 5px;
+
+    padding: 0 8px;
+
+    border: 1px solid #444;
+    border-radius: 10px;
+
+    background: #111;
+    color: #fff;
+
+    font-size: 16px;
+    text-align: center;
+}
+
+.nome-personalizado.mostrar {
+    display: block;
+}
+
+/* VITÓRIAS */
+.resultado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    min-height: 34px;
+
+    margin: 4px 0 5px;
+
     font-size: 22px;
-    margin-bottom: 8px;
+    font-weight: bold;
 }
 
 /* +1 E -1 */
 .botao-ponto {
-    width: 100px;
-    height: 48px;
+    width: 90px;
+    height: 44px;
 
     border: none;
-    border-radius: 12px;
+    border-radius: 11px;
 
     background: #fff;
     color: #000;
 
-    font-size: 22px;
+    font-size: 21px;
     font-weight: bold;
+
+    cursor: pointer;
 }
 
 .botao-ponto:active {
@@ -98,17 +166,19 @@ h1 {
 
 /* NÚMERO */
 .pontuacao {
-    font-size: 90px;
+    font-size: 82px;
     font-weight: bold;
+
     line-height: 1;
 
-    margin: 8px 0;
+    margin: 5px 0;
 }
 
 /* DIVISOR */
 .divisor {
     width: 2px;
     height: 220px;
+
     background: #333;
 }
 
@@ -118,71 +188,169 @@ h1 {
     flex-direction: row;
     justify-content: center;
 
-    gap: 10px;
-    margin-top: 25px;
+    gap: 8px;
+
+    margin-top: 17px;
 }
 
 .botoes button {
-    width: 125px;
-    height: 48px;
+    width: 120px;
+    height: 46px;
 
     border: 1px solid #444;
-    border-radius: 12px;
+    border-radius: 11px;
 
     background: #111;
     color: #fff;
 
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.botoes button:active {
+    transform: scale(0.96);
+}
+
+/* JANELA DE CONFIRMAÇÃO */
+.confirmacao {
+    position: fixed;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.78);
+
+    z-index: 100;
+}
+
+.confirmacao.oculto {
+    display: none;
+}
+
+.confirmacao-caixa {
+    width: 100%;
+    max-width: 330px;
+
+    padding: 22px 18px;
+
+    border: 1px solid #444;
+    border-radius: 16px;
+
+    background: #111;
+
+    text-align: center;
+}
+
+.mensagem-vitoria {
+    font-size: 22px;
+    font-weight: bold;
+
+    margin-bottom: 18px;
+}
+
+.botoes-confirmacao {
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+}
+
+.botoes-confirmacao button {
+    width: 100%;
+    min-height: 46px;
+
+    border: 1px solid #444;
+    border-radius: 11px;
+
+    background: #fff;
+    color: #000;
+
     font-size: 15px;
     font-weight: bold;
+
+    cursor: pointer;
+}
+
+.botoes-confirmacao button:last-child {
+    background: #111;
+    color: #fff;
 }
 
 /* CELULAR */
 @media (max-width: 500px) {
 
     .gato {
-        width: 95px;
+        width: 90px;
     }
 
     h1 {
-        font-size: 28px;
-        margin-bottom: 20px;
+        font-size: 27px;
+        margin-bottom: 12px;
     }
 
     .placar {
-        gap: 5px;
+        gap: 3px;
     }
 
     .time {
-        width: 45%;
+        width: 46%;
     }
 
-    .time h2 {
-        font-size: 20px;
+    .seletor-time {
+        width: 115px;
+        height: 40px;
+
+        font-size: 17px;
+    }
+
+    .nome-personalizado {
+        width: 115px;
+        height: 36px;
+
+        font-size: 15px;
+    }
+
+    .resultado {
+        font-size: 21px;
+
+        min-height: 31px;
+
+        margin: 3px 0 4px;
     }
 
     .botao-ponto {
-        width: 85px;
-        height: 44px;
+        width: 82px;
+        height: 42px;
+
         font-size: 20px;
     }
 
     .pontuacao {
-        font-size: 80px;
-        margin: 6px 0;
+        font-size: 78px;
+
+        margin: 4px 0;
     }
 
     .divisor {
-        height: 210px;
+        height: 218px;
     }
 
     .botoes {
-        margin-top: 20px;
-        gap: 7px;
+        margin-top: 15px;
+        gap: 6px;
     }
 
     .botoes button {
-        width: 120px;
-        height: 46px;
-        font-size: 14px;
+        width: 118px;
+        height: 44px;
+
+        font-size: 13px;
     }
 }
