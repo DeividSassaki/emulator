@@ -1,359 +1,254 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-tap-highlight-color: transparent;
+let placarNos = 0;
+let placarEles = 0;
+
+let vitoriasNos = 0;
+let vitoriasEles = 0;
+
+let vencedorPendente = null;
+
+
+function atualizarPlacar() {
+
+    document.getElementById("nos").textContent = placarNos;
+    document.getElementById("eles").textContent = placarEles;
+
+    document.getElementById("vitoriasNos").textContent = vitoriasNos;
+    document.getElementById("vitoriasEles").textContent = vitoriasEles;
+
+    document.getElementById("btnNosMais").disabled = placarNos >= 12;
+    document.getElementById("btnElesMais").disabled = placarEles >= 12;
+
+    document.getElementById("btnNosMenos").disabled = placarNos <= 0;
+    document.getElementById("btnElesMenos").disabled = placarEles <= 0;
+
+    atualizarSimbolos();
 }
 
-html,
-body {
-    width: 100%;
-    height: 100%;
-}
 
-body {
-    background: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
+function atualizarSimbolos() {
 
-    overflow: hidden;
-    touch-action: manipulation;
-}
+    const simboloNos = document.getElementById("simboloNos");
+    const simboloEles = document.getElementById("simboloEles");
 
-button,
-select,
-input {
-    font-family: Arial, sans-serif;
-}
+    if (vitoriasNos > vitoriasEles) {
 
-.truco-container {
-    width: 100%;
-    min-height: 100vh;
+        simboloNos.textContent = "🏆";
+        simboloEles.textContent = "❌";
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    } else if (vitoriasEles > vitoriasNos) {
 
-    padding: 10px;
-}
+        simboloNos.textContent = "❌";
+        simboloEles.textContent = "🏆";
 
-/* GATO */
-.gato {
-    width: 100px;
-    height: auto;
-    display: block;
+    } else {
 
-    margin-bottom: 2px;
-}
-
-/* TÍTULO */
-h1 {
-    font-size: 30px;
-    letter-spacing: 3px;
-
-    margin-bottom: 18px;
-}
-
-/* PLACAR */
-.placar {
-    width: 100%;
-    max-width: 500px;
-
-    display: flex;
-    flex-direction: row;
-
-    align-items: center;
-    justify-content: center;
-
-    gap: 8px;
-}
-
-/* CADA TIME */
-.time {
-    width: 46%;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* NOME */
-.seletor-time {
-    width: 125px;
-    height: 40px;
-
-    padding: 0 6px;
-
-    border: 1px solid #444;
-    border-radius: 10px;
-
-    background: #111;
-    color: #fff;
-
-    font-size: 17px;
-    font-weight: bold;
-
-    text-align: center;
-}
-
-.nome-personalizado {
-    display: none;
-
-    width: 125px;
-    height: 36px;
-
-    margin-top: 4px;
-
-    padding: 0 7px;
-
-    border: 1px solid #444;
-    border-radius: 10px;
-
-    background: #111;
-    color: #fff;
-
-    font-size: 15px;
-
-    text-align: center;
-}
-
-.nome-personalizado.mostrar {
-    display: block;
-}
-
-/* VITÓRIAS */
-.resultado {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 5px;
-
-    min-height: 28px;
-
-    margin: 3px 0 4px;
-
-    font-size: 21px;
-    font-weight: bold;
-}
-
-/* BOTÕES DE PONTO */
-.botao-ponto {
-    width: 88px;
-    height: 44px;
-
-    border: none;
-    border-radius: 11px;
-
-    background: #fff;
-    color: #000;
-
-    font-size: 21px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.botao-ponto:active {
-    transform: scale(0.94);
-}
-
-.botao-ponto:disabled {
-    opacity: 0.25;
-}
-
-/* PONTUAÇÃO */
-.pontuacao {
-    font-size: 82px;
-    font-weight: bold;
-
-    line-height: 1;
-
-    margin: 5px 0;
-}
-
-/* DIVISOR */
-.divisor {
-    width: 2px;
-    height: 200px;
-
-    background: #333;
-}
-
-/* BOTÕES INFERIORES */
-.botoes {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    gap: 8px;
-
-    margin-top: 17px;
-}
-
-.botoes button {
-    width: 120px;
-    height: 44px;
-
-    border: 1px solid #444;
-    border-radius: 11px;
-
-    background: #111;
-    color: #fff;
-
-    font-size: 14px;
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.botoes button:active {
-    transform: scale(0.96);
-}
-
-/* CONFIRMAÇÃO */
-.confirmacao {
-    position: fixed;
-
-    inset: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    background: rgba(0, 0, 0, 0.78);
-
-    z-index: 100;
-}
-
-.confirmacao.oculto {
-    display: none;
-}
-
-.confirmacao-caixa {
-    width: 100%;
-    max-width: 320px;
-
-    padding: 20px 16px;
-
-    border: 1px solid #444;
-    border-radius: 16px;
-
-    background: #111;
-
-    text-align: center;
-}
-
-.mensagem-vitoria {
-    font-size: 21px;
-    font-weight: bold;
-
-    margin-bottom: 16px;
-}
-
-.botoes-confirmacao {
-    display: flex;
-    flex-direction: column;
-
-    gap: 9px;
-}
-
-.botoes-confirmacao button {
-    width: 100%;
-    min-height: 45px;
-
-    border: 1px solid #444;
-    border-radius: 11px;
-
-    background: #fff;
-    color: #000;
-
-    font-size: 15px;
-    font-weight: bold;
-}
-
-.botoes-confirmacao button:last-child {
-    background: #111;
-    color: #fff;
-}
-
-/* CELULAR */
-@media (max-width: 500px) {
-
-    .truco-container {
-        justify-content: flex-start;
-
-        padding: 12px 8px 8px;
-    }
-
-    .gato {
-        width: 85px;
-    }
-
-    h1 {
-        font-size: 26px;
-        margin-bottom: 12px;
-    }
-
-    .placar {
-        gap: 3px;
-    }
-
-    .time {
-        width: 46%;
-    }
-
-    .seletor-time {
-        width: 112px;
-        height: 38px;
-
-        font-size: 16px;
-    }
-
-    .nome-personalizado {
-        width: 112px;
-        height: 34px;
-
-        font-size: 14px;
-    }
-
-    .resultado {
-        font-size: 20px;
-
-        min-height: 27px;
-
-        margin: 2px 0 3px;
-    }
-
-    .botao-ponto {
-        width: 82px;
-        height: 42px;
-
-        font-size: 20px;
-    }
-
-    .pontuacao {
-        font-size: 76px;
-
-        margin: 4px 0;
-    }
-
-    .divisor {
-        height: 190px;
-    }
-
-    .botoes {
-        margin-top: 15px;
-        gap: 6px;
-    }
-
-    .botoes button {
-        width: 118px;
-        height: 43px;
-
-        font-size: 13px;
+        simboloNos.textContent = "❌";
+        simboloEles.textContent = "❌";
     }
 }
+
+
+function adicionarPonto(time) {
+
+    if (vencedorPendente !== null) {
+        return;
+    }
+
+    if (time === "nos" && placarNos < 12) {
+
+        placarNos++;
+
+        if (placarNos === 12) {
+            abrirConfirmacao("nos");
+        }
+    }
+
+    if (time === "eles" && placarEles < 12) {
+
+        placarEles++;
+
+        if (placarEles === 12) {
+            abrirConfirmacao("eles");
+        }
+    }
+
+    atualizarPlacar();
+}
+
+
+function removerPonto(time) {
+
+    if (vencedorPendente !== null) {
+        return;
+    }
+
+    if (time === "nos" && placarNos > 0) {
+        placarNos--;
+    }
+
+    if (time === "eles" && placarEles > 0) {
+        placarEles--;
+    }
+
+    atualizarPlacar();
+}
+
+
+function abrirConfirmacao(time) {
+
+    vencedorPendente = time;
+
+    const nome = obterNome(time);
+
+    document.getElementById("mensagemVitoria").textContent =
+        nome + " venceu a partida?";
+
+    document.getElementById("confirmacao").classList.remove("oculto");
+}
+
+
+function confirmarVitoria() {
+
+    if (vencedorPendente === "nos") {
+        vitoriasNos++;
+    }
+
+    if (vencedorPendente === "eles") {
+        vitoriasEles++;
+    }
+
+    placarNos = 0;
+    placarEles = 0;
+
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
+    atualizarPlacar();
+}
+
+
+function cancelarVitoria() {
+
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
+    atualizarPlacar();
+}
+
+
+function zerarPartida() {
+
+    placarNos = 0;
+    placarEles = 0;
+
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
+    atualizarPlacar();
+}
+
+
+function obterNome(time) {
+
+    if (time === "nos") {
+
+        const seletor = document.getElementById("seletorNos");
+
+        if (seletor.value === "personalizado") {
+
+            const nome = document
+                .getElementById("nomeNos")
+                .value
+                .trim();
+
+            if (nome !== "") {
+                return nome;
+            }
+
+            return "NÓS";
+        }
+
+        return seletor.value;
+    }
+
+
+    if (time === "eles") {
+
+        const seletor = document.getElementById("seletorEles");
+
+        if (seletor.value === "personalizado") {
+
+            const nome = document
+                .getElementById("nomeEles")
+                .value
+                .trim();
+
+            if (nome !== "") {
+                return nome;
+            }
+
+            return "ELES";
+        }
+
+        return seletor.value;
+    }
+
+    return "";
+}
+
+
+function configurarSeletor(idSeletor, idInput) {
+
+    const seletor = document.getElementById(idSeletor);
+    const input = document.getElementById(idInput);
+
+    seletor.addEventListener("change", function () {
+
+        if (seletor.value === "personalizado") {
+
+            input.classList.add("mostrar");
+            input.focus();
+
+        } else {
+
+            input.classList.remove("mostrar");
+            input.value = "";
+        }
+    });
+
+    input.addEventListener("input", function () {
+
+        if (vencedorPendente !== null) {
+
+            const nome = obterNome(vencedorPendente);
+
+            document.getElementById("mensagemVitoria").textContent =
+                nome + " venceu a partida?";
+        }
+    });
+}
+
+
+function alternarTelaCheia() {
+
+    if (!document.fullscreenElement) {
+
+        document.documentElement
+            .requestFullscreen()
+            .catch(() => {});
+
+    } else {
+
+        document.exitFullscreen()
+            .catch(() => {});
+    }
+}
+
+
+configurarSeletor("seletorNos", "nomeNos");
+configurarSeletor("seletorEles", "nomeEles");
+
+atualizarPlacar();
