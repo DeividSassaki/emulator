@@ -28,9 +28,29 @@
 
         <div class="placar">
 
+            <!-- NÓS -->
             <section class="time">
 
-                <h2>NÓS</h2>
+                <select id="seletorNos" class="seletor-time">
+                    <option value="NÓS">NÓS</option>
+                    <option value="Eu">Eu</option>
+                    <option value="Nós">Nós</option>
+                    <option value="personalizado">Personalizar...</option>
+                </select>
+
+                <input
+                    type="text"
+                    id="nomeNos"
+                    class="nome-personalizado"
+                    maxlength="18"
+                    placeholder="Nome"
+                    autocomplete="off"
+                >
+
+                <div class="resultado">
+                    <span id="simboloNos">❌</span>
+                    <span id="vitoriasNos">0</span>
+                </div>
 
                 <button
                     id="btnNosMais"
@@ -59,9 +79,31 @@
 
             <div class="divisor"></div>
 
+            <!-- ELES -->
             <section class="time">
 
-                <h2>ELES</h2>
+                <select id="seletorEles" class="seletor-time">
+                    <option value="ELES">ELES</option>
+                    <option value="Ele">Ele</option>
+                    <option value="Ela">Ela</option>
+                    <option value="Eles">Eles</option>
+                    <option value="Elas">Elas</option>
+                    <option value="personalizado">Personalizar...</option>
+                </select>
+
+                <input
+                    type="text"
+                    id="nomeEles"
+                    class="nome-personalizado"
+                    maxlength="18"
+                    placeholder="Nome"
+                    autocomplete="off"
+                >
+
+                <div class="resultado">
+                    <span id="simboloEles">❌</span>
+                    <span id="vitoriasEles">0</span>
+                </div>
 
                 <button
                     id="btnElesMais"
@@ -92,7 +134,7 @@
 
         <div class="botoes">
 
-            <button onclick="zerarJogo()">
+            <button onclick="zerarPartida()">
                 ↺ Zerar
             </button>
 
@@ -103,6 +145,36 @@
         </div>
 
     </main>
+
+    <!-- CONFIRMAÇÃO DA VITÓRIA -->
+    <div id="confirmacao" class="confirmacao oculto">
+
+        <div class="confirmacao-caixa">
+
+            <div id="mensagemVitoria" class="mensagem-vitoria">
+                Confirmar vitória?
+            </div>
+
+            <div class="botoes-confirmacao">
+
+                <button
+                    id="btnConfirmar"
+                    onclick="confirmarVitoria()"
+                >
+                    🏆 Confirmar vitória
+                </button>
+
+                <button
+                    onclick="cancelarVitoria()"
+                >
+                    Corrigir
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
     <script src="script.js"></script>
 
