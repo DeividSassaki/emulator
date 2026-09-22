@@ -1,30 +1,75 @@
 let placarNos = 0;
 let placarEles = 0;
 
+let vitoriasNos = 0;
+let vitoriasEles = 0;
+
+let vencedorPendente = null;
+
 function atualizarPlacar() {
+
     document.getElementById("nos").textContent = placarNos;
     document.getElementById("eles").textContent = placarEles;
+
+    document.getElementById("vitoriasNos").textContent = vitoriasNos;
+    document.getElementById("vitoriasEles").textContent = vitoriasEles;
 
     document.getElementById("btnNosMais").disabled = placarNos >= 12;
     document.getElementById("btnElesMais").disabled = placarEles >= 12;
 
     document.getElementById("btnNosMenos").disabled = placarNos <= 0;
     document.getElementById("btnElesMenos").disabled = placarEles <= 0;
+
+    atualizarSimbolos();
+}
+
+function atualizarSimbolos() {
+
+    const simboloNos = document.getElementById("simboloNos");
+    const simboloEles = document.getElementById("simboloEles");
+
+    if (vitoriasNos > vitoriasEles) {
+
+        simboloNos.textContent = "🏆";
+        simboloEles.textContent = "❌";
+
+    } else if (vitoriasEles > vitoriasNos) {
+
+        simboloNos.textContent = "❌";
+        simboloEles.textContent = "🏆";
+
+    } else {
+
+        simboloNos.textContent = "❌";
+        simboloEles.textContent = "❌";
+    }
 }
 
 function adicionarPonto(time) {
+
     if (time === "nos" && placarNos < 12) {
+
         placarNos++;
+
+        if (placarNos === 12) {
+            abrirConfirmacao("nos");
+        }
     }
 
     if (time === "eles" && placarEles < 12) {
+
         placarEles++;
+
+        if (placarEles === 12) {
+            abrirConfirmacao("eles");
+        }
     }
 
     atualizarPlacar();
 }
 
 function removerPonto(time) {
+
     if (time === "nos" && placarNos > 0) {
         placarNos--;
     }
@@ -33,22 +78,160 @@ function removerPonto(time) {
         placarEles--;
     }
 
+    if (vencedorPendente !== null) {
+        cancelarVitoria();
+    }
+
     atualizarPlacar();
 }
 
-function zerarJogo() {
+function abrirConfirmacao(time) {
+
+    vencedorPendente = time;
+
+    const nome = obterNome(time);
+
+    document.getElementById("mensagemVitoria").textContent =
+        nome + " venceu a partida?";
+
+    document.getElementById("confirmacao").classList.remove("oculto");
+}
+
+function confirmarVitoria() {
+
+    if (vencedorPendente === "nos") {
+        vitoriasNos++;
+    }
+
+    if (vencedorPendente === "eles") {
+        vitoriasEles++;
+    }
+
     placarNos = 0;
     placarEles = 0;
 
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
     atualizarPlacar();
 }
 
+function cancelarVitoria() {
+
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
+    atualizarPlacar();
+}
+
+function zerarPartida() {
+
+    placarNos = 0;
+    placarEles = 0;
+
+    vencedorPendente = null;
+
+    document.getElementById("confirmacao").classList.add("oculto");
+
+    atualizarPlacar();
+}
+
+function obterNome(time) {
+
+    if (time === "nos") {
+
+        const seletor = document.getElementById("seletorNos");
+
+        if (seletor.value === "personalizado") {
+
+            const nome = document
+                .getElementById("nomeNos")
+                .value
+                .trim();
+
+            if (nome !== "") {
+                return nome;
+            }
+
+            return "NÓS";
+        }
+
+        return seletor.value;
+    }
+
+    if (time === "eles") {
+
+        const seletor = document.getElementById("seletorEles");
+
+        if (seletor.value === "personalizado") {
+
+            const nome = document
+                .getElementById("nomeEles")
+                .value
+                .trim();
+
+            if (nome !== "") {
+                return nome;
+            }
+
+            return "ELES";
+        }
+
+        return seletor.value;
+    }
+
+    return "";
+}
+
+function configurarSeletor(idSeletor, idInput) {
+
+    const seletor = document.getElementById(idSeletor);
+    const input = document.getElementById(idInput);
+
+    seletor.addEventListener("change", function () {
+
+        if (seletor.value === "personalizado") {
+
+            input.classList.add("mostrar");
+            input.focus();
+
+        } else {
+
+            input.classList.remove("mostrar");
+            input.value = "";
+        }
+    });
+
+    input.addEventListener("input", function () {
+
+        if (vencedorPendente !== null) {
+
+            const nome = obterNome(vencedorPendente);
+
+            document.getElementById("mensagemVitoria").textContent =
+                nome + " venceu a partida?";
+        }
+    });
+}
+
 function alternarTelaCheia() {
+
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+
+        document.documentElement
+            .requestFullscreen()
+            .catch(() => {});
+
     } else {
-        document.exitFullscreen().catch(() => {});
+
+        document.exitFullscreen()
+            .catch(() => {});
     }
 }
+
+configurarSeletor("seletorNos", "nomeNos");
+configurarSeletor("seletorEles", "nomeEles");
 
 atualizarPlacar();
