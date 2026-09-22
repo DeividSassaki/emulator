@@ -42,11 +42,13 @@ input {
 
 /* GATO */
 .gato {
-    width: 95px;
-    height: auto;
+    width: 180px;
+    height: 55px;
 
     display: block;
-    object-fit: contain;
+
+    object-fit: cover;
+    object-position: center 50%;
 
     margin-bottom: 8px;
 }
@@ -294,8 +296,10 @@ h1 {
     }
 
     .gato {
-        width: 90px;
-        margin-bottom: 7px;
+    width: 180px;
+    height: 55px;
+
+    margin-bottom: 7px;
     }
 
     h1 {
