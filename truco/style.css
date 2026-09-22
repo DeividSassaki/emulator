@@ -8,7 +8,7 @@
 html,
 body {
     width: 100%;
-    min-height: 100%;
+    height: 100%;
 }
 
 body {
@@ -29,49 +29,47 @@ input {
 .truco-container {
     width: 100%;
     max-width: 430px;
-    min-height: 100vh;
+    height: 100dvh;
 
     margin: 0 auto;
-    padding: 10px 8px;
+    padding: 15px 8px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
 /* GATO */
 .gato {
-    width: 80px;
-    height: 32px;
-
-    object-fit: contain;
-    object-position: center;
+    width: 95px;
+    height: auto;
 
     display: block;
+    object-fit: contain;
 
-    margin-bottom: 2px;
+    margin-bottom: 8px;
 }
 
 /* TÍTULO */
 h1 {
-    font-size: 26px;
+    font-size: 30px;
     letter-spacing: 3px;
 
-    margin-bottom: 10px;
+    margin-bottom: 28px;
 }
 
-/* OS DOIS LADOS */
+/* PLACAR */
 .placar {
     width: 100%;
 
     display: flex;
     flex-direction: row;
 
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
 
-    gap: 4px;
+    gap: 8px;
 }
 
 /* CADA LADO */
@@ -83,43 +81,42 @@ h1 {
     align-items: center;
 }
 
-/* SELETOR */
+/* NOME */
 .seletor-time {
-    width: 112px;
-    height: 38px;
+    width: 130px;
+    height: 44px;
 
-    border: 1px solid #444;
-    border-radius: 10px;
+    padding: 0 8px;
 
-    background: #111;
+    border: 1px solid #555;
+    border-radius: 12px;
+
+    background: #444;
     color: #fff;
 
-    padding: 0 5px;
-
-    font-size: 16px;
+    font-size: 19px;
     font-weight: bold;
 
     text-align: center;
 }
 
-/* NOME PERSONALIZADO */
 .nome-personalizado {
     display: none;
 
-    width: 112px;
-    height: 34px;
+    width: 130px;
+    height: 42px;
 
-    margin-top: 4px;
+    margin-top: 6px;
 
-    padding: 0 6px;
+    padding: 0 8px;
 
-    border: 1px solid #444;
-    border-radius: 10px;
+    border: 2px solid #e5a600;
+    border-radius: 12px;
 
     background: #111;
     color: #fff;
 
-    font-size: 15px;
+    font-size: 18px;
 
     text-align: center;
 }
@@ -130,32 +127,32 @@ h1 {
 
 /* VITÓRIAS */
 .resultado {
-    min-height: 29px;
+    min-height: 38px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    gap: 4px;
+    gap: 5px;
 
-    margin: 2px 0 3px;
+    margin: 10px 0 10px;
 
-    font-size: 21px;
+    font-size: 25px;
     font-weight: bold;
 }
 
 /* BOTÕES +1 / -1 */
 .botao-ponto {
-    width: 82px;
-    height: 42px;
+    width: 95px;
+    height: 48px;
 
     border: none;
-    border-radius: 11px;
+    border-radius: 12px;
 
-    background: #fff;
-    color: #000;
+    background: #666;
+    color: #fff;
 
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
 
     cursor: pointer;
@@ -169,22 +166,24 @@ h1 {
     opacity: 0.25;
 }
 
-/* PONTOS */
+/* PONTUAÇÃO */
 .pontuacao {
-    font-size: 76px;
+    font-size: 88px;
     font-weight: bold;
 
     line-height: 1;
 
-    margin: 4px 0;
+    margin: 12px 0;
 }
 
 /* DIVISOR */
 .divisor {
-    width: 2px;
-    height: 185px;
+    width: 3px;
+    height: 320px;
 
-    background: #333;
+    margin: 0 3px;
+
+    background: #555;
 }
 
 /* BOTÕES INFERIORES */
@@ -194,22 +193,22 @@ h1 {
 
     justify-content: center;
 
-    gap: 7px;
+    gap: 10px;
 
-    margin-top: 14px;
+    margin-top: 30px;
 }
 
 .botoes button {
-    width: 118px;
-    height: 43px;
+    width: 135px;
+    height: 48px;
 
-    border: 1px solid #444;
-    border-radius: 11px;
+    border: 1px solid #555;
+    border-radius: 12px;
 
-    background: #111;
+    background: #444;
     color: #fff;
 
-    font-size: 13px;
+    font-size: 15px;
     font-weight: bold;
 
     cursor: pointer;
@@ -219,7 +218,7 @@ h1 {
     transform: scale(0.96);
 }
 
-/* JANELA DE CONFIRMAÇÃO */
+/* CONFIRMAÇÃO */
 .confirmacao {
     position: fixed;
 
@@ -244,9 +243,9 @@ h1 {
     width: 100%;
     max-width: 320px;
 
-    padding: 20px 16px;
+    padding: 22px 16px;
 
-    border: 1px solid #444;
+    border: 1px solid #555;
     border-radius: 16px;
 
     background: #111;
@@ -258,21 +257,21 @@ h1 {
     font-size: 21px;
     font-weight: bold;
 
-    margin-bottom: 16px;
+    margin-bottom: 17px;
 }
 
 .botoes-confirmacao {
     display: flex;
     flex-direction: column;
 
-    gap: 9px;
+    gap: 10px;
 }
 
 .botoes-confirmacao button {
     width: 100%;
-    min-height: 45px;
+    min-height: 46px;
 
-    border: 1px solid #444;
+    border: 1px solid #555;
     border-radius: 11px;
 
     background: #fff;
@@ -280,8 +279,6 @@ h1 {
 
     font-size: 15px;
     font-weight: bold;
-
-    cursor: pointer;
 }
 
 .botoes-confirmacao button:last-child {
@@ -289,32 +286,110 @@ h1 {
     color: #fff;
 }
 
-/* TELAS MUITO PEQUENAS */
-@media (max-height: 650px) {
+/* CELULAR */
+@media (max-width: 500px) {
 
     .truco-container {
-        padding-top: 5px;
+        padding: 12px 8px;
     }
 
     .gato {
-        width: 70px;
-        height: 26px;
-    }
-
-    h1 {
-        font-size: 24px;
+        width: 90px;
         margin-bottom: 7px;
     }
 
-    .divisor {
-        height: 165px;
+    h1 {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    .placar {
+        gap: 4px;
+    }
+
+    .time {
+        width: 45%;
+    }
+
+    .seletor-time {
+        width: 120px;
+        height: 43px;
+
+        font-size: 18px;
+    }
+
+    .nome-personalizado {
+        width: 120px;
+        height: 40px;
+    }
+
+    .resultado {
+        min-height: 34px;
+
+        font-size: 23px;
+
+        margin: 9px 0;
+    }
+
+    .botao-ponto {
+        width: 90px;
+        height: 46px;
+
+        font-size: 21px;
     }
 
     .pontuacao {
-        font-size: 68px;
+        font-size: 82px;
+
+        margin: 11px 0;
+    }
+
+    .divisor {
+        height: 300px;
     }
 
     .botoes {
-        margin-top: 9px;
+        margin-top: 25px;
+        gap: 8px;
+    }
+
+    .botoes button {
+        width: 128px;
+        height: 46px;
+    }
+}
+
+/* CELULARES COM TELA BAIXA */
+@media (max-width: 500px) and (max-height: 700px) {
+
+    .truco-container {
+        padding-top: 6px;
+    }
+
+    .gato {
+        width: 75px;
+        margin-bottom: 4px;
+    }
+
+    h1 {
+        font-size: 25px;
+        margin-bottom: 15px;
+    }
+
+    .resultado {
+        margin: 5px 0;
+    }
+
+    .pontuacao {
+        font-size: 70px;
+        margin: 7px 0;
+    }
+
+    .divisor {
+        height: 245px;
+    }
+
+    .botoes {
+        margin-top: 15px;
     }
 }
