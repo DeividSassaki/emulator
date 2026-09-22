@@ -377,7 +377,7 @@ h1 {
 
     .gato {
         width: 180px;
-        height: 180px;
+        height: auto;
 
         margin-bottom: -55px;
     }
