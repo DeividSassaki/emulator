@@ -43,15 +43,13 @@ input {
 /* GATO */
 .gato {
     width: 180px;
-    height: 55px;
+    height: 180px;
 
     display: block;
 
     object-fit: contain;
 
-    background: #000;
-
-    margin-bottom: 8px;
+    margin-bottom: -55px;
 }
 
 /* TÍTULO */
@@ -375,10 +373,15 @@ h1 {
         padding-top: 6px;
     }
 
+    .@media (max-width: 500px) {
+
     .gato {
-        width: 75px;
-        margin-bottom: 4px;
+        width: 180px;
+        height: 180px;
+
+        margin-bottom: -55px;
     }
+   }
 
     h1 {
         font-size: 25px;
