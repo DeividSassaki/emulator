@@ -1,4 +1,3 @@
-```javascript
 // =========================
 // CONFIGURAÇÃO
 // =========================
@@ -107,4 +106,3 @@ botaoResetar.addEventListener("click", () => {
 document
     .querySelector('[data-dado="6"]')
     .classList.add("selecionado");
-```
