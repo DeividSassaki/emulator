@@ -25,118 +25,182 @@ input {
     font-family: Arial, sans-serif;
 }
 
+
+/* =========================
+   CONTAINER PRINCIPAL
+   ========================= */
+
 .truco-container {
     width: 100%;
-    max-width: 430px;
+    max-width: 700px;
     height: 100dvh;
+
     margin: 0 auto;
-    padding: 15px 8px;
+    padding: 15px 10px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
 
+
 /* =========================
-   LOGOS / GATO
+   3 LOGOS
    ========================= */
-.gato {
+
+.logos {
     width: 100%;
-    max-width: 430px;
-    height: 90px;
-    margin: 5px auto 0;
+    max-width: 500px;
+    height: 100px;
+
+    margin: 0 auto 5px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    overflow: hidden;
-    position: relative;
-    background: #000;
+
+    gap: 20px;
 }
 
-.gato::before,
-.gato::after {
-    content: "";
-    width: 62px;
-    height: 62px;
-    flex: 0 0 62px;
-    background-image: url("../imagens/gato.png");
+
+/* Configuração comum das 3 imagens */
+
+.logo {
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+
+    flex-shrink: 0;
 }
 
-.gato img {
-    width: 74px;
-    height: 74px;
-    flex: 0 0 74px;
-    object-fit: contain;
-    position: static;
-    transform: none;
+
+/* =========================
+   LOGO ESQUERDA
+   ========================= */
+
+.logo-esquerda {
+    width: 70px;
+    height: 70px;
+
+    background-image: url("../imagens/gato.png");
 }
+
+
+/* =========================
+   LOGO CENTRAL
+   ========================= */
+
+.logo-centro {
+    width: 90px;
+    height: 90px;
+
+    background-image: url("../imagens/gato.png");
+}
+
+
+/* =========================
+   LOGO DIREITA
+   ========================= */
+
+.logo-direita {
+    width: 70px;
+    height: 70px;
+
+    background-image: url("../imagens/gato.png");
+}
+
 
 /* =========================
    TÍTULO
    ========================= */
+
 h1 {
     font-size: 30px;
     letter-spacing: 3px;
+
     margin-bottom: 28px;
 }
+
 
 /* =========================
    PLACAR
    ========================= */
+
 .placar {
     width: 100%;
-    max-width: 390px;
+    max-width: 500px;
+
     margin: 0 auto;
+
     display: flex;
     flex-direction: row;
     align-items: stretch;
     justify-content: center;
-    gap: 8px;
+
+    gap: 10px;
 }
 
+
 /* =========================
-   CADA LADO
+   CADA TIME
    ========================= */
+
 .time {
-    flex: 1 1 0;
-    width: auto;
+    flex: 1;
+
     min-width: 0;
+
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
+
 /* =========================
-   NOME / SELETOR
+   SELETOR DOS TIMES
    ========================= */
+
 .seletor-time {
     width: 130px;
     height: 44px;
+
     padding: 0 8px;
+
     border: 1px solid #555;
     border-radius: 12px;
+
     background: #444;
     color: #fff;
+
     font-size: 19px;
     font-weight: bold;
+
     text-align: center;
 }
 
+
+/* =========================
+   NOME PERSONALIZADO
+   ========================= */
+
 .nome-personalizado {
     display: none;
+
     width: 130px;
     height: 42px;
+
     margin-top: 6px;
     padding: 0 8px;
+
     border: 2px solid #e5a600;
     border-radius: 12px;
+
     background: #111;
     color: #fff;
+
     font-size: 18px;
+
     text-align: center;
 }
 
@@ -144,32 +208,44 @@ h1 {
     display: block;
 }
 
+
 /* =========================
    VITÓRIAS
    ========================= */
+
 .resultado {
     min-height: 38px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     gap: 5px;
+
     margin: 10px 0;
+
     font-size: 25px;
     font-weight: bold;
 }
 
+
 /* =========================
-   BOTÕES +1 / -1
+   BOTÃO +1 / -1
    ========================= */
+
 .botao-ponto {
     width: 95px;
     height: 48px;
+
     border: none;
     border-radius: 12px;
+
     background: #666;
     color: #fff;
+
     font-size: 22px;
     font-weight: bold;
+
     cursor: pointer;
 }
 
@@ -181,47 +257,65 @@ h1 {
     opacity: 0.25;
 }
 
+
 /* =========================
    PONTUAÇÃO
    ========================= */
+
 .pontuacao {
     font-size: 88px;
     font-weight: bold;
+
     line-height: 1;
+
     margin: 12px 0;
 }
+
 
 /* =========================
    DIVISOR
    ========================= */
+
 .divisor {
     width: 3px;
     height: 320px;
-    flex: 0 0 3px;
+
+    flex-shrink: 0;
+
     margin: 0 3px;
+
     background: #555;
 }
+
 
 /* =========================
    BOTÕES INFERIORES
    ========================= */
+
 .botoes {
     display: flex;
     flex-direction: row;
+
     justify-content: center;
+
     gap: 10px;
+
     margin-top: 30px;
 }
 
 .botoes button {
     width: 135px;
     height: 48px;
+
     border: 1px solid #555;
     border-radius: 12px;
+
     background: #444;
     color: #fff;
+
     font-size: 15px;
     font-weight: bold;
+
     cursor: pointer;
 }
 
@@ -229,17 +323,24 @@ h1 {
     transform: scale(0.96);
 }
 
+
 /* =========================
    CONFIRMAÇÃO DE VITÓRIA
    ========================= */
+
 .confirmacao {
     position: fixed;
+
     inset: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     padding: 18px;
+
     background: rgba(0, 0, 0, 0.80);
+
     z-index: 100;
 }
 
@@ -250,32 +351,41 @@ h1 {
 .confirmacao-caixa {
     width: 100%;
     max-width: 320px;
+
     padding: 22px 16px;
+
     border: 1px solid #555;
     border-radius: 16px;
+
     background: #111;
+
     text-align: center;
 }
 
 .mensagem-vitoria {
     font-size: 21px;
     font-weight: bold;
+
     margin-bottom: 17px;
 }
 
 .botoes-confirmacao {
     display: flex;
     flex-direction: column;
+
     gap: 10px;
 }
 
 .botoes-confirmacao button {
     width: 100%;
     min-height: 46px;
+
     border: 1px solid #555;
     border-radius: 11px;
+
     background: #fff;
     color: #000;
+
     font-size: 15px;
     font-weight: bold;
 }
@@ -285,97 +395,122 @@ h1 {
     color: #fff;
 }
 
+
 /* =========================
    CELULAR
    ========================= */
+
 @media (max-width: 500px) {
+
     .truco-container {
-        width: 100%;
-        max-width: 430px;
-        margin: 0 auto;
-        padding: 15px 8px;
-        align-items: center;
-        justify-content: center;
+        padding: 10px 8px;
     }
 
-    .gato {
-        width: 100%;
-        max-width: 430px;
-        height: 95px;
-        gap: 12px;
-        margin: 5px auto 0;
+
+    /* LOGOS */
+
+    .logos {
+        height: 85px;
+        gap: 8px;
+
+        margin-bottom: 3px;
     }
 
-    .gato::before,
-    .gato::after {
+    .logo-esquerda {
         width: 58px;
         height: 58px;
-        flex-basis: 58px;
     }
 
-    .gato img {
-        width: 70px;
-        height: 70px;
-        flex-basis: 70px;
+    .logo-centro {
+        width: 72px;
+        height: 72px;
     }
+
+    .logo-direita {
+        width: 58px;
+        height: 58px;
+    }
+
+
+    /* TÍTULO */
 
     h1 {
         font-size: 28px;
         margin-bottom: 24px;
     }
 
+
+    /* PLACAR */
+
     .placar {
         width: 100%;
-        max-width: 390px;
+        max-width: 420px;
+
         display: flex;
         flex-direction: row;
-        align-items: stretch;
+
         justify-content: center;
+        align-items: stretch;
+
         gap: 8px;
     }
 
+
     .time {
-        flex: 1 1 0;
-        width: auto;
+        flex: 1;
         min-width: 0;
     }
+
 
     .seletor-time {
         width: 120px;
         height: 43px;
+
         font-size: 18px;
     }
+
 
     .nome-personalizado {
         width: 120px;
         height: 40px;
     }
 
+
     .resultado {
         min-height: 34px;
+
         font-size: 23px;
+
         margin: 9px 0;
     }
+
 
     .botao-ponto {
         width: 90px;
         height: 46px;
+
         font-size: 21px;
     }
 
+
     .pontuacao {
         font-size: 82px;
+
         margin: 11px 0;
     }
+
 
     .divisor {
         height: 300px;
     }
 
+
     .botoes {
         margin-top: 25px;
+
         gap: 8px;
     }
+
 
     .botoes button {
         width: 128px;
@@ -383,50 +518,63 @@ h1 {
     }
 }
 
+
 /* =========================
    CELULARES COM TELA BAIXA
    ========================= */
+
 @media (max-width: 500px) and (max-height: 700px) {
+
     .truco-container {
         padding-top: 6px;
     }
 
-    .gato {
-        height: 82px;
-        margin-bottom: 4px;
-        gap: 8px;
+
+    .logos {
+        height: 70px;
+        gap: 5px;
+
+        margin-bottom: 2px;
     }
 
-    .gato::before,
-    .gato::after {
+    .logo-esquerda {
         width: 50px;
         height: 50px;
-        flex-basis: 50px;
     }
 
-    .gato img {
-        width: 60px;
-        height: 60px;
-        flex-basis: 60px;
+    .logo-centro {
+        width: 62px;
+        height: 62px;
     }
+
+    .logo-direita {
+        width: 50px;
+        height: 50px;
+    }
+
 
     h1 {
         font-size: 25px;
         margin-bottom: 15px;
     }
 
+
     .resultado {
         margin: 5px 0;
     }
 
+
     .pontuacao {
         font-size: 70px;
+
         margin: 7px 0;
     }
+
 
     .divisor {
         height: 245px;
     }
+
 
     .botoes {
         margin-top: 15px;
