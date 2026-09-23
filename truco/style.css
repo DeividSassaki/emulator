@@ -80,8 +80,8 @@ input {
    ========================= */
 
 .logo-esquerda {
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
 
     background-image: url("../imagens/Voidcat.png");
 }
@@ -92,8 +92,8 @@ input {
    ========================= */
 
 .logo-centro {
-    width: 90px;
-    height: 90px;
+    width: 100px;
+    height: 100px;
 
     background-image: url("../imagens/Voidcat_NFC.png");
 }
@@ -104,8 +104,8 @@ input {
    ========================= */
 
 .logo-direita {
-    width: 70px;
-    height: 70px;
+    width: 100px;
+    height: 100px;
 
     background-image: url("../imagens/gato.png");
 }
