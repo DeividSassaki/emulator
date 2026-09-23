@@ -1,373 +1,34 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-  }
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+}
 
 html,
 body {
-width: 100%;
-height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 body {
-background: #000;
-color: #fff;
-font-family: Arial, sans-serif;
-overflow: hidden;
-touch-action: manipulation;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    touch-action: manipulation;
 }
 
 button,
 select,
 input {
-font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif;
 }
 
 .truco-container {
-width: 100%;
-max-width: 430px;
-height: 100dvh;
-
-
-margin: 0 auto;
-padding: 15px 8px;
-
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-
-
-}
-
-/* =========================
-GATO - DESKTOP
-========================= */
-
-.gato {
-width: 500px;
-max-width: 100%;
-height: 80px;
-
-margin: 5px auto -5px;
-
-overflow: hidden;
-position: relative;
-
-background: #000;
-
-}
-
-.gato img {
-width: 120px;
-height: auto;
-
-max-width: none;
-
-position: absolute;
-
-left: 50%;
-top: -15px;
-
-transform: translateX(-50%);
-
-}
-
-/* =========================
-TÍTULO
-========================= */
-
-h1 {
-font-size: 30px;
-letter-spacing: 3px;
-
-margin-bottom: 28px;
-
-}
-
-/* =========================
-PLACAR
-========================= */
-
-.placar {
-  width: 100%;
-  max-width: 390px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-  align-items: stretch;
-  justify-content: center;
-  gap: 8px;
-}
-
-/* =========================
-CADA LADO
-========================= */
-
-.time {
-  flex: 1;
-  width: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* =========================
-NOME / SELETOR
-========================= */
-
-.seletor-time {
-width: 130px;
-height: 44px;
-
-padding: 0 8px;
-
-border: 1px solid #555;
-border-radius: 12px;
-
-background: #444;
-color: #fff;
-
-font-size: 19px;
-font-weight: bold;
-
-text-align: center;
-
-}
-
-.nome-personalizado {
-display: none;
-
-width: 130px;
-height: 42px;
-
-margin-top: 6px;
-padding: 0 8px;
-
-border: 2px solid #e5a600;
-border-radius: 12px;
-
-background: #111;
-color: #fff;
-
-font-size: 18px;
-
-text-align: center;
-
-}
-
-.nome-personalizado.mostrar {
-display: block;
-}
-
-/* =========================
-VITÓRIAS
-========================= */
-
-.resultado {
-min-height: 38px;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-gap: 5px;
-
-margin: 10px 0;
-
-font-size: 25px;
-font-weight: bold;
-
-}
-
-/* =========================
-BOTÕES +1 / -1
-========================= */
-
-.botao-ponto {
-width: 95px;
-height: 48px;
-
-
-border: none;
-border-radius: 12px;
-
-background: #666;
-color: #fff;
-
-font-size: 22px;
-font-weight: bold;
-
-cursor: pointer;
-
-
-}
-
-.botao-ponto:active {
-transform: scale(0.94);
-}
-
-.botao-ponto:disabled {
-opacity: 0.25;
-}
-
-/* =========================
-PONTUAÇÃO
-========================= */
-
-.pontuacao {
-font-size: 88px;
-font-weight: bold;
-
-
-line-height: 1;
-
-margin: 12px 0;
-
-
-}
-
-/* =========================
-DIVISOR
-========================= */
-
-.divisor {
-width: 3px;
-height: 320px;
-
-
-margin: 0 3px;
-
-background: #555;
-
-
-}
-
-/* =========================
-BOTÕES INFERIORES
-========================= */
-
-.botoes {
-display: flex;
-flex-direction: row;
-
-
-justify-content: center;
-
-gap: 10px;
-
-margin-top: 30px;
-
-
-}
-
-.botoes button {
-width: 135px;
-height: 48px;
-
-
-border: 1px solid #555;
-border-radius: 12px;
-
-background: #444;
-color: #fff;
-
-font-size: 15px;
-font-weight: bold;
-
-cursor: pointer;
-
-
-}
-
-.botoes button:active {
-transform: scale(0.96);
-}
-
-/* =========================
-CONFIRMAÇÃO DE VITÓRIA
-========================= */
-
-.confirmacao {
-position: fixed;
-
-inset: 0;
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-padding: 18px;
-
-background: rgba(0, 0, 0, 0.80);
-
-z-index: 100;
-
-}
-
-.confirmacao.oculto {
-display: none;
-}
-
-.confirmacao-caixa {
-width: 100%;
-max-width: 320px;
-
-padding: 22px 16px;
-
-border: 1px solid #555;
-border-radius: 16px;
-
-background: #111;
-
-text-align: center;
-
-}
-
-.mensagem-vitoria {
-font-size: 21px;
-font-weight: bold;
-
-margin-bottom: 17px;
-
-}
-
-.botoes-confirmacao {
-display: flex;
-flex-direction: column;
-
-gap: 10px;
-  
-}
-
-.botoes-confirmacao button {
-width: 100%;
-min-height: 46px;
-border: 1px solid #555;
-border-radius: 11px;
-
-background: #fff;
-color: #000;
-
-font-size: 15px;
-font-weight: bold;
-
-}
-
-.botoes-confirmacao button:last-child {
-background: #111;
-color: #fff;
-}
-
-/* =========================
-CELULAR
-========================= */
-
-@media (max-width: 500px) {
-
-.truco-container {
+    width: 100%;
+    max-width: 430px;
+    height: 100dvh;
     margin: 0 auto;
     padding: 15px 8px;
     display: flex;
@@ -376,30 +37,60 @@ CELULAR
     justify-content: center;
 }
 
-/* GATO MOBILE */
-
+/* =========================
+   LOGOS / GATO
+   ========================= */
 .gato {
     width: 100%;
     max-width: 430px;
-    height: 110px;
+    height: 90px;
+    margin: 5px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+}
 
-    margin: 5px auto -5px;
+.gato::before,
+.gato::after {
+    content: "";
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    background-image: url("../imagens/gato.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
 }
 
 .gato img {
-    width: 180px;
-    top: -20px;
+    width: 74px;
+    height: 74px;
+    flex: 0 0 74px;
+    object-fit: contain;
+    position: static;
+    transform: none;
 }
 
-
+/* =========================
+   TÍTULO
+   ========================= */
 h1 {
-    font-size: 28px;
-    margin-bottom: 24px;
+    font-size: 30px;
+    letter-spacing: 3px;
+    margin-bottom: 28px;
 }
 
-
+/* =========================
+   PLACAR
+   ========================= */
 .placar {
     width: 100%;
+    max-width: 390px;
+    margin: 0 auto;
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -407,119 +98,337 @@ h1 {
     gap: 8px;
 }
 
-
+/* =========================
+   CADA LADO
+   ========================= */
 .time {
-    width: 45%;
-}
-
-
-.seletor-time {
-    width: 120px;
-    height: 43px;
-
-    font-size: 18px;
-}
-
-
-.nome-personalizado {
-    width: 120px;
-    height: 40px;
-}
-
-
-.resultado {
-    min-height: 34px;
-
-    font-size: 23px;
-
-    margin: 9px 0;
-}
-
-
-.botao-ponto {
-    width: 90px;
-    height: 46px;
-
-    font-size: 21px;
-}
-
-
-.pontuacao {
-    font-size: 82px;
-
-    margin: 11px 0;
-}
-
-
-.divisor {
-    height: 300px;
-}
-
-
-.botoes {
-    margin-top: 25px;
-
-    gap: 8px;
-}
-
-
-.botoes button {
-    width: 128px;
-    height: 46px;
-}
-
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 /* =========================
-CELULARES COM TELA BAIXA
-========================= */
-
-@media (max-width: 500px) and (max-height: 700px) {
-
-.truco-container {
-    padding-top: 6px;
+   NOME / SELETOR
+   ========================= */
+.seletor-time {
+    width: 130px;
+    height: 44px;
+    padding: 0 8px;
+    border: 1px solid #555;
+    border-radius: 12px;
+    background: #444;
+    color: #fff;
+    font-size: 19px;
+    font-weight: bold;
+    text-align: center;
 }
 
-
-.gato {
-    height: 90px;
-
-    margin-bottom: 4px;
+.nome-personalizado {
+    display: none;
+    width: 130px;
+    height: 42px;
+    margin-top: 6px;
+    padding: 0 8px;
+    border: 2px solid #e5a600;
+    border-radius: 12px;
+    background: #111;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
 }
 
-
-.gato img {
-    width: 160px;
-    top: -18px;
+.nome-personalizado.mostrar {
+    display: block;
 }
 
-
-h1 {
-    font-size: 25px;
-
-    margin-bottom: 15px;
-}
-
-
+/* =========================
+   VITÓRIAS
+   ========================= */
 .resultado {
-    margin: 5px 0;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    margin: 10px 0;
+    font-size: 25px;
+    font-weight: bold;
 }
 
+/* =========================
+   BOTÕES +1 / -1
+   ========================= */
+.botao-ponto {
+    width: 95px;
+    height: 48px;
+    border: none;
+    border-radius: 12px;
+    background: #666;
+    color: #fff;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
 
+.botao-ponto:active {
+    transform: scale(0.94);
+}
+
+.botao-ponto:disabled {
+    opacity: 0.25;
+}
+
+/* =========================
+   PONTUAÇÃO
+   ========================= */
 .pontuacao {
-    font-size: 70px;
-
-    margin: 7px 0;
+    font-size: 88px;
+    font-weight: bold;
+    line-height: 1;
+    margin: 12px 0;
 }
 
-
+/* =========================
+   DIVISOR
+   ========================= */
 .divisor {
-    height: 245px;
+    width: 3px;
+    height: 320px;
+    flex: 0 0 3px;
+    margin: 0 3px;
+    background: #555;
 }
 
-
+/* =========================
+   BOTÕES INFERIORES
+   ========================= */
 .botoes {
-    margin-top: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px;
 }
 
+.botoes button {
+    width: 135px;
+    height: 48px;
+    border: 1px solid #555;
+    border-radius: 12px;
+    background: #444;
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.botoes button:active {
+    transform: scale(0.96);
+}
+
+/* =========================
+   CONFIRMAÇÃO DE VITÓRIA
+   ========================= */
+.confirmacao {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(0, 0, 0, 0.80);
+    z-index: 100;
+}
+
+.confirmacao.oculto {
+    display: none;
+}
+
+.confirmacao-caixa {
+    width: 100%;
+    max-width: 320px;
+    padding: 22px 16px;
+    border: 1px solid #555;
+    border-radius: 16px;
+    background: #111;
+    text-align: center;
+}
+
+.mensagem-vitoria {
+    font-size: 21px;
+    font-weight: bold;
+    margin-bottom: 17px;
+}
+
+.botoes-confirmacao {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.botoes-confirmacao button {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid #555;
+    border-radius: 11px;
+    background: #fff;
+    color: #000;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.botoes-confirmacao button:last-child {
+    background: #111;
+    color: #fff;
+}
+
+/* =========================
+   CELULAR
+   ========================= */
+@media (max-width: 500px) {
+    .truco-container {
+        width: 100%;
+        max-width: 430px;
+        margin: 0 auto;
+        padding: 15px 8px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .gato {
+        width: 100%;
+        max-width: 430px;
+        height: 95px;
+        gap: 12px;
+        margin: 5px auto 0;
+    }
+
+    .gato::before,
+    .gato::after {
+        width: 58px;
+        height: 58px;
+        flex-basis: 58px;
+    }
+
+    .gato img {
+        width: 70px;
+        height: 70px;
+        flex-basis: 70px;
+    }
+
+    h1 {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    .placar {
+        width: 100%;
+        max-width: 390px;
+        display: flex;
+        flex-direction: row;
+        align-items: stretch;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .time {
+        flex: 1 1 0;
+        width: auto;
+        min-width: 0;
+    }
+
+    .seletor-time {
+        width: 120px;
+        height: 43px;
+        font-size: 18px;
+    }
+
+    .nome-personalizado {
+        width: 120px;
+        height: 40px;
+    }
+
+    .resultado {
+        min-height: 34px;
+        font-size: 23px;
+        margin: 9px 0;
+    }
+
+    .botao-ponto {
+        width: 90px;
+        height: 46px;
+        font-size: 21px;
+    }
+
+    .pontuacao {
+        font-size: 82px;
+        margin: 11px 0;
+    }
+
+    .divisor {
+        height: 300px;
+    }
+
+    .botoes {
+        margin-top: 25px;
+        gap: 8px;
+    }
+
+    .botoes button {
+        width: 128px;
+        height: 46px;
+    }
+}
+
+/* =========================
+   CELULARES COM TELA BAIXA
+   ========================= */
+@media (max-width: 500px) and (max-height: 700px) {
+    .truco-container {
+        padding-top: 6px;
+    }
+
+    .gato {
+        height: 82px;
+        margin-bottom: 4px;
+        gap: 8px;
+    }
+
+    .gato::before,
+    .gato::after {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+    }
+
+    .gato img {
+        width: 60px;
+        height: 60px;
+        flex-basis: 60px;
+    }
+
+    h1 {
+        font-size: 25px;
+        margin-bottom: 15px;
+    }
+
+    .resultado {
+        margin: 5px 0;
+    }
+
+    .pontuacao {
+        font-size: 70px;
+        margin: 7px 0;
+    }
+
+    .divisor {
+        height: 245px;
+    }
+
+    .botoes {
+        margin-top: 15px;
+    }
 }
