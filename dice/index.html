@@ -1,1 +1,71 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rolador de Dados</title>
+    <link rel="stylesheet" href="style.css">
+</head>
 
+<body>
+
+    <main class="container">
+
+        <!-- TRÊS IMAGENS -->
+        <div class="logos">
+            <img src="imagens/logo1.png" alt="Logo 1" class="logo logo1">
+            <img src="imagens/logo2.png" alt="Logo 2" class="logo logo2">
+            <img src="imagens/logo3.png" alt="Logo 3" class="logo logo3">
+        </div>
+
+        <h1>ROLADOR DE DADOS</h1>
+
+        <!-- ESCOLHA DO DADO -->
+        <div class="dados">
+            <button class="dado-btn" data-dado="4">D4</button>
+            <button class="dado-btn" data-dado="6">D6</button>
+            <button class="dado-btn" data-dado="8">D8</button>
+            <button class="dado-btn" data-dado="10">D10</button>
+            <button class="dado-btn" data-dado="12">D12</button>
+            <button class="dado-btn" data-dado="20">D20</button>
+        </div>
+
+        <!-- ÁREA DO DADO -->
+        <div class="area-dado">
+
+            <div id="dado3d" class="dado3d">
+                <span id="numeroDado">6</span>
+            </div>
+
+        </div>
+
+        <!-- BOTÃO DE ROLAR -->
+        <button id="rolar" class="botao-rolar">
+            ROLAR DADO
+        </button>
+
+        <!-- RESULTADO -->
+        <div class="caixa">
+            <div class="titulo-caixa">ÚLTIMO RESULTADO</div>
+            <div id="resultado">—</div>
+        </div>
+
+        <!-- TOTAL -->
+        <div class="caixa">
+            <div class="titulo-caixa">TOTAL</div>
+            <div id="total">0</div>
+        </div>
+
+        <!-- RESET -->
+        <button id="resetar" class="botao-resetar">
+            RESETAR
+        </button>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+```
