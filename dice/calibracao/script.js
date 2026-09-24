@@ -480,7 +480,7 @@ function aplicarTextura(
 
 
     textura.flipY =
-        false;
+        true;
 
 
     textura.anisotropy =
