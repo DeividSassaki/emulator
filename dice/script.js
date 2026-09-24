@@ -2,84 +2,94 @@ import * as THREE from "https://esm.sh/three@0.186.0";
 import { ColladaLoader } from "https://esm.sh/three@0.186.0/examples/jsm/loaders/ColladaLoader.js?deps=three@0.186.0";
 
 
+// =====================================================
+// ELEMENTOS
+// =====================================================
+
 const container = document.getElementById("dado3d");
 const resultadoElemento = document.getElementById("resultado");
 const totalElemento = document.getElementById("total");
 const dadoAtualElemento = document.getElementById("dadoAtual");
 
-const botoesDados = document.querySelectorAll(".dado-btn");
+const botoesDados =
+    document.querySelectorAll(".dado-btn");
 
-const botaoResetar = document.getElementById("resetar");
-const botaoTelaCheia = document.getElementById("telaCheia");
+const botaoResetar =
+    document.getElementById("resetar");
 
+const botaoTelaCheia =
+    document.getElementById("telaCheia");
+
+
+// =====================================================
+// ESTADO
+// =====================================================
 
 let dadoSelecionado = 6;
+
 let resultado = null;
+
 let total = 0;
 
 let dado3D = null;
+
 let rolando = false;
 
 let animacaoRolagem = null;
+
 let carregamentoId = 0;
 
 
 // =====================================================
-// ERRO
+// THREE.JS
 // =====================================================
 
-function mensagemErro(texto) {
+let cena;
 
-    console.error(texto);
+let camera;
 
-    if (dadoAtualElemento) {
-        dadoAtualElemento.textContent = texto;
-    }
+let renderizador;
 
-}
+let loader;
+
+let textureLoader;
 
 
 // =====================================================
 // TELA CHEIA
 // =====================================================
-// Registramos o botão antes da inicialização do 3D.
-// Assim, um problema no modelo não impede o botão de funcionar.
-// =====================================================
 
 if (botaoTelaCheia) {
 
-    botaoTelaCheia.addEventListener("click", async () => {
+    botaoTelaCheia.addEventListener(
+        "click",
+        async () => {
 
-        try {
+            try {
 
-            if (!document.fullscreenElement) {
+                if (!document.fullscreenElement) {
 
-                if (!document.documentElement.requestFullscreen) {
+                    await document
+                        .documentElement
+                        .requestFullscreen();
 
-                    throw new Error(
-                        "Tela cheia não é suportada neste navegador."
-                    );
+                } else {
+
+                    await document.exitFullscreen();
 
                 }
 
-                await document.documentElement.requestFullscreen();
+            } catch (erro) {
 
-            } else {
-
-                await document.exitFullscreen();
+                console.error(
+                    "Erro na tela cheia:",
+                    erro
+                );
 
             }
 
-        } catch (erro) {
-
-            console.error(
-                "Tela cheia não disponível:",
-                erro
-            );
-
         }
-
-    });
+    );
 
 
     document.addEventListener(
@@ -98,32 +108,7 @@ if (botaoTelaCheia) {
 
 
 // =====================================================
-// VERIFICAR CONTAINER
-// =====================================================
-
-if (!container) {
-
-    throw new Error(
-        'Elemento #dado3d não encontrado.'
-    );
-
-}
-
-
-// =====================================================
-// VARIÁVEIS DO THREE
-// =====================================================
-
-let cena;
-let camera;
-let renderizador;
-
-let loader;
-let textureLoader;
-
-
-// =====================================================
-// INICIALIZAÇÃO DO THREE
+// INICIAR THREE
 // =====================================================
 
 try {
@@ -131,25 +116,20 @@ try {
     cena = new THREE.Scene();
 
 
-    // -------------------------------------------------
-    // CÂMERA
-    // -------------------------------------------------
-
-    camera = new THREE.PerspectiveCamera(
-        38,
-
-        Math.max(
-            container.clientWidth,
-            1
-        ) /
-        Math.max(
-            container.clientHeight,
-            1
-        ),
-
-        0.1,
-        100
-    );
+    camera =
+        new THREE.PerspectiveCamera(
+            38,
+            Math.max(
+                container.clientWidth,
+                1
+            ) /
+            Math.max(
+                container.clientHeight,
+                1
+            ),
+            0.1,
+            100
+        );
 
 
     camera.position.set(
@@ -159,14 +139,11 @@ try {
     );
 
 
-    // -------------------------------------------------
-    // RENDERIZADOR
-    // -------------------------------------------------
-
     renderizador =
         new THREE.WebGLRenderer({
 
             antialias: true,
+
             alpha: true,
 
             powerPreference:
@@ -218,13 +195,13 @@ try {
 
 
     // =================================================
-    // ILUMINAÇÃO
+    // LUZ
     // =================================================
 
     const luzAmbiente =
         new THREE.AmbientLight(
             0xffffff,
-            2.2
+            2.5
         );
 
     cena.add(
@@ -235,7 +212,7 @@ try {
     const luzPrincipal =
         new THREE.DirectionalLight(
             0xffffff,
-            4
+            3.5
         );
 
 
@@ -331,19 +308,15 @@ try {
 } catch (erro) {
 
     console.error(
-        "Erro ao iniciar o motor 3D:",
+        "Erro iniciando Three.js:",
         erro
-    );
-
-    mensagemErro(
-        "ERRO NO 3D"
     );
 
 }
 
 
 // =====================================================
-// CAMINHO DO MODELO
+// CAMINHO DOS MODELOS
 // =====================================================
 
 function caminhoModelo(lados) {
@@ -354,7 +327,7 @@ function caminhoModelo(lados) {
 
 
 // =====================================================
-// CAMINHO DA TEXTURA
+// CAMINHO DAS TEXTURAS
 // =====================================================
 
 function caminhoTextura(lados) {
@@ -365,12 +338,111 @@ function caminhoTextura(lados) {
 
 
 // =====================================================
-// REMOVER DADO
+// ORIENTAÇÃO BASE DE CADA DADO
+// =====================================================
+//
+// IMPORTANTE:
+// Os modelos .dae já possuem uma orientação própria.
+// Não usamos mais uma rotação aleatória permanente.
+//
+// Se algum modelo específico precisar de correção,
+// podemos ajustar individualmente aqui.
+//
+// =====================================================
+
+function orientacaoBase(lados) {
+
+    const rotacoes = {
+
+        4: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+
+        6: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+
+        8: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+
+        10: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+
+        12: {
+            x: 0,
+            y: 0,
+            z: 0
+        },
+
+        20: {
+            x: 0,
+            y: 0,
+            z: 0
+        }
+
+    };
+
+
+    return (
+        rotacoes[lados] ||
+        rotacoes[6]
+    );
+
+}
+
+
+// =====================================================
+// APLICAR ORIENTAÇÃO BASE
+// =====================================================
+
+function aplicarOrientacaoBase() {
+
+    if (!dado3D) {
+
+        return;
+
+    }
+
+
+    const rotacao =
+        orientacaoBase(
+            dadoSelecionado
+        );
+
+
+    dado3D.rotation.set(
+
+        rotacao.x,
+
+        rotacao.y,
+
+        rotacao.z
+
+    );
+
+}
+
+
+// =====================================================
+// LIMPAR DADO
 // =====================================================
 
 function limparDado() {
 
-    if (!dado3D || !cena) {
+    if (
+        !dado3D ||
+        !cena
+    ) {
 
         return;
 
@@ -383,29 +455,25 @@ function limparDado() {
 
 
     dado3D.traverse(
-        (objeto) => {
+        objeto => {
 
-            if (!objeto.isMesh) {
+            if (
+                !objeto.isMesh
+            ) {
 
                 return;
 
             }
 
 
-            // -------------------------------
-            // GEOMETRIA
-            // -------------------------------
-
-            if (objeto.geometry) {
+            if (
+                objeto.geometry
+            ) {
 
                 objeto.geometry.dispose();
 
             }
 
-
-            // -------------------------------
-            // MATERIAL
-            // -------------------------------
 
             const materiais =
                 Array.isArray(
@@ -420,7 +488,7 @@ function limparDado() {
 
 
             materiais.forEach(
-                (material) => {
+                material => {
 
                     if (!material) {
 
@@ -429,7 +497,9 @@ function limparDado() {
                     }
 
 
-                    if (material.map) {
+                    if (
+                        material.map
+                    ) {
 
                         material.map.dispose();
 
@@ -451,12 +521,10 @@ function limparDado() {
 
 
 // =====================================================
-// CENTRALIZAR E AJUSTAR TAMANHO
+// CENTRALIZAR MODELO
 // =====================================================
 
-function centralizarEAjustarTamanho(
-    objeto
-) {
+function ajustarModelo(objeto) {
 
     let caixa =
         new THREE.Box3().setFromObject(
@@ -485,7 +553,9 @@ function centralizarEAjustarTamanho(
         );
 
 
-    if (maior > 0) {
+    if (
+        maior > 0
+    ) {
 
         objeto.scale.setScalar(
             2.3 / maior
@@ -493,8 +563,6 @@ function centralizarEAjustarTamanho(
 
     }
 
-
-    // Atualiza a caixa depois da escala.
 
     caixa =
         new THREE.Box3().setFromObject(
@@ -519,10 +587,10 @@ function centralizarEAjustarTamanho(
 
 
 // =====================================================
-// APLICAR TEXTURA
+// TEXTURA
 // =====================================================
 
-function aplicarTexturaNumerada(
+function aplicarTextura(
     objeto,
     textura
 ) {
@@ -548,9 +616,11 @@ function aplicarTexturaNumerada(
 
 
     objeto.traverse(
-        (mesh) => {
+        mesh => {
 
-            if (!mesh.isMesh) {
+            if (
+                !mesh.isMesh
+            ) {
 
                 return;
 
@@ -565,47 +635,22 @@ function aplicarTexturaNumerada(
                 true;
 
 
-            const novoMaterial =
+            const material =
                 new THREE.MeshStandardMaterial({
 
                     map: textura,
 
                     color: 0xffffff,
 
-                    roughness: 0.38,
+                    roughness: 0.35,
 
-                    metalness: 0.04
+                    metalness: 0.02
 
                 });
 
 
-            const antigos =
-                Array.isArray(
-                    mesh.material
-                )
-
-                    ? mesh.material
-
-                    : [
-                        mesh.material
-                    ];
-
-
-            antigos.forEach(
-                (material) => {
-
-                    if (material) {
-
-                        material.dispose();
-
-                    }
-
-                }
-            );
-
-
             mesh.material =
-                novoMaterial;
+                material;
 
         }
     );
@@ -621,20 +666,15 @@ function carregarDado(lados) {
 
     if (
         !loader ||
-        !textureLoader ||
-        !renderizador
+        !textureLoader
     ) {
-
-        mensagemErro(
-            "ERRO NO 3D"
-        );
 
         return;
 
     }
 
 
-    const idAtual =
+    const id =
         ++carregamentoId;
 
 
@@ -642,7 +682,9 @@ function carregarDado(lados) {
         false;
 
 
-    if (animacaoRolagem) {
+    if (
+        animacaoRolagem
+    ) {
 
         cancelAnimationFrame(
             animacaoRolagem
@@ -661,13 +703,13 @@ function carregarDado(lados) {
         `D${lados}`;
 
 
-    const caminhoDado =
+    const modelo =
         caminhoModelo(
             lados
         );
 
 
-    const caminhoMapa =
+    const mapa =
         caminhoTextura(
             lados
         );
@@ -679,13 +721,13 @@ function carregarDado(lados) {
 
     loader.load(
 
-        caminhoDado,
+        modelo,
 
 
-        (resultadoCollada) => {
+        collada => {
 
             if (
-                idAtual !==
+                id !==
                 carregamentoId
             ) {
 
@@ -694,37 +736,18 @@ function carregarDado(lados) {
             }
 
 
-            const modelo =
-                resultadoCollada?.scene;
-
-
-            if (!modelo) {
-
-                mensagemErro(
-                    `D${lados} SEM MODELO`
-                );
-
-                return;
-
-            }
-
-
             dado3D =
-                modelo;
+                collada.scene;
 
 
-            centralizarEAjustarTamanho(
+            ajustarModelo(
                 dado3D
             );
 
 
-            dado3D.rotation.set(
-
-                0.35,
-                0.5,
-                0.05
-
-            );
+            // IMPORTANTE:
+            // orientação inicial neutra
+            aplicarOrientacaoBase();
 
 
             // =========================================
@@ -733,13 +756,13 @@ function carregarDado(lados) {
 
             textureLoader.load(
 
-                caminhoMapa,
+                mapa,
 
 
-                (textura) => {
+                textura => {
 
                     if (
-                        idAtual !==
+                        id !==
                         carregamentoId
                     ) {
 
@@ -750,7 +773,7 @@ function carregarDado(lados) {
                     }
 
 
-                    aplicarTexturaNumerada(
+                    aplicarTextura(
                         dado3D,
                         textura
                     );
@@ -766,32 +789,20 @@ function carregarDado(lados) {
                 undefined,
 
 
-                (erro) => {
+                erro => {
 
                     console.error(
-
-                        "Erro ao carregar textura:",
-                        caminhoMapa,
+                        "Erro na textura:",
+                        mapa,
                         erro
-
                     );
 
 
-                    if (
-                        idAtual !==
-                        carregamentoId
-                    ) {
-
-                        return;
-
-                    }
-
-
                     // Mesmo sem textura,
-                    // mostra o modelo.
+                    // mostrar o modelo.
 
                     dado3D.traverse(
-                        (mesh) => {
+                        mesh => {
 
                             if (
                                 !mesh.isMesh
@@ -805,11 +816,11 @@ function carregarDado(lados) {
                             mesh.material =
                                 new THREE.MeshStandardMaterial({
 
-                                    color: 0x3a3a3a,
+                                    color: 0xffffff,
 
-                                    roughness: 0.4,
+                                    roughness: 0.35,
 
-                                    metalness: 0.05
+                                    metalness: 0.02
 
                                 });
 
@@ -819,13 +830,6 @@ function carregarDado(lados) {
 
                     cena.add(
                         dado3D
-                    );
-
-
-                    console.warn(
-
-                        `D${lados} abriu sem a textura numerada.`
-
                     );
 
                 }
@@ -838,31 +842,13 @@ function carregarDado(lados) {
         undefined,
 
 
-        (erro) => {
+        erro => {
 
             console.error(
-
-                "Erro ao carregar dado:",
-                caminhoDado,
+                "Erro carregando modelo:",
+                modelo,
                 erro
-
             );
-
-
-            if (
-                idAtual ===
-                carregamentoId
-            ) {
-
-                dado3D =
-                    null;
-
-
-                mensagemErro(
-                    `ERRO AO ABRIR D${lados}`
-                );
-
-            }
 
         }
 
@@ -882,7 +868,7 @@ function selecionarDado(lados) {
 
 
     botoesDados.forEach(
-        (botao) => {
+        botao => {
 
             botao.classList.toggle(
 
@@ -925,9 +911,9 @@ function rolarDado() {
         true;
 
 
-    // ================================================
+    // =================================================
     // RESULTADO
-    // ================================================
+    // =================================================
 
     resultado =
         Math.floor(
@@ -950,9 +936,9 @@ function rolarDado() {
         total;
 
 
-    // ================================================
+    // =================================================
     // POSIÇÃO INICIAL
-    // ================================================
+    // =================================================
 
     const inicioX =
         dado3D.position.x;
@@ -974,56 +960,83 @@ function rolarDado() {
         dado3D.rotation.z;
 
 
-    // ================================================
-    // POSIÇÃO FINAL
-    // ================================================
+    // =================================================
+    // MOVIMENTO
+    // =================================================
 
     const finalX =
         THREE.MathUtils.randFloat(
-            -1.5,
-            1.5
+            -1.4,
+            1.4
         );
 
 
-    const rotX =
+    const voltasX =
         THREE.MathUtils.randFloat(
-            12,
-            22
-        ) *
-        (
-            Math.random() < 0.5
-                ? -1
-                : 1
+            2.5,
+            4.5
         );
 
 
-    const rotY =
+    const voltasY =
         THREE.MathUtils.randFloat(
-            12,
-            22
-        ) *
-        (
-            Math.random() < 0.5
-                ? -1
-                : 1
+            2.5,
+            4.5
         );
 
 
-    const rotZ =
+    const voltasZ =
         THREE.MathUtils.randFloat(
-            12,
-            22
-        ) *
-        (
-            Math.random() < 0.5
-                ? -1
-                : 1
+            2.5,
+            4.5
         );
 
 
-    // ================================================
+    const sinalX =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+
+    const sinalY =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+
+    const sinalZ =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+
+    const finalRotX =
+        inicioRotX +
+        voltasX *
+        Math.PI *
+        2 *
+        sinalX;
+
+
+    const finalRotY =
+        inicioRotY +
+        voltasY *
+        Math.PI *
+        2 *
+        sinalY;
+
+
+    const finalRotZ =
+        inicioRotZ +
+        voltasZ *
+        Math.PI *
+        2 *
+        sinalZ;
+
+
+    // =================================================
     // TEMPO
-    // ================================================
+    // =================================================
 
     const inicio =
         performance.now();
@@ -1033,13 +1046,11 @@ function rolarDado() {
         1500;
 
 
-    // ================================================
+    // =================================================
     // ANIMAÇÃO
-    // ================================================
+    // =================================================
 
-    function animarRolagem(
-        agora
-    ) {
+    function animar(agora) {
 
         if (!dado3D) {
 
@@ -1065,13 +1076,21 @@ function rolarDado() {
             );
 
 
+        // ---------------------------------------------
+        // DESACELERAÇÃO
+        // ---------------------------------------------
+
         const suavizado =
             1 -
             Math.pow(
                 1 - progresso,
-                3
+                4
             );
 
+
+        // ---------------------------------------------
+        // SALTO
+        // ---------------------------------------------
 
         const salto =
             Math.sin(
@@ -1080,61 +1099,74 @@ function rolarDado() {
             );
 
 
-        // --------------------------------------------
+        // ---------------------------------------------
         // MOVIMENTO HORIZONTAL
-        // --------------------------------------------
+        // ---------------------------------------------
 
         dado3D.position.x =
             THREE.MathUtils.lerp(
 
                 inicioX,
+
                 finalX,
+
                 suavizado
 
             );
 
 
-        // --------------------------------------------
-        // SALTO
-        // --------------------------------------------
+        // ---------------------------------------------
+        // MOVIMENTO VERTICAL
+        // ---------------------------------------------
 
         dado3D.position.y =
-            THREE.MathUtils.lerp(
-
-                inicioY,
-                0,
-                suavizado
-
-            ) +
             salto *
-            1.2;
+            1.25;
 
 
-        // --------------------------------------------
+        // ---------------------------------------------
         // ROTAÇÃO
-        // --------------------------------------------
+        // ---------------------------------------------
 
         dado3D.rotation.x =
-            inicioRotX +
-            rotX *
-            suavizado;
+            THREE.MathUtils.lerp(
+
+                inicioRotX,
+
+                finalRotX,
+
+                suavizado
+
+            );
 
 
         dado3D.rotation.y =
-            inicioRotY +
-            rotY *
-            suavizado;
+            THREE.MathUtils.lerp(
+
+                inicioRotY,
+
+                finalRotY,
+
+                suavizado
+
+            );
 
 
         dado3D.rotation.z =
-            inicioRotZ +
-            rotZ *
-            suavizado;
+            THREE.MathUtils.lerp(
+
+                inicioRotZ,
+
+                finalRotZ,
+
+                suavizado
+
+            );
 
 
-        // --------------------------------------------
+        // ---------------------------------------------
         // CONTINUAR
-        // --------------------------------------------
+        // ---------------------------------------------
 
         if (
             progresso <
@@ -1143,34 +1175,52 @@ function rolarDado() {
 
             animacaoRolagem =
                 requestAnimationFrame(
-                    animarRolagem
+                    animar
                 );
 
-        } else {
-
-            rolando =
-                false;
-
-
-            dado3D.position.x =
-                0;
-
-
-            dado3D.position.y =
-                0;
-
-
-            animacaoRolagem =
-                null;
+            return;
 
         }
+
+
+        // =================================================
+        // FIM DA ROLAGEM
+        // =================================================
+
+        dado3D.position.x =
+            0;
+
+
+        dado3D.position.y =
+            0;
+
+
+        // MUITO IMPORTANTE:
+        //
+        // Em vez de deixar o dado na rotação
+        // aleatória em que terminou,
+        // voltamos para a orientação base.
+        //
+        // Isso impede o D4 de terminar apoiado
+        // na ponta.
+        // =================================================
+
+        aplicarOrientacaoBase();
+
+
+        rolando =
+            false;
+
+
+        animacaoRolagem =
+            null;
 
     }
 
 
     animacaoRolagem =
         requestAnimationFrame(
-            animarRolagem
+            animar
         );
 
 }
@@ -1181,12 +1231,10 @@ function rolarDado() {
 // =====================================================
 
 botoesDados.forEach(
-    (botao) => {
+    botao => {
 
         botao.addEventListener(
-
             "click",
-
             () => {
 
                 const lados =
@@ -1194,10 +1242,6 @@ botoesDados.forEach(
                         botao.dataset.dado
                     );
 
-
-                // --------------------------------------
-                // OUTRO DADO
-                // --------------------------------------
 
                 if (
                     lados !==
@@ -1221,16 +1265,11 @@ botoesDados.forEach(
 
                 } else {
 
-                    // ----------------------------------
-                    // MESMO DADO
-                    // ----------------------------------
-
                     rolarDado();
 
                 }
 
             }
-
         );
 
     }
@@ -1244,16 +1283,12 @@ botoesDados.forEach(
 if (botaoResetar) {
 
     botaoResetar.addEventListener(
-
         "click",
-
         () => {
 
-            // ------------------------------------------
-            // CANCELAR ANIMAÇÃO
-            // ------------------------------------------
-
-            if (animacaoRolagem) {
+            if (
+                animacaoRolagem
+            ) {
 
                 cancelAnimationFrame(
                     animacaoRolagem
@@ -1269,16 +1304,12 @@ if (botaoResetar) {
                 false;
 
 
-            // ------------------------------------------
-            // ZERAR VALORES
-            // ------------------------------------------
+            resultado =
+                null;
+
 
             total =
                 0;
-
-
-            resultado =
-                null;
 
 
             resultadoElemento.textContent =
@@ -1289,10 +1320,6 @@ if (botaoResetar) {
                 "0";
 
 
-            // ------------------------------------------
-            // RESETAR DADO
-            // ------------------------------------------
-
             if (dado3D) {
 
                 dado3D.position.set(
@@ -1302,29 +1329,22 @@ if (botaoResetar) {
                 );
 
 
-                dado3D.rotation.set(
-                    0.35,
-                    0.5,
-                    0.05
-                );
+                aplicarOrientacaoBase();
 
             }
 
         }
-
     );
 
 }
 
 
 // =====================================================
-// REDIMENSIONAMENTO
+// REDIMENSIONAR
 // =====================================================
 
 window.addEventListener(
-
     "resize",
-
     () => {
 
         if (
@@ -1362,18 +1382,19 @@ window.addEventListener(
         renderizador.setSize(
 
             largura,
+
             altura,
+
             false
 
         );
 
     }
-
 );
 
 
 // =====================================================
-// LOOP PRINCIPAL
+// LOOP
 // =====================================================
 
 function animar() {
@@ -1400,7 +1421,7 @@ function animar() {
 
 
 // =====================================================
-// INICIAR
+// INICIAR D6
 // =====================================================
 
 selecionarDado(
