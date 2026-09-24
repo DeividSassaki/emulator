@@ -114,7 +114,6 @@ const chao = new THREE.Mesh(
 );
 
 chao.rotation.x = -Math.PI / 2;
-
 chao.position.y = -1.15;
 
 chao.receiveShadow = true;
@@ -132,7 +131,8 @@ let ladosAtuais = 6;
 
 let rolando = false;
 
-let dadoSelecionado = false;
+// D6 começa selecionado
+let dadoSelecionado = true;
 
 let totalAtual = 0;
 
@@ -144,26 +144,18 @@ let modeloOriginal = null;
 // ============================================================
 
 function caminhoModelo(lados) {
-
     return `Dice_models/d${lados}.dae`;
-
 }
 
 
 function caminhoTextura(lados) {
-
     return `Maps_numbered/d${lados}_Numbers.png`;
-
 }
 
 
 // ============================================================
 // ORIENTAÇÃO BASE
 // ============================================================
-//
-// Usada somente quando o dado é carregado ou resetado.
-// Não é aplicada no final da rolagem.
-//
 
 function orientacaoBase(lados) {
 
@@ -208,7 +200,6 @@ function orientacaoBase(lados) {
     };
 
     return rotacoes[lados] || rotacoes[6];
-
 }
 
 
@@ -220,15 +211,38 @@ function aplicarOrientacaoBase() {
 
     if (!dado3D) return;
 
-    const rotacao =
-        orientacaoBase(ladosAtuais);
+    const rotacao = orientacaoBase(ladosAtuais);
 
     dado3D.rotation.set(
         rotacao.x,
         rotacao.y,
         rotacao.z
     );
+}
 
+
+// ============================================================
+// ATUALIZAR BOTÃO SELECIONADO
+// ============================================================
+
+function atualizarBotaoSelecionado(lados) {
+
+    botoesDados.forEach((botao) => {
+
+        const valor =
+            Number(botao.dataset.dado);
+
+        if (valor === lados) {
+
+            botao.classList.add("selecionado");
+
+        } else {
+
+            botao.classList.remove("selecionado");
+
+        }
+
+    });
 }
 
 
@@ -245,9 +259,7 @@ function limparModelo(objeto) {
         if (!parte.isMesh) return;
 
         if (parte.geometry) {
-
             parte.geometry.dispose();
-
         }
 
         if (parte.material) {
@@ -277,12 +289,11 @@ function limparModelo(objeto) {
         }
 
     });
-
 }
 
 
 // ============================================================
-// AJUSTAR TAMANHO DO MODELO
+// AJUSTAR TAMANHO
 // ============================================================
 
 function ajustarModelo(objeto) {
@@ -323,7 +334,6 @@ function ajustarModelo(objeto) {
     objeto.position.sub(centro);
 
     objeto.position.y += 0.05;
-
 }
 
 
@@ -389,7 +399,6 @@ function aplicarTextura(objeto, lados) {
         }
 
     );
-
 }
 
 
@@ -401,8 +410,9 @@ function carregarDado(lados) {
 
     ladosAtuais = lados;
 
-    // Trocar o dado exige uma nova seleção
-    dadoSelecionado = false;
+    dadoSelecionado = true;
+
+    atualizarBotaoSelecionado(lados);
 
 
     if (dado3D) {
@@ -507,7 +517,16 @@ botoesDados.forEach((botao) => {
                 );
 
 
-            dadoSelecionado = false;
+            // Seleciona imediatamente
+            // o botão clicado.
+
+            atualizarBotaoSelecionado(
+                lados
+            );
+
+
+            dadoSelecionado =
+                true;
 
 
             carregarDado(
@@ -526,10 +545,11 @@ botoesDados.forEach((botao) => {
 
 function easeOutCubic(t) {
 
-    return 1 - Math.pow(
-        1 - t,
-        3
-    );
+    return 1 -
+        Math.pow(
+            1 - t,
+            3
+        );
 
 }
 
@@ -554,7 +574,8 @@ function rolarDado() {
 
     const valor =
         Math.floor(
-            Math.random() * ladosAtuais
+            Math.random() *
+            ladosAtuais
         ) + 1;
 
 
@@ -583,7 +604,7 @@ function rolarDado() {
 
 
     // --------------------------------------------------------
-    // QUANTIDADE DE VOLTAS
+    // VOLTAS
     // --------------------------------------------------------
 
     const voltasX =
@@ -646,7 +667,7 @@ function rolarDado() {
 
 
     // --------------------------------------------------------
-    // POSIÇÃO
+    // ALTURA INICIAL
     // --------------------------------------------------------
 
     const inicioY =
@@ -654,7 +675,7 @@ function rolarDado() {
 
 
     // --------------------------------------------------------
-    // ANIMAÇÃO
+    // ANIMAÇÃO PRINCIPAL
     // --------------------------------------------------------
 
     const inicio =
@@ -669,7 +690,8 @@ function rolarDado() {
 
         const progresso =
             Math.min(
-                tempo / DURACAO_ROLAGEM,
+                tempo /
+                DURACAO_ROLAGEM,
                 1
             );
 
@@ -680,7 +702,7 @@ function rolarDado() {
             );
 
 
-        // Rotação
+        // Rotação X
 
         dado3D.rotation.x =
             THREE.MathUtils.lerp(
@@ -690,6 +712,8 @@ function rolarDado() {
             );
 
 
+        // Rotação Y
+
         dado3D.rotation.y =
             THREE.MathUtils.lerp(
                 inicioRotY,
@@ -697,6 +721,8 @@ function rolarDado() {
                 suavizado
             );
 
+
+        // Rotação Z
 
         dado3D.rotation.z =
             THREE.MathUtils.lerp(
@@ -710,7 +736,8 @@ function rolarDado() {
 
         const pulo =
             Math.sin(
-                progresso * Math.PI
+                progresso *
+                Math.PI
             ) * 0.65;
 
 
@@ -736,7 +763,6 @@ function rolarDado() {
         const inicioAssentamento =
             performance.now();
 
-
         const posicaoY =
             dado3D.position.y;
 
@@ -750,7 +776,8 @@ function rolarDado() {
 
             const progresso2 =
                 Math.min(
-                    tempo2 / TEMPO_ASSENTAR,
+                    tempo2 /
+                    TEMPO_ASSENTAR,
                     1
                 );
 
@@ -783,9 +810,8 @@ function rolarDado() {
             dado3D.position.y = 0;
 
 
-            // IMPORTANTE:
-            // Não volta para a posição inicial.
-            // Mantém a rotação onde terminou.
+            // Mantém exatamente a rotação
+            // onde terminou.
 
             rolando = false;
 
@@ -807,17 +833,14 @@ function rolarDado() {
 
 
 // ============================================================
-// TOQUE / CLIQUE NO DADO
+// TOQUE / CLIQUE NO DADO 3D
 // ============================================================
 //
-// Primeiro toque:
-//     seleciona o dado.
+// Se o dado já estiver selecionado:
+//     toca = rola.
 //
-// Segundo toque:
-//     rola o dado.
-//
-// Terceiro toque em diante:
-//     rola novamente.
+// Se nenhum dado estiver selecionado:
+//     toca = seleciona.
 //
 
 container.addEventListener(
@@ -830,14 +853,22 @@ container.addEventListener(
         if (rolando) return;
 
 
-        // PRIMEIRO TOQUE
+        // Nenhum dado selecionado:
+        // primeiro toque apenas seleciona.
+
         if (!dadoSelecionado) {
 
-            dadoSelecionado = true;
+            dadoSelecionado =
+                true;
+
+
+            atualizarBotaoSelecionado(
+                ladosAtuais
+            );
 
 
             dadoAtual.textContent =
-                `D${ladosAtuais} ✓`;
+                `D${ladosAtuais}`;
 
 
             return;
@@ -845,7 +876,9 @@ container.addEventListener(
         }
 
 
-        // SEGUNDO TOQUE OU MAIS
+        // Dado já selecionado:
+        // toca e rola.
+
         rolarDado();
 
     }
@@ -853,7 +886,7 @@ container.addEventListener(
 
 
 // ============================================================
-// RESET
+// RESETAR
 // ============================================================
 
 resetar.addEventListener(
@@ -888,7 +921,16 @@ resetar.addEventListener(
         }
 
 
-        dadoSelecionado = false;
+        // Mantém o tipo de dado atual
+        // selecionado após reset.
+
+        dadoSelecionado =
+            true;
+
+
+        atualizarBotaoSelecionado(
+            ladosAtuais
+        );
 
 
         dadoAtual.textContent =
@@ -910,7 +952,8 @@ telaCheia.addEventListener(
 
             if (!document.fullscreenElement) {
 
-                await document.documentElement.requestFullscreen();
+                await document.documentElement
+                    .requestFullscreen();
 
             } else {
 
@@ -932,7 +975,7 @@ telaCheia.addEventListener(
 
 
 // ============================================================
-// REDIMENSIONAMENTO
+// REDIMENSIONAR
 // ============================================================
 
 function redimensionar() {
@@ -955,7 +998,8 @@ function redimensionar() {
 
 
     camera.aspect =
-        largura / altura;
+        largura /
+        altura;
 
 
     camera.updateProjectionMatrix();
@@ -976,7 +1020,7 @@ window.addEventListener(
 
 
 // ============================================================
-// LOOP DE RENDERIZAÇÃO
+// LOOP
 // ============================================================
 
 function renderizar() {
@@ -999,6 +1043,11 @@ function renderizar() {
 // ============================================================
 
 redimensionar();
+
+
+// D6 começa selecionado visualmente.
+
+atualizarBotaoSelecionado(6);
 
 carregarDado(6);
 
