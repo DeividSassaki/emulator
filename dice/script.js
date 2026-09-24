@@ -902,7 +902,7 @@ function aplicarTexturaNumerada(
 
 
     textura.flipY =
-        false;
+        true;
 
 
     textura.wrapS =
