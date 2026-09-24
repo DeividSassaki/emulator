@@ -1,5 +1,7 @@
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js";
 
+import { ColladaLoader } from "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/loaders/ColladaLoader.js";
+
 
 // =====================================================
 // ELEMENTOS
@@ -12,6 +14,7 @@ const totalElemento = document.getElementById("total");
 const dadoAtualElemento = document.getElementById("dadoAtual");
 
 const botoesDados = document.querySelectorAll(".dado-btn");
+
 const botaoResetar = document.getElementById("resetar");
 const botaoTelaCheia = document.getElementById("telaCheia");
 
@@ -32,27 +35,17 @@ let rolando = false;
 
 let animationFrame = null;
 
-let movimento = {
-    inicio: 0,
-    duracao: 1300,
-
-    xInicial: 0,
-    yInicial: 0,
-
-    xFinal: 0,
-    yFinal: 0,
-
-    rotX: 0,
-    rotY: 0,
-    rotZ: 0
-};
-
 
 // =====================================================
-// THREE.JS
+// CENA
 // =====================================================
 
 const cena = new THREE.Scene();
+
+
+// =====================================================
+// CÂMERA
+// =====================================================
 
 const camera = new THREE.PerspectiveCamera(
     38,
@@ -61,8 +54,12 @@ const camera = new THREE.PerspectiveCamera(
     100
 );
 
-camera.position.set(0, 0.3, 6.5);
+camera.position.set(0, 0.3, 6);
 
+
+// =====================================================
+// RENDERIZADOR
+// =====================================================
 
 const renderizador = new THREE.WebGLRenderer({
     antialias: true,
@@ -89,7 +86,7 @@ container.appendChild(renderizador.domElement);
 
 const luzAmbiente = new THREE.AmbientLight(
     0xffffff,
-    2.2
+    2
 );
 
 cena.add(luzAmbiente);
@@ -101,8 +98,8 @@ const luzPrincipal = new THREE.DirectionalLight(
 );
 
 luzPrincipal.position.set(
-    3,
-    5,
+    4,
+    6,
     6
 );
 
@@ -119,7 +116,7 @@ const luzFrontal = new THREE.DirectionalLight(
 luzFrontal.position.set(
     -4,
     2,
-    4
+    5
 );
 
 cena.add(luzFrontal);
@@ -131,19 +128,18 @@ cena.add(luzFrontal);
 
 const chao = new THREE.Mesh(
 
-    new THREE.CircleGeometry(2.2, 64),
+    new THREE.CircleGeometry(2.3, 64),
 
     new THREE.MeshStandardMaterial({
         color: 0x111111,
-        roughness: 0.8,
-        metalness: 0
+        roughness: 0.8
     })
 
 );
 
 chao.rotation.x = -Math.PI / 2;
 
-chao.position.y = -1.35;
+chao.position.y = -1.45;
 
 chao.receiveShadow = true;
 
@@ -151,262 +147,291 @@ cena.add(chao);
 
 
 // =====================================================
-// MATERIAL DO DADO
+// LOADER
 // =====================================================
 
-function criarMaterial() {
+const loader = new ColladaLoader();
 
-    return new THREE.MeshStandardMaterial({
+const textureLoader = new THREE.TextureLoader();
 
-        color: 0xffffff,
 
-        roughness: 0.35,
+// =====================================================
+// CAMINHOS
+// =====================================================
 
-        metalness: 0.05,
+function caminhoModelo(lados) {
 
-        flatShading: true
+    return `Dice_models/d${lados}.dae`;
+
+}
+
+
+function caminhoTextura(lados) {
+
+    return `Maps_numbered/d${lados}_Numbers.png`;
+
+}
+
+
+// =====================================================
+// REMOVER DADO ATUAL
+// =====================================================
+
+function removerDado() {
+
+    if (!dado3D) {
+        return;
+    }
+
+
+    cena.remove(dado3D);
+
+
+    dado3D.traverse(objeto => {
+
+        if (!objeto.isMesh) {
+            return;
+        }
+
+
+        if (objeto.geometry) {
+            objeto.geometry.dispose();
+        }
+
+
+        if (objeto.material) {
+
+            if (Array.isArray(objeto.material)) {
+
+                objeto.material.forEach(material => {
+
+                    if (material.map) {
+                        material.map.dispose();
+                    }
+
+                    material.dispose();
+
+                });
+
+            } else {
+
+                if (objeto.material.map) {
+                    objeto.material.map.dispose();
+                }
+
+                objeto.material.dispose();
+
+            }
+
+        }
 
     });
 
+
+    dado3D = null;
 }
 
 
 // =====================================================
-// D10 PERSONALIZADO
+// CARREGAR DADO
 // =====================================================
 
-function criarD10() {
+function carregarDado(lados) {
 
-    const vertices = [];
-
-    const faces = [];
-
-    const raio = 1.15;
-
-    const raioAnel = 0.82;
-
-    const alturaAnel = 0.42;
-
-    const alturaTopo = 1.25;
-
-    const alturaBase = -1.25;
-
-
-    // topo
-    vertices.push(
-        0,
-        alturaTopo,
-        0
-    );
-
-
-    // anel superior
-    for (let i = 0; i < 5; i++) {
-
-        const angulo =
-            (i * Math.PI * 2 / 5) +
-            Math.PI / 10;
-
-        vertices.push(
-            Math.cos(angulo) * raioAnel,
-            alturaAnel,
-            Math.sin(angulo) * raioAnel
-        );
-
-    }
-
-
-    // anel inferior
-    for (let i = 0; i < 5; i++) {
-
-        const angulo =
-            (i * Math.PI * 2 / 5);
-
-        vertices.push(
-            Math.cos(angulo) * raioAnel,
-            -alturaAnel,
-            Math.sin(angulo) * raioAnel
-        );
-
-    }
-
-
-    // base
-    vertices.push(
-        0,
-        alturaBase,
-        0
-    );
-
-
-    // 5 faces superiores
-    for (let i = 0; i < 5; i++) {
-
-        const a = 0;
-
-        const b = 1 + i;
-
-        const c = 1 + ((i + 1) % 5);
-
-        faces.push(
-            a, b, c
-        );
-
-    }
-
-
-    // 5 faces inferiores
-    for (let i = 0; i < 5; i++) {
-
-        const a = 11;
-
-        const b = 6 + ((i + 1) % 5);
-
-        const c = 6 + i;
-
-        faces.push(
-            a, b, c
-        );
-
-    }
-
-
-    const geometria =
-        new THREE.BufferGeometry();
-
-    geometria.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(
-            vertices,
-            3
-        )
-    );
-
-    geometria.setIndex(faces);
-
-    geometria.computeVertexNormals();
-
-
-    return geometria;
-}
-
-
-// =====================================================
-// CRIAR GEOMETRIA
-// =====================================================
-
-function criarGeometria(lados) {
-
-    switch (lados) {
-
-        case 4:
-            return new THREE.TetrahedronGeometry(
-                1.35,
-                0
-            );
-
-        case 6:
-            return new THREE.BoxGeometry(
-                1.9,
-                1.9,
-                1.9
-            );
-
-        case 8:
-            return new THREE.OctahedronGeometry(
-                1.45,
-                0
-            );
-
-        case 10:
-            return criarD10();
-
-        case 12:
-            return new THREE.DodecahedronGeometry(
-                1.35,
-                0
-            );
-
-        case 20:
-            return new THREE.IcosahedronGeometry(
-                1.45,
-                0
-            );
-
-        default:
-            return new THREE.BoxGeometry(
-                1.9,
-                1.9,
-                1.9
-            );
-    }
-}
-
-
-// =====================================================
-// CRIAR DADO
-// =====================================================
-
-function criarDado(lados) {
-
-    const geometria =
-        criarGeometria(lados);
-
-    const material =
-        criarMaterial();
-
-    const novoDado =
-        new THREE.Mesh(
-            geometria,
-            material
-        );
-
-    novoDado.castShadow = true;
-
-    novoDado.receiveShadow = true;
-
-    return novoDado;
-}
-
-
-// =====================================================
-// MOSTRAR DADO
-// =====================================================
-
-function mostrarDado(lados) {
-
-    if (dado3D) {
-
-        cena.remove(dado3D);
-
-        dado3D.geometry.dispose();
-
-        dado3D.material.dispose();
-
-    }
-
-
-    dado3D = criarDado(lados);
-
-    cena.add(dado3D);
-
-
-    dado3D.rotation.x = 0.35;
-
-    dado3D.rotation.y = 0.45;
-
-    dado3D.rotation.z = 0;
-
-
-    dado3D.position.set(
-        0,
-        0,
-        0
-    );
+    removerDado();
 
 
     dadoAtualElemento.textContent =
         `D${lados}`;
+
+
+    const caminhoDado =
+        caminhoModelo(lados);
+
+
+    const caminhoMapa =
+        caminhoTextura(lados);
+
+
+    loader.load(
+
+        caminhoDado,
+
+        function (resultadoCollada) {
+
+            dado3D =
+                resultadoCollada.scene;
+
+
+            // -----------------------------------------
+            // CARREGAR TEXTURA DOS NÚMEROS
+            // -----------------------------------------
+
+            textureLoader.load(
+
+                caminhoMapa,
+
+                function (textura) {
+
+                    textura.colorSpace =
+                        THREE.SRGBColorSpace;
+
+
+                    dado3D.traverse(objeto => {
+
+                        if (!objeto.isMesh) {
+                            return;
+                        }
+
+
+                        objeto.castShadow = true;
+
+                        objeto.receiveShadow = true;
+
+
+                        // --------------------------------
+                        // MATERIAL
+                        // --------------------------------
+
+                        if (Array.isArray(objeto.material)) {
+
+                            objeto.material =
+                                objeto.material.map(material => {
+
+                                    const novoMaterial =
+                                        new THREE.MeshStandardMaterial({
+
+                                            map: textura,
+
+                                            color: 0xffffff,
+
+                                            roughness: 0.4,
+
+                                            metalness: 0.05
+
+                                        });
+
+
+                                    return novoMaterial;
+
+                                });
+
+                        } else {
+
+                            objeto.material =
+                                new THREE.MeshStandardMaterial({
+
+                                    map: textura,
+
+                                    color: 0xffffff,
+
+                                    roughness: 0.4,
+
+                                    metalness: 0.05
+
+                                });
+
+                        }
+
+                    });
+
+
+                    // --------------------------------
+                    // AJUSTAR TAMANHO
+                    // --------------------------------
+
+                    const caixa =
+                        new THREE.Box3().setFromObject(dado3D);
+
+
+                    const tamanho =
+                        new THREE.Vector3();
+
+
+                    caixa.getSize(tamanho);
+
+
+                    const maior =
+                        Math.max(
+                            tamanho.x,
+                            tamanho.y,
+                            tamanho.z
+                        );
+
+
+                    if (maior > 0) {
+
+                        const escala =
+                            2.3 / maior;
+
+                        dado3D.scale.setScalar(
+                            escala
+                        );
+
+                    }
+
+
+                    // --------------------------------
+                    // CENTRALIZAR
+                    // --------------------------------
+
+                    const centro =
+                        new THREE.Vector3();
+
+
+                    caixa.getCenter(centro);
+
+                    dado3D.position.sub(centro);
+
+
+                    dado3D.position.y = 0;
+
+
+                    // --------------------------------
+                    // ROTAÇÃO INICIAL
+                    // --------------------------------
+
+                    dado3D.rotation.set(
+                        0.4,
+                        0.5,
+                        0
+                    );
+
+
+                    cena.add(dado3D);
+
+                },
+
+                undefined,
+
+                function (erro) {
+
+                    console.error(
+                        "Erro ao carregar textura:",
+                        caminhoMapa,
+                        erro
+                    );
+
+                }
+
+            );
+
+        },
+
+        undefined,
+
+        function (erro) {
+
+            console.error(
+                "Erro ao carregar dado:",
+                caminhoDado,
+                erro
+            );
+
+        }
+
+    );
+
 }
 
 
@@ -416,12 +441,15 @@ function mostrarDado(lados) {
 
 function selecionarDado(lados) {
 
-    dadoSelecionado = lados;
+    dadoSelecionado =
+        lados;
+
 
     botoesDados.forEach(botao => {
 
         const valor =
             Number(botao.dataset.dado);
+
 
         botao.classList.toggle(
             "selecionado",
@@ -431,23 +459,28 @@ function selecionarDado(lados) {
     });
 
 
-    mostrarDado(lados);
+    carregarDado(lados);
+
 }
 
 
 // =====================================================
-// ROLAR
+// ROLAR DADO
 // =====================================================
 
 function rolarDado() {
 
-    if (rolando) {
+    if (rolando || !dado3D) {
         return;
     }
 
 
     rolando = true;
 
+
+    // -----------------------------------------------
+    // RESULTADO
+    // -----------------------------------------------
 
     resultado =
         Math.floor(
@@ -461,159 +494,170 @@ function rolarDado() {
 
     total += resultado;
 
+
     totalElemento.textContent =
         total;
 
 
-    movimento.inicio =
-        performance.now();
+    // -----------------------------------------------
+    // POSIÇÃO INICIAL
+    // -----------------------------------------------
 
-
-    movimento.xInicial =
+    const inicioX =
         dado3D.position.x;
 
-    movimento.yInicial =
+    const inicioY =
         dado3D.position.y;
 
 
-    movimento.xFinal =
-        (Math.random() * 3.2) - 1.6;
+    const inicioRotX =
+        dado3D.rotation.x;
 
-    movimento.yFinal =
-        0.3 +
-        Math.random() * 0.8;
+    const inicioRotY =
+        dado3D.rotation.y;
+
+    const inicioRotZ =
+        dado3D.rotation.z;
 
 
-    movimento.rotX =
-        (Math.random() * 8 + 8) *
+    // -----------------------------------------------
+    // MOVIMENTO
+    // -----------------------------------------------
+
+    const finalX =
+        (Math.random() * 3) - 1.5;
+
+
+    const finalY =
+        0;
+
+
+    const rotacaoX =
+        (Math.random() * 10 + 12) *
         (Math.random() < 0.5 ? -1 : 1);
 
-    movimento.rotY =
-        (Math.random() * 10 + 10) *
-        (Math.random() < 0.5 ? -1 : 1);
 
-    movimento.rotZ =
-        (Math.random() * 8 + 8) *
+    const rotacaoY =
+        (Math.random() * 10 + 12) *
         (Math.random() < 0.5 ? -1 : 1);
 
 
-    animarRolagem();
-}
+    const rotacaoZ =
+        (Math.random() * 10 + 12) *
+        (Math.random() < 0.5 ? -1 : 1);
 
 
-// =====================================================
-// ANIMAÇÃO DA ROLAGEM
-// =====================================================
+    const inicio =
+        performance.now();
 
-function animarRolagem(agora) {
 
-    if (!agora) {
+    const duracao =
+        1500;
 
-        animationFrame =
-            requestAnimationFrame(
-                animarRolagem
+
+    // -----------------------------------------------
+    // ANIMAÇÃO
+    // -----------------------------------------------
+
+    function animarRolagem(agora) {
+
+        const tempo =
+            agora - inicio;
+
+
+        const progresso =
+            Math.min(
+                tempo / duracao,
+                1
             );
 
-        return;
-    }
 
-
-    const tempo =
-        agora - movimento.inicio;
-
-
-    let progresso =
-        Math.min(
-            tempo / movimento.duracao,
-            1
-        );
-
-
-    // desaceleração suave
-    const suavizado =
-        1 -
-        Math.pow(
-            1 - progresso,
-            3
-        );
-
-
-    // movimento horizontal
-    dado3D.position.x =
-        THREE.MathUtils.lerp(
-            movimento.xInicial,
-            movimento.xFinal,
-            suavizado
-        );
-
-
-    // pequeno salto
-    const salto =
-        Math.sin(
-            progresso * Math.PI
-        );
-
-
-    dado3D.position.y =
-        THREE.MathUtils.lerp(
-            movimento.yInicial,
-            movimento.yFinal,
-            suavizado
-        ) +
-        salto * 1.1;
-
-
-    // rotação
-    dado3D.rotation.x =
-        0.35 +
-        movimento.rotX *
-        suavizado;
-
-    dado3D.rotation.y =
-        0.45 +
-        movimento.rotY *
-        suavizado;
-
-    dado3D.rotation.z =
-        movimento.rotZ *
-        suavizado;
-
-
-    if (progresso < 1) {
-
-        animationFrame =
-            requestAnimationFrame(
-                animarRolagem
+        const suavizado =
+            1 -
+            Math.pow(
+                1 - progresso,
+                3
             );
 
-    } else {
 
-        rolando = false;
+        // movimento horizontal
+
+        dado3D.position.x =
+            THREE.MathUtils.lerp(
+                inicioX,
+                finalX,
+                suavizado
+            );
 
 
-        // retorna o dado para o centro
-        dado3D.position.x = 0;
+        // salto
 
-        dado3D.position.y = 0;
+        const salto =
+            Math.sin(
+                progresso * Math.PI
+            );
 
 
-        // mantém uma posição diferente
-        // para não parecer sempre igual
+        dado3D.position.y =
+            THREE.MathUtils.lerp(
+                inicioY,
+                finalY,
+                suavizado
+            ) +
+            salto * 1.2;
+
+
+        // rotação
+
         dado3D.rotation.x =
-            Math.random() * Math.PI * 2;
+            inicioRotX +
+            rotacaoX *
+            suavizado;
+
 
         dado3D.rotation.y =
-            Math.random() * Math.PI * 2;
+            inicioRotY +
+            rotacaoY *
+            suavizado;
+
 
         dado3D.rotation.z =
-            Math.random() * Math.PI * 2;
+            inicioRotZ +
+            rotacaoZ *
+            suavizado;
+
+
+        if (progresso < 1) {
+
+            animationFrame =
+                requestAnimationFrame(
+                    animarRolagem
+                );
+
+        } else {
+
+            rolando = false;
+
+
+            dado3D.position.x = 0;
+
+            dado3D.position.y = 0;
+
+        }
 
     }
+
+
+    animationFrame =
+        requestAnimationFrame(
+            animarRolagem
+        );
+
 }
 
 
 // =====================================================
-// CLIQUE NOS DADOS
+// BOTÕES DOS DADOS
 // =====================================================
 
 botoesDados.forEach(botao => {
@@ -623,21 +667,33 @@ botoesDados.forEach(botao => {
         () => {
 
             const lados =
-                Number(botao.dataset.dado);
+                Number(
+                    botao.dataset.dado
+                );
 
 
-            // Se for outro dado:
-            // apenas seleciona
+            // Se escolheu outro dado,
+            // troca o modelo e já rola.
+
             if (lados !== dadoSelecionado) {
 
                 selecionarDado(lados);
 
+                // espera o modelo carregar
+                setTimeout(() => {
+
+                    rolarDado();
+
+                }, 250);
+
                 return;
+
             }
 
 
-            // Se já estiver selecionado:
-            // rola
+            // Se já está selecionado,
+            // rola novamente.
+
             rolarDado();
 
         }
@@ -658,9 +714,13 @@ botaoResetar.addEventListener(
 
         resultado = null;
 
-        totalElemento.textContent = "0";
 
-        resultadoElemento.textContent = "—";
+        resultadoElemento.textContent =
+            "—";
+
+
+        totalElemento.textContent =
+            "0";
 
 
         if (dado3D && !rolando) {
@@ -672,8 +732,8 @@ botaoResetar.addEventListener(
             );
 
             dado3D.rotation.set(
-                0.35,
-                0.45,
+                0.4,
+                0.5,
                 0
             );
 
@@ -697,21 +757,15 @@ botaoTelaCheia.addEventListener(
 
                 await document.documentElement.requestFullscreen();
 
-                botaoTelaCheia.textContent =
-                    "⛶ SAIR DA TELA CHEIA";
-
             } else {
 
                 await document.exitFullscreen();
-
-                botaoTelaCheia.textContent =
-                    "⛶ TELA CHEIA";
 
             }
 
         } catch (erro) {
 
-            console.log(
+            console.error(
                 "Tela cheia não disponível:",
                 erro
             );
@@ -723,7 +777,7 @@ botaoTelaCheia.addEventListener(
 
 
 // =====================================================
-// ATUALIZAR BOTÃO DE TELA CHEIA
+// TEXTO DO BOTÃO DE TELA CHEIA
 // =====================================================
 
 document.addEventListener(
@@ -757,12 +811,14 @@ window.addEventListener(
         const largura =
             container.clientWidth;
 
+
         const altura =
             container.clientHeight;
 
 
         camera.aspect =
             largura / altura;
+
 
         camera.updateProjectionMatrix();
 
@@ -777,12 +833,15 @@ window.addEventListener(
 
 
 // =====================================================
-// LOOP 3D
+// LOOP
 // =====================================================
 
 function animar() {
 
-    requestAnimationFrame(animar);
+    requestAnimationFrame(
+        animar
+    );
+
 
     renderizador.render(
         cena,
