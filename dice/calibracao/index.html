@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Calibração do Dado</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <main class="pagina">
+
+        <h1>CALIBRAÇÃO</h1>
+
+        <div class="dado-info">
+            D4
+        </div>
+
+
+        <!-- ==================================================
+             DADO 3D
+        =================================================== -->
+
+        <div
+            id="dado3d"
+            class="dado3d"
+        ></div>
+
+
+        <!-- ==================================================
+             CONTROLES
+        =================================================== -->
+
+        <div class="controles">
+
+            <button
+                id="mx"
+                type="button"
+            >
+                mx
+            </button>
+
+            <button
+                id="my"
+                type="button"
+            >
+                my
+            </button>
+
+            <button
+                id="mz"
+                type="button"
+            >
+                mz
+            </button>
+
+            <button
+                id="rx"
+                type="button"
+            >
+                rx
+            </button>
+
+            <button
+                id="ry"
+                type="button"
+            >
+                ry
+            </button>
+
+            <button
+                id="rz"
+                type="button"
+            >
+                rz
+            </button>
+
+        </div>
+
+
+        <p class="ajuda">
+            Clique esquerdo = aumentar<br>
+            Clique direito = diminuir
+        </p>
+
+
+        <!-- ==================================================
+             POSIÇÃO
+        =================================================== -->
+
+        <section class="dados">
+
+            <h2>POSIÇÃO</h2>
+
+            <div id="posicao">
+                X = 0.0000<br>
+                Y = 0.0000<br>
+                Z = 0.0000
+            </div>
+
+
+            <h2>ROTAÇÃO</h2>
+
+            <div id="rotacao">
+                X = 0.00°<br>
+                Y = 0.00°<br>
+                Z = 0.00°
+            </div>
+
+
+            <h2>AJUSTE PARA O SCRIPT</h2>
+
+            <div
+                id="ajuste"
+                class="ajuste"
+            >
+                x: 0,<br>
+                y: 0,<br>
+                z: 0
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script
+        type="module"
+        src="script.js"
+    ></script>
+
+</body>
+
+</html>
