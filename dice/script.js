@@ -465,4 +465,446 @@ botoesDados.forEach((botao) => {
                     botao.dataset.dado
                 );
 
-            carregarDado(lados
+            carregarDado(lados);
+
+        }
+    );
+
+});
+
+
+// ============================================================
+// FUNÇÃO DE EASING
+// ============================================================
+
+function easeOutCubic(t) {
+
+    return 1 - Math.pow(1 - t, 3);
+
+}
+
+
+// ============================================================
+// ROLAR DADO
+// ============================================================
+
+function rolarDado() {
+
+    if (!dado3D || rolando) return;
+
+    rolando = true;
+
+
+    // --------------------------------------------------------
+    // RESULTADO
+    // --------------------------------------------------------
+
+    const valor =
+        Math.floor(
+            Math.random() * ladosAtuais
+        ) + 1;
+
+
+    resultado.textContent =
+        valor;
+
+
+    totalAtual += valor;
+
+    total.textContent =
+        totalAtual;
+
+
+    // --------------------------------------------------------
+    // POSIÇÃO INICIAL
+    // --------------------------------------------------------
+
+    const inicioRotX =
+        dado3D.rotation.x;
+
+    const inicioRotY =
+        dado3D.rotation.y;
+
+    const inicioRotZ =
+        dado3D.rotation.z;
+
+
+    // --------------------------------------------------------
+    // ROTAÇÃO DURANTE A ROLAGEM
+    // --------------------------------------------------------
+
+    const voltasX =
+        THREE.MathUtils.randFloat(
+            3.5,
+            5.5
+        );
+
+    const voltasY =
+        THREE.MathUtils.randFloat(
+            3.5,
+            5.5
+        );
+
+    const voltasZ =
+        THREE.MathUtils.randFloat(
+            3.5,
+            5.5
+        );
+
+
+    const sinalX =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+    const sinalY =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+    const sinalZ =
+        Math.random() < 0.5
+            ? -1
+            : 1;
+
+
+    const finalRotX =
+        inicioRotX +
+        voltasX *
+        Math.PI *
+        2 *
+        sinalX;
+
+    const finalRotY =
+        inicioRotY +
+        voltasY *
+        Math.PI *
+        2 *
+        sinalY;
+
+    const finalRotZ =
+        inicioRotZ +
+        voltasZ *
+        Math.PI *
+        2 *
+        sinalZ;
+
+
+    // --------------------------------------------------------
+    // POSIÇÃO
+    // --------------------------------------------------------
+
+    const inicioY =
+        dado3D.position.y;
+
+
+    // --------------------------------------------------------
+    // ANIMAÇÃO
+    // --------------------------------------------------------
+
+    const inicio =
+        performance.now();
+
+
+    function animar(agora) {
+
+        const tempo =
+            agora - inicio;
+
+
+        const progresso =
+            Math.min(
+                tempo / DURACAO_ROLAGEM,
+                1
+            );
+
+
+        const suavizado =
+            easeOutCubic(progresso);
+
+
+        // Rotação principal
+
+        dado3D.rotation.x =
+            THREE.MathUtils.lerp(
+                inicioRotX,
+                finalRotX,
+                suavizado
+            );
+
+
+        dado3D.rotation.y =
+            THREE.MathUtils.lerp(
+                inicioRotY,
+                finalRotY,
+                suavizado
+            );
+
+
+        dado3D.rotation.z =
+            THREE.MathUtils.lerp(
+                inicioRotZ,
+                finalRotZ,
+                suavizado
+            );
+
+
+        // Pequeno movimento vertical
+
+        const pulo =
+            Math.sin(
+                progresso * Math.PI
+            ) * 0.65;
+
+
+        dado3D.position.y =
+            inicioY + pulo;
+
+
+        if (progresso < 1) {
+
+            requestAnimationFrame(animar);
+
+            return;
+
+        }
+
+
+        // ----------------------------------------------------
+        // FASE DE ASSENTAMENTO
+        // ----------------------------------------------------
+        //
+        // O dado NÃO volta à orientação inicial.
+        // Ele apenas desce suavemente e permanece
+        // exatamente na orientação em que terminou.
+        //
+
+        const inicioAssentamento =
+            performance.now();
+
+        const posicaoY =
+            dado3D.position.y;
+
+
+        function assentar(agora2) {
+
+            const tempo2 =
+                agora2 -
+                inicioAssentamento;
+
+
+            const progresso2 =
+                Math.min(
+                    tempo2 / TEMPO_ASSENTAR,
+                    1
+                );
+
+
+            const suavizado2 =
+                easeOutCubic(
+                    progresso2
+                );
+
+
+            dado3D.position.y =
+                THREE.MathUtils.lerp(
+                    posicaoY,
+                    0,
+                    suavizado2
+                );
+
+
+            if (progresso2 < 1) {
+
+                requestAnimationFrame(
+                    assentar
+                );
+
+                return;
+
+            }
+
+
+            // ------------------------------------------------
+            // FINAL
+            // ------------------------------------------------
+            //
+            // IMPORTANTE:
+            // NÃO chamar aplicarOrientacaoBase() aqui.
+            //
+            // Assim o dado fica exatamente onde parou.
+            //
+
+            dado3D.position.y = 0;
+
+            rolando = false;
+
+        }
+
+
+        requestAnimationFrame(
+            assentar
+        );
+
+    }
+
+
+    requestAnimationFrame(animar);
+
+}
+
+
+// ============================================================
+// CLIQUE NO DADO
+// ============================================================
+
+if (dado3D) {
+
+    dado3D.userData.rolar =
+        rolarDado;
+
+}
+
+
+// ============================================================
+// BOTÃO / ÁREA DO DADO
+// ============================================================
+
+container.addEventListener(
+    "click",
+    () => {
+
+        rolarDado();
+
+    }
+);
+
+
+// ============================================================
+// RESET
+// ============================================================
+
+resetar.addEventListener(
+    "click",
+    () => {
+
+        if (rolando) return;
+
+        totalAtual = 0;
+
+        total.textContent =
+            "0";
+
+        resultado.textContent =
+            "-";
+
+        if (dado3D) {
+
+            dado3D.position.set(
+                0,
+                0,
+                0
+            );
+
+            aplicarOrientacaoBase();
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// TELA CHEIA
+// ============================================================
+
+telaCheia.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            if (!document.fullscreenElement) {
+
+                await document.documentElement.requestFullscreen();
+
+            } else {
+
+                await document.exitFullscreen();
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                "Erro no modo tela cheia:",
+                erro
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// REDIMENSIONAMENTO
+// ============================================================
+
+function redimensionar() {
+
+    const largura =
+        container.clientWidth;
+
+    const altura =
+        container.clientHeight;
+
+
+    if (largura === 0 || altura === 0) {
+        return;
+    }
+
+
+    camera.aspect =
+        largura / altura;
+
+    camera.updateProjectionMatrix();
+
+
+    renderer.setSize(
+        largura,
+        altura
+    );
+
+}
+
+
+window.addEventListener(
+    "resize",
+    redimensionar
+);
+
+
+// ============================================================
+// LOOP
+// ============================================================
+
+function renderizar() {
+
+    requestAnimationFrame(
+        renderizar
+    );
+
+    renderer.render(
+        cena,
+        camera
+    );
+
+}
+
+
+redimensionar();
+
+carregarDado(6);
+
+renderizar();
