@@ -9,25 +9,20 @@ import {
 // CONFIGURAÇÃO
 // ============================================================
 
-// Para calibrar outro dado depois:
-//
-// 4 = D4
-// 6 = D6
-// 8 = D8
+// Para calibrar outro dado:
+// 4  = D4
+// 6  = D6
+// 8  = D8
 // 10 = D10
 // 12 = D12
 // 20 = D20
 
-const LADOS = 20;
+const LADOS = 4;
 
 
 // ============================================================
 // ROTAÇÃO BASE
 // ============================================================
-//
-// Essa é a mesma orientação base que estamos usando
-// no seu rolador principal.
-//
 
 const ROTACAO_BASE = {
 
@@ -43,13 +38,27 @@ const ROTACAO_BASE = {
 // ============================================================
 
 // Movimento em unidades do Three.js
-
 const PASSO_MOVIMENTO = 0.05;
 
-
-// Rotação em graus
-
+// Rotação dos botões em graus
 const PASSO_ROTACAO = 1;
+
+
+// ============================================================
+// SENSIBILIDADE DO MOUSE
+// ============================================================
+
+// Quantos graus o dado gira para cada pixel arrastado.
+//
+// Aumente para girar mais rápido.
+// Diminua para ter mais precisão.
+//
+// Exemplos:
+// 0.2 = bem preciso
+// 0.5 = padrão
+// 1.0 = bem rápido
+
+const SENSIBILIDADE_MOUSE = 0.5;
 
 
 // ============================================================
@@ -92,23 +101,26 @@ const camera =
         ),
 
         0.1,
-
         100
 
     );
 
 
 camera.position.set(
+
     0,
     0.3,
     6
+
 );
 
 
 camera.lookAt(
+
     0,
     0,
     0
+
 );
 
 
@@ -129,8 +141,11 @@ const renderer =
 renderer.setPixelRatio(
 
     Math.min(
+
         window.devicePixelRatio || 1,
+
         2
+
     )
 
 );
@@ -158,8 +173,30 @@ renderer.outputColorSpace =
 
 
 container.appendChild(
+
     renderer.domElement
+
 );
+
+
+// ============================================================
+// CONFIGURAÇÃO DO CANVAS PARA MOUSE/TOQUE
+// ============================================================
+
+// Evita seleção de texto e comportamentos do navegador
+// enquanto estamos arrastando o dado.
+
+renderer.domElement.style.touchAction =
+    "none";
+
+renderer.domElement.style.userSelect =
+    "none";
+
+renderer.domElement.style.webkitUserSelect =
+    "none";
+
+renderer.domElement.style.cursor =
+    "grab";
 
 
 // ============================================================
@@ -168,27 +205,37 @@ container.appendChild(
 
 const luzAmbiente =
     new THREE.AmbientLight(
+
         0xffffff,
+
         2.2
+
     );
 
 
 cena.add(
+
     luzAmbiente
+
 );
 
 
 const luzPrincipal =
     new THREE.DirectionalLight(
+
         0xffffff,
+
         4
+
     );
 
 
 luzPrincipal.position.set(
+
     4,
     6,
     6
+
 );
 
 
@@ -197,26 +244,35 @@ luzPrincipal.castShadow =
 
 
 cena.add(
+
     luzPrincipal
+
 );
 
 
 const luzFrontal =
     new THREE.DirectionalLight(
+
         0xffffff,
+
         2
+
     );
 
 
 luzFrontal.position.set(
+
     -4,
     2,
     5
+
 );
 
 
 cena.add(
+
     luzFrontal
+
 );
 
 
@@ -228,8 +284,10 @@ const chao =
     new THREE.Mesh(
 
         new THREE.CircleGeometry(
+
             2.3,
             64
+
         ),
 
         new THREE.MeshStandardMaterial({
@@ -254,7 +312,9 @@ chao.position.y =
 
 
 cena.add(
+
     chao
+
 );
 
 
@@ -304,16 +364,18 @@ const rotacao = {
 
 
 // ============================================================
-// CONVERTER GRAUS
+// CONVERTER GRAUS PARA RADIANOS
 // ============================================================
 
 function rad(graus) {
+
     return graus * Math.PI / 180;
+
 }
 
 
 // ============================================================
-// CAMINHO
+// CAMINHO DO MODELO
 // ============================================================
 
 function caminhoModelo() {
@@ -352,7 +414,9 @@ function ajustarModelo(objeto) {
 
 
     caixa.getSize(
+
         tamanho
+
     );
 
 
@@ -369,7 +433,9 @@ function ajustarModelo(objeto) {
     if (maior > 0) {
 
         objeto.scale.setScalar(
+
             2.3 / maior
+
         );
 
     }
@@ -383,12 +449,16 @@ function ajustarModelo(objeto) {
 
 
     caixa.getCenter(
+
         centro
+
     );
 
 
     objeto.position.sub(
+
         centro
+
     );
 
 }
@@ -399,8 +469,10 @@ function ajustarModelo(objeto) {
 // ============================================================
 
 function aplicarTextura(
+
     objeto,
     textura
+
 ) {
 
     textura.colorSpace =
@@ -408,7 +480,7 @@ function aplicarTextura(
 
 
     textura.flipY =
-        true;
+        false;
 
 
     textura.anisotropy =
@@ -416,6 +488,7 @@ function aplicarTextura(
 
 
     objeto.traverse(
+
         (mesh) => {
 
             if (!mesh.isMesh) {
@@ -447,13 +520,14 @@ function aplicarTextura(
                 });
 
         }
+
     );
 
 }
 
 
 // ============================================================
-// CARREGAR
+// CARREGAR DADO
 // ============================================================
 
 function carregarDado() {
@@ -469,30 +543,26 @@ function carregarDado() {
 
 
             ajustarModelo(
+
                 dado3D
+
             );
 
 
             dado3D.position.set(
+
                 0,
                 0,
                 0
+
             );
 
 
             dado3D.rotation.set(
 
-                rad(
-                    rotacao.x
-                ),
-
-                rad(
-                    rotacao.y
-                ),
-
-                rad(
-                    rotacao.z
-                )
+                rad(rotacao.x),
+                rad(rotacao.y),
+                rad(rotacao.z)
 
             );
 
@@ -504,13 +574,17 @@ function carregarDado() {
                 (textura) => {
 
                     aplicarTextura(
+
                         dado3D,
                         textura
+
                     );
 
 
                     cena.add(
+
                         dado3D
+
                     );
 
 
@@ -523,12 +597,16 @@ function carregarDado() {
                 () => {
 
                     console.warn(
+
                         "Textura não encontrada."
+
                     );
 
 
                     cena.add(
+
                         dado3D
+
                     );
 
 
@@ -545,8 +623,11 @@ function carregarDado() {
         (erro) => {
 
             console.error(
+
                 "Erro carregando modelo:",
+
                 erro
+
             );
 
         }
@@ -562,7 +643,11 @@ function carregarDado() {
 
 function aplicarPosicao() {
 
-    if (!dado3D) return;
+    if (!dado3D) {
+
+        return;
+
+    }
 
 
     dado3D.position.x =
@@ -585,7 +670,11 @@ function aplicarPosicao() {
 
 function aplicarRotacao() {
 
-    if (!dado3D) return;
+    if (!dado3D) {
+
+        return;
+
+    }
 
 
     dado3D.rotation.x =
@@ -633,16 +722,19 @@ function atualizarInterface() {
 
 
     const ajusteX =
+
         rotacao.x -
         ROTACAO_BASE.x;
 
 
     const ajusteY =
+
         rotacao.y -
         ROTACAO_BASE.y;
 
 
     const ajusteZ =
+
         rotacao.z -
         ROTACAO_BASE.z;
 
@@ -662,13 +754,19 @@ function atualizarInterface() {
 // MOVIMENTAR
 // ============================================================
 
-function mover(eixo, quantidade) {
+function mover(
+
+    eixo,
+    quantidade
+
+) {
 
     estado[eixo] +=
         quantidade;
 
 
     aplicarPosicao();
+
 
     atualizarInterface();
 
@@ -679,7 +777,12 @@ function mover(eixo, quantidade) {
 // ROTACIONAR
 // ============================================================
 
-function girar(eixo, quantidade) {
+function girar(
+
+    eixo,
+    quantidade
+
+) {
 
     rotacao[eixo] +=
         quantidade;
@@ -687,9 +790,286 @@ function girar(eixo, quantidade) {
 
     aplicarRotacao();
 
+
     atualizarInterface();
 
 }
+
+
+// ============================================================
+// CONTROLE POR ARRASTE DO MOUSE / TOQUE
+// ============================================================
+
+// false = não está arrastando
+let arrastando =
+    false;
+
+
+// 0 = botão esquerdo
+// 2 = botão direito
+let botaoArraste =
+    0;
+
+
+let ultimoX =
+    0;
+
+
+let ultimoY =
+    0;
+
+
+// ------------------------------------------------------------
+// COMEÇAR ARRASTE
+// ------------------------------------------------------------
+
+renderer.domElement.addEventListener(
+
+    "pointerdown",
+
+    (evento) => {
+
+        // Somente botão esquerdo ou direito
+        if (
+
+            evento.button !== 0 &&
+            evento.button !== 2
+
+        ) {
+
+            return;
+
+        }
+
+
+        arrastando =
+            true;
+
+
+        botaoArraste =
+            evento.button;
+
+
+        ultimoX =
+            evento.clientX;
+
+
+        ultimoY =
+            evento.clientY;
+
+
+        renderer.domElement.style.cursor =
+            "grabbing";
+
+
+        renderer.domElement.setPointerCapture(
+
+            evento.pointerId
+
+        );
+
+
+        evento.preventDefault();
+
+    }
+
+);
+
+
+// ------------------------------------------------------------
+// ARRASTAR
+// ------------------------------------------------------------
+
+renderer.domElement.addEventListener(
+
+    "pointermove",
+
+    (evento) => {
+
+        if (!arrastando) {
+
+            return;
+
+        }
+
+
+        const deltaX =
+            evento.clientX -
+            ultimoX;
+
+
+        const deltaY =
+            evento.clientY -
+            ultimoY;
+
+
+        ultimoX =
+            evento.clientX;
+
+
+        ultimoY =
+            evento.clientY;
+
+
+        // ====================================================
+        // BOTÃO ESQUERDO
+        // ====================================================
+        //
+        // Horizontal = eixo Y
+        // Vertical   = eixo X
+        //
+
+        if (botaoArraste === 0) {
+
+            girar(
+
+                "y",
+
+                deltaX *
+                SENSIBILIDADE_MOUSE
+
+            );
+
+
+            girar(
+
+                "x",
+
+                -deltaY *
+                SENSIBILIDADE_MOUSE
+
+            );
+
+        }
+
+
+        // ====================================================
+        // BOTÃO DIREITO
+        // ====================================================
+        //
+        // Horizontal = eixo Z
+        //
+        // O movimento vertical é ignorado.
+        //
+
+        if (botaoArraste === 2) {
+
+            girar(
+
+                "z",
+
+                deltaX *
+                SENSIBILIDADE_MOUSE
+
+            );
+
+        }
+
+
+        evento.preventDefault();
+
+    }
+
+);
+
+
+// ------------------------------------------------------------
+// TERMINAR ARRASTE
+// ------------------------------------------------------------
+
+function terminarArraste(
+
+    evento
+
+) {
+
+    if (!arrastando) {
+
+        return;
+
+    }
+
+
+    arrastando =
+        false;
+
+
+    renderer.domElement.style.cursor =
+        "grab";
+
+
+    try {
+
+        renderer.domElement.releasePointerCapture(
+
+            evento.pointerId
+
+        );
+
+    } catch (erro) {
+
+        // Ignora caso o pointer capture já tenha sido liberado
+
+    }
+
+
+}
+
+
+// Mouse / toque liberado
+renderer.domElement.addEventListener(
+
+    "pointerup",
+
+    terminarArraste
+
+);
+
+
+// Caso o navegador cancele o toque
+renderer.domElement.addEventListener(
+
+    "pointercancel",
+
+    terminarArraste
+
+);
+
+
+// Caso o mouse saia da janela
+window.addEventListener(
+
+    "blur",
+
+    () => {
+
+        arrastando =
+            false;
+
+
+        renderer.domElement.style.cursor =
+            "grab";
+
+    }
+
+);
+
+
+// ------------------------------------------------------------
+// DESABILITAR MENU DO BOTÃO DIREITO NO CANVAS
+// ------------------------------------------------------------
+
+renderer.domElement.addEventListener(
+
+    "contextmenu",
+
+    (evento) => {
+
+        evento.preventDefault();
+
+    }
+
+);
 
 
 // ============================================================
@@ -697,48 +1077,69 @@ function girar(eixo, quantidade) {
 // ============================================================
 
 function configurarBotao(
+
     id,
     funcao,
     eixo,
     passo
+
 ) {
 
     const botao =
-        document.getElementById(
-            id
-        );
+        document.getElementById(id);
 
 
-    // Clique esquerdo = +
+    if (!botao) {
+
+        return;
+
+    }
+
+
+    // --------------------------------------------------------
+    // CLIQUE ESQUERDO = +
+    // --------------------------------------------------------
 
     botao.addEventListener(
+
         "click",
+
         () => {
 
             funcao(
+
                 eixo,
                 passo
+
             );
 
         }
+
     );
 
 
-    // Clique direito = -
+    // --------------------------------------------------------
+    // CLIQUE DIREITO = -
+    // --------------------------------------------------------
 
     botao.addEventListener(
+
         "contextmenu",
+
         (evento) => {
 
             evento.preventDefault();
 
 
             funcao(
+
                 eixo,
                 -passo
+
             );
 
         }
+
     );
 
 }
@@ -749,26 +1150,32 @@ function configurarBotao(
 // ============================================================
 
 configurarBotao(
+
     "mx",
     mover,
     "x",
     PASSO_MOVIMENTO
+
 );
 
 
 configurarBotao(
+
     "my",
     mover,
     "y",
     PASSO_MOVIMENTO
+
 );
 
 
 configurarBotao(
+
     "mz",
     mover,
     "z",
     PASSO_MOVIMENTO
+
 );
 
 
@@ -776,27 +1183,36 @@ configurarBotao(
 // BOTÕES DE ROTAÇÃO
 // ============================================================
 
+// Eles continuam funcionando.
+// Assim você pode usar mouse ou botões.
+
 configurarBotao(
+
     "rx",
     girar,
     "x",
     PASSO_ROTACAO
+
 );
 
 
 configurarBotao(
+
     "ry",
     girar,
     "y",
     PASSO_ROTACAO
+
 );
 
 
 configurarBotao(
+
     "rz",
     girar,
     "z",
     PASSO_ROTACAO
+
 );
 
 
@@ -815,8 +1231,10 @@ function redimensionar() {
 
 
     if (
+
         largura === 0 ||
         altura === 0
+
     ) {
 
         return;
@@ -833,17 +1251,22 @@ function redimensionar() {
 
 
     renderer.setSize(
+
         largura,
         altura,
         false
+
     );
 
 }
 
 
 window.addEventListener(
+
     "resize",
+
     redimensionar
+
 );
 
 
@@ -854,13 +1277,17 @@ window.addEventListener(
 function renderizar() {
 
     requestAnimationFrame(
+
         renderizar
+
     );
 
 
     renderer.render(
+
         cena,
         camera
+
     );
 
 }
@@ -872,6 +1299,8 @@ function renderizar() {
 
 redimensionar();
 
+
 carregarDado();
+
 
 renderizar();
