@@ -308,12 +308,7 @@ const rotacao = {
 // ============================================================
 
 function rad(graus) {
-
-    return
-        graus *
-        Math.PI /
-        180;
-
+    return graus * Math.PI / 180;
 }
 
 
