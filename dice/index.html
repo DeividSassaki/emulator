@@ -3,67 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Rolador de Dados</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <main class="container">
+<main class="container">
 
-        <!-- TRÊS IMAGENS -->
-        <div class="logos">
-            <img src="../imagens/Voidcat.png" alt="Logo 1" class="logo logo1">
-            <img src="../imagens/Voidcat_NFC.png" alt="Logo 2" class="logo logo2">
-            <img src="../imagens/gato.png" alt="Logo 3" class="logo logo3">
+    <!-- LOGOS -->
+    <div class="logos">
+
+        <img src="../imagens/Voidcat1.png"
+             alt="Logo 1"
+             class="logo logo1">
+
+        <img src="../imagens/Voidcat_NFC.png"
+             alt="Logo 2"
+             class="logo logo2">
+
+        <img src="../imagens/gato.png"
+             alt="Logo 3"
+             class="logo logo3">
+
+    </div>
+
+
+    <h1>ROLADOR DE DADOS</h1>
+
+
+    <!-- BOTÕES DOS DADOS -->
+    <div class="dados">
+
+        <button class="dado-btn" data-dado="4">
+            D4
+        </button>
+
+        <button class="dado-btn selecionado" data-dado="6">
+            D6
+        </button>
+
+        <button class="dado-btn" data-dado="8">
+            D8
+        </button>
+
+        <button class="dado-btn" data-dado="10">
+            D10
+        </button>
+
+        <button class="dado-btn" data-dado="12">
+            D12
+        </button>
+
+        <button class="dado-btn" data-dado="20">
+            D20
+        </button>
+
+    </div>
+
+
+    <!-- ÁREA DO DADO 3D -->
+    <div class="area-dado">
+
+        <div id="dado3d"></div>
+
+        <div id="dadoAtual">
+            D6
         </div>
 
-        <h1>ROLADOR DE DADOS</h1>
+    </div>
 
-        <!-- ESCOLHA DO DADO -->
-        <div class="dados">
-            <button class="dado-btn" data-dado="4">D4</button>
-            <button class="dado-btn" data-dado="6">D6</button>
-            <button class="dado-btn" data-dado="8">D8</button>
-            <button class="dado-btn" data-dado="10">D10</button>
-            <button class="dado-btn" data-dado="12">D12</button>
-            <button class="dado-btn" data-dado="20">D20</button>
-        </div>
 
-        <!-- ÁREA DO DADO -->
-        <div class="area-dado">
+    <!-- RESULTADO E TOTAL -->
+    <div class="informacoes">
 
-            <div id="dado3d" class="dado3d">
-                <span id="numeroDado">6</span>
+        <div class="caixa">
+
+            <div class="titulo-caixa">
+                RESULTADO
+            </div>
+
+            <div id="resultado">
+                —
             </div>
 
         </div>
 
-        <!-- BOTÃO DE ROLAR -->
-        <button id="rolar" class="botao-rolar">
-            ROLAR DADO
-        </button>
 
-        <!-- RESULTADO -->
         <div class="caixa">
-            <div class="titulo-caixa">ÚLTIMO RESULTADO</div>
-            <div id="resultado">—</div>
+
+            <div class="titulo-caixa">
+                TOTAL
+            </div>
+
+            <div id="total">
+                0
+            </div>
+
         </div>
 
-        <!-- TOTAL -->
-        <div class="caixa">
-            <div class="titulo-caixa">TOTAL</div>
-            <div id="total">0</div>
-        </div>
+    </div>
 
-        <!-- RESET -->
-        <button id="resetar" class="botao-resetar">
-            RESETAR
-        </button>
 
-    </main>
+    <!-- RESETAR -->
+    <button id="resetar" class="botao-resetar">
+        RESETAR
+    </button>
 
-    <script src="script.js"></script>
+
+    <!-- TELA CHEIA -->
+    <button id="telaCheia" class="botao-fullscreen">
+        ⛶ TELA CHEIA
+    </button>
+
+</main>
+
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
