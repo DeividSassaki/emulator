@@ -1,0 +1,254 @@
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    min-height: 100%;
+
+    background: #000;
+
+    color: #fff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+body {
+    overflow-x: hidden;
+}
+
+
+.pagina {
+
+    width: 100%;
+
+    min-height: 100vh;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+
+    padding: 20px 12px 30px;
+
+}
+
+
+h1 {
+
+    margin: 5px 0 3px;
+
+    font-size: 28px;
+
+    letter-spacing: 2px;
+
+}
+
+
+.dado-info {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-bottom: 5px;
+
+    opacity: 0.9;
+
+}
+
+
+/* ============================================================
+   DADO
+============================================================ */
+
+.dado3d {
+
+    width: min(
+        90vw,
+        360px
+    );
+
+    height: 320px;
+
+    margin: 0 auto 10px;
+
+    touch-action: none;
+
+}
+
+
+/* ============================================================
+   BOTÕES
+============================================================ */
+
+.controles {
+
+    width: min(
+        100%,
+        380px
+    );
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 10px;
+
+}
+
+
+.controles button {
+
+    min-height: 58px;
+
+    border: 2px solid #fff;
+
+    border-radius: 10px;
+
+    background: #111;
+
+    color: #fff;
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    user-select: none;
+
+    -webkit-user-select: none;
+
+    touch-action: manipulation;
+
+}
+
+
+.controles button:active {
+
+    background: #fff;
+
+    color: #000;
+
+    transform: scale(0.96);
+
+}
+
+
+/* ============================================================
+   AJUDA
+============================================================ */
+
+.ajuda {
+
+    margin: 12px 0 15px;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    opacity: 0.7;
+
+}
+
+
+/* ============================================================
+   DADOS
+============================================================ */
+
+.dados {
+
+    width: min(
+        100%,
+        380px
+    );
+
+    border-top: 1px solid #333;
+
+    padding-top: 12px;
+
+}
+
+
+.dados h2 {
+
+    font-size: 15px;
+
+    letter-spacing: 1px;
+
+    margin: 12px 0 5px;
+
+}
+
+
+#posicao,
+#rotacao,
+#ajuste {
+
+    font-family:
+        Consolas,
+        monospace;
+
+    font-size: 17px;
+
+    line-height: 1.7;
+
+}
+
+
+.ajuste {
+
+    border: 1px solid #333;
+
+    border-radius: 8px;
+
+    padding: 8px;
+
+    margin-top: 5px;
+
+}
+
+
+/* ============================================================
+   DESKTOP
+============================================================ */
+
+@media (min-width: 700px) {
+
+    .pagina {
+
+        padding-top: 25px;
+
+    }
+
+
+    .dado3d {
+
+        width: 420px;
+
+        height: 350px;
+
+    }
+
+
+    .controles {
+
+        max-width: 420px;
+
+    }
+
+}
