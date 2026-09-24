@@ -578,48 +578,6 @@ try {
 
 
     // ========================================================
-    // CHÃO
-    // ========================================================
-
-    const chao =
-        new THREE.Mesh(
-
-            new THREE.CircleGeometry(
-                2.3,
-                64
-            ),
-
-            new THREE.MeshStandardMaterial({
-
-                color: 0x111111,
-
-                roughness: 0.85,
-
-                metalness: 0
-
-            })
-
-        );
-
-
-    chao.rotation.x =
-        -Math.PI / 2;
-
-
-    chao.position.y =
-        -1.45;
-
-
-    chao.receiveShadow =
-        true;
-
-
-    cena.add(
-        chao
-    );
-
-
-    // ========================================================
     // LOADERS
     // ========================================================
 
