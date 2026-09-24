@@ -46,7 +46,9 @@ const renderer = new THREE.WebGLRenderer({
     alpha: true
 });
 
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setPixelRatio(
+    Math.min(window.devicePixelRatio, 2)
+);
 
 renderer.setSize(
     container.clientWidth,
@@ -76,7 +78,6 @@ const luzPrincipal = new THREE.DirectionalLight(
 );
 
 luzPrincipal.position.set(3, 5, 4);
-
 luzPrincipal.castShadow = true;
 
 cena.add(luzPrincipal);
@@ -131,13 +132,15 @@ let ladosAtuais = 6;
 
 let rolando = false;
 
+let dadoSelecionado = false;
+
 let totalAtual = 0;
 
 let modeloOriginal = null;
 
 
 // ============================================================
-// CAMINHOS DOS ARQUIVOS
+// CAMINHOS
 // ============================================================
 
 function caminhoModelo(lados) {
@@ -158,8 +161,8 @@ function caminhoTextura(lados) {
 // ORIENTAÇÃO BASE
 // ============================================================
 //
-// Esta orientação é usada somente quando o modelo é carregado.
-// NÃO será aplicada novamente depois da rolagem.
+// Usada somente quando o dado é carregado ou resetado.
+// Não é aplicada no final da rolagem.
 //
 
 function orientacaoBase(lados) {
@@ -217,7 +220,8 @@ function aplicarOrientacaoBase() {
 
     if (!dado3D) return;
 
-    const rotacao = orientacaoBase(ladosAtuais);
+    const rotacao =
+        orientacaoBase(ladosAtuais);
 
     dado3D.rotation.set(
         rotacao.x,
@@ -229,7 +233,7 @@ function aplicarOrientacaoBase() {
 
 
 // ============================================================
-// LIMPAR MODELO ANTERIOR
+// LIMPAR MODELO
 // ============================================================
 
 function limparModelo(objeto) {
@@ -283,29 +287,36 @@ function limparModelo(objeto) {
 
 function ajustarModelo(objeto) {
 
-    const caixa = new THREE.Box3().setFromObject(objeto);
+    const caixa =
+        new THREE.Box3().setFromObject(objeto);
 
-    const tamanho = new THREE.Vector3();
+    const tamanho =
+        new THREE.Vector3();
 
     caixa.getSize(tamanho);
 
-    const maior = Math.max(
-        tamanho.x,
-        tamanho.y,
-        tamanho.z
-    );
+    const maior =
+        Math.max(
+            tamanho.x,
+            tamanho.y,
+            tamanho.z
+        );
 
     if (maior > 0) {
 
-        const escala = 2.0 / maior;
+        const escala =
+            2.0 / maior;
 
         objeto.scale.setScalar(escala);
 
     }
 
-    const novaCaixa = new THREE.Box3().setFromObject(objeto);
 
-    const centro = new THREE.Vector3();
+    const novaCaixa =
+        new THREE.Box3().setFromObject(objeto);
+
+    const centro =
+        new THREE.Vector3();
 
     novaCaixa.getCenter(centro);
 
@@ -322,9 +333,12 @@ function ajustarModelo(objeto) {
 
 function aplicarTextura(objeto, lados) {
 
-    const loader = new THREE.TextureLoader();
+    const loader =
+        new THREE.TextureLoader();
 
-    const caminho = caminhoTextura(lados);
+    const caminho =
+        caminhoTextura(lados);
+
 
     loader.load(
 
@@ -332,10 +346,12 @@ function aplicarTextura(objeto, lados) {
 
         (textura) => {
 
-            textura.colorSpace = THREE.SRGBColorSpace;
+            textura.colorSpace =
+                THREE.SRGBColorSpace;
 
             textura.anisotropy =
                 renderer.capabilities.getMaxAnisotropy();
+
 
             objeto.traverse((parte) => {
 
@@ -346,11 +362,14 @@ function aplicarTextura(objeto, lados) {
                         ? parte.material
                         : [parte.material];
 
+
                 materiais.forEach((material) => {
 
-                    material.map = textura;
+                    material.map =
+                        textura;
 
-                    material.needsUpdate = true;
+                    material.needsUpdate =
+                        true;
 
                 });
 
@@ -382,6 +401,10 @@ function carregarDado(lados) {
 
     ladosAtuais = lados;
 
+    // Trocar o dado exige uma nova seleção
+    dadoSelecionado = false;
+
+
     if (dado3D) {
 
         cena.remove(dado3D);
@@ -392,7 +415,10 @@ function carregarDado(lados) {
 
     }
 
-    const loader = new ColladaLoader();
+
+    const loader =
+        new ColladaLoader();
+
 
     loader.load(
 
@@ -400,32 +426,45 @@ function carregarDado(lados) {
 
         (collada) => {
 
-            dado3D = collada.scene;
+            dado3D =
+                collada.scene;
 
-            modeloOriginal = dado3D;
+            modeloOriginal =
+                dado3D;
+
 
             dado3D.traverse((parte) => {
 
                 if (parte.isMesh) {
 
-                    parte.castShadow = true;
+                    parte.castShadow =
+                        true;
 
-                    parte.receiveShadow = true;
+                    parte.receiveShadow =
+                        true;
 
                 }
 
             });
 
-            ajustarModelo(dado3D);
+
+            ajustarModelo(
+                dado3D
+            );
+
 
             aplicarOrientacaoBase();
+
 
             aplicarTextura(
                 dado3D,
                 lados
             );
 
-            cena.add(dado3D);
+
+            cena.add(
+                dado3D
+            );
 
         },
 
@@ -441,6 +480,7 @@ function carregarDado(lados) {
         }
 
     );
+
 
     dadoAtual.textContent =
         `D${lados}`;
@@ -460,12 +500,19 @@ botoesDados.forEach((botao) => {
 
             if (rolando) return;
 
+
             const lados =
                 Number(
                     botao.dataset.dado
                 );
 
-            carregarDado(lados);
+
+            dadoSelecionado = false;
+
+
+            carregarDado(
+                lados
+            );
 
         }
     );
@@ -474,12 +521,15 @@ botoesDados.forEach((botao) => {
 
 
 // ============================================================
-// FUNÇÃO DE EASING
+// EASING
 // ============================================================
 
 function easeOutCubic(t) {
 
-    return 1 - Math.pow(1 - t, 3);
+    return 1 - Math.pow(
+        1 - t,
+        3
+    );
 
 }
 
@@ -490,7 +540,10 @@ function easeOutCubic(t) {
 
 function rolarDado() {
 
-    if (!dado3D || rolando) return;
+    if (!dado3D) return;
+
+    if (rolando) return;
+
 
     rolando = true;
 
@@ -516,7 +569,7 @@ function rolarDado() {
 
 
     // --------------------------------------------------------
-    // POSIÇÃO INICIAL
+    // ROTAÇÃO INICIAL
     // --------------------------------------------------------
 
     const inicioRotX =
@@ -530,7 +583,7 @@ function rolarDado() {
 
 
     // --------------------------------------------------------
-    // ROTAÇÃO DURANTE A ROLAGEM
+    // QUANTIDADE DE VOLTAS
     // --------------------------------------------------------
 
     const voltasX =
@@ -575,12 +628,14 @@ function rolarDado() {
         2 *
         sinalX;
 
+
     const finalRotY =
         inicioRotY +
         voltasY *
         Math.PI *
         2 *
         sinalY;
+
 
     const finalRotZ =
         inicioRotZ +
@@ -620,10 +675,12 @@ function rolarDado() {
 
 
         const suavizado =
-            easeOutCubic(progresso);
+            easeOutCubic(
+                progresso
+            );
 
 
-        // Rotação principal
+        // Rotação
 
         dado3D.rotation.x =
             THREE.MathUtils.lerp(
@@ -649,7 +706,7 @@ function rolarDado() {
             );
 
 
-        // Pequeno movimento vertical
+        // Pequeno pulo
 
         const pulo =
             Math.sin(
@@ -663,7 +720,9 @@ function rolarDado() {
 
         if (progresso < 1) {
 
-            requestAnimationFrame(animar);
+            requestAnimationFrame(
+                animar
+            );
 
             return;
 
@@ -671,16 +730,12 @@ function rolarDado() {
 
 
         // ----------------------------------------------------
-        // FASE DE ASSENTAMENTO
+        // ASSENTAMENTO
         // ----------------------------------------------------
-        //
-        // O dado NÃO volta à orientação inicial.
-        // Ele apenas desce suavemente e permanece
-        // exatamente na orientação em que terminou.
-        //
 
         const inicioAssentamento =
             performance.now();
+
 
         const posicaoY =
             dado3D.position.y;
@@ -725,17 +780,12 @@ function rolarDado() {
             }
 
 
-            // ------------------------------------------------
-            // FINAL
-            // ------------------------------------------------
-            //
-            // IMPORTANTE:
-            // NÃO chamar aplicarOrientacaoBase() aqui.
-            //
-            // Assim o dado fica exatamente onde parou.
-            //
-
             dado3D.position.y = 0;
+
+
+            // IMPORTANTE:
+            // Não volta para a posição inicial.
+            // Mantém a rotação onde terminou.
 
             rolando = false;
 
@@ -749,31 +799,53 @@ function rolarDado() {
     }
 
 
-    requestAnimationFrame(animar);
+    requestAnimationFrame(
+        animar
+    );
 
 }
 
 
 // ============================================================
-// CLIQUE NO DADO
+// TOQUE / CLIQUE NO DADO
 // ============================================================
-
-if (dado3D) {
-
-    dado3D.userData.rolar =
-        rolarDado;
-
-}
-
-
-// ============================================================
-// BOTÃO / ÁREA DO DADO
-// ============================================================
+//
+// Primeiro toque:
+//     seleciona o dado.
+//
+// Segundo toque:
+//     rola o dado.
+//
+// Terceiro toque em diante:
+//     rola novamente.
+//
 
 container.addEventListener(
-    "click",
-    () => {
+    "pointerdown",
+    (evento) => {
 
+        evento.preventDefault();
+
+
+        if (rolando) return;
+
+
+        // PRIMEIRO TOQUE
+        if (!dadoSelecionado) {
+
+            dadoSelecionado = true;
+
+
+            dadoAtual.textContent =
+                `D${ladosAtuais} ✓`;
+
+
+            return;
+
+        }
+
+
+        // SEGUNDO TOQUE OU MAIS
         rolarDado();
 
     }
@@ -790,13 +862,17 @@ resetar.addEventListener(
 
         if (rolando) return;
 
+
         totalAtual = 0;
+
 
         total.textContent =
             "0";
 
+
         resultado.textContent =
             "-";
+
 
         if (dado3D) {
 
@@ -806,9 +882,17 @@ resetar.addEventListener(
                 0
             );
 
+
             aplicarOrientacaoBase();
 
         }
+
+
+        dadoSelecionado = false;
+
+
+        dadoAtual.textContent =
+            `D${ladosAtuais}`;
 
     }
 );
@@ -860,13 +944,19 @@ function redimensionar() {
         container.clientHeight;
 
 
-    if (largura === 0 || altura === 0) {
+    if (
+        largura === 0 ||
+        altura === 0
+    ) {
+
         return;
+
     }
 
 
     camera.aspect =
         largura / altura;
+
 
     camera.updateProjectionMatrix();
 
@@ -886,7 +976,7 @@ window.addEventListener(
 
 
 // ============================================================
-// LOOP
+// LOOP DE RENDERIZAÇÃO
 // ============================================================
 
 function renderizar() {
@@ -895,6 +985,7 @@ function renderizar() {
         renderizar
     );
 
+
     renderer.render(
         cena,
         camera
@@ -902,6 +993,10 @@ function renderizar() {
 
 }
 
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 
 redimensionar();
 
