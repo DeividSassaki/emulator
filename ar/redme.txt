@@ -1,0 +1,9 @@
+DEMONSTRAÇÃO DE RA
+
+1. Coloque esta pasta em um servidor HTTPS, como GitHub Pages.
+2. Abra a página pelo celular.
+3. Permita o acesso à câmera.
+4. Mostre o marcador HIRO para a câmera.
+5. O cubo 3D deverá aparecer sobre o marcador.
+
+Depois podemos trocar o cubo por qualquer modelo .glb dentro da pasta modelos.
