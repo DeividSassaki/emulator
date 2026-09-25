@@ -1,10 +1,1 @@
-// A lógica inicial está no index.html para facilitar o primeiro teste.
-// Depois podemos mover tudo para cá.
-//
-// Para usar um modelo .glb, substituímos o <a-box> por algo como:
-//
-// <a-entity
-//   gltf-model="./modelos/dado.glb"
-//   position="0 0 0"
-//   scale="0.5 0.5 0.5">
-// </a-entity>
+const camera=document.getElementById('camera'),botao=document.getElementById('iniciar'),mensagem=document.getElementById('mensagem'),objeto=document.getElementById('objeto3d');let stream=null;botao.addEventListener('click',async()=>{try{mensagem.textContent='Solicitando acesso à câmera...';stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});camera.srcObject=stream;await camera.play();mensagem.textContent='Câmera funcionando!';botao.style.display='none';objeto.style.display='block'}catch(erro){console.error(erro);mensagem.innerHTML='Não foi possível abrir a câmera.<br><small>'+erro.name+'</small>';botao.textContent='📷 Tentar novamente'}});
