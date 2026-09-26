@@ -1,1 +1,50 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Teste de Câmera + 3D</title><link rel="stylesheet" href="style.css"></head><body><video id="camera" autoplay playsinline muted></video><div class="interface"><div class="topo"><strong>TESTE DE RA</strong><span>Câmera + objeto 3D</span></div><div id="mensagem" class="mensagem">Toque em <b>Iniciar câmera</b>.</div><button id="iniciar">📷 Iniciar câmera</button></div><div id="objeto3d" class="objeto3d"><div class="face frente">1</div><div class="face tras">2</div><div class="face direita">3</div><div class="face esquerda">4</div><div class="face cima">5</div><div class="face baixo">6</div></div><script src="script.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+
+    <title>Teste de RA</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <video id="camera" autoplay playsinline muted></video>
+
+    <canvas id="canvas3d"></canvas>
+
+    <div class="interface">
+
+        <div class="topo">
+            <strong>TESTE DE RA</strong>
+            <span>Câmera + objeto 3D</span>
+        </div>
+
+        <div id="mensagem" class="mensagem">
+            Toque em <b>Iniciar câmera</b>.
+        </div>
+
+        <button id="iniciar">
+            📷 Iniciar câmera
+        </button>
+
+        <button id="fullscreen">
+            ⛶ Tela cheia
+        </button>
+
+        <div class="ajuda">
+            🤏 Pinça: aumentar / diminuir<br>
+            👆 Arraste: girar objeto
+        </div>
+
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+</body>
+</html>
