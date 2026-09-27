@@ -1,0 +1,182 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #000;
+
+    font-family: Arial, sans-serif;
+}
+
+
+/* =========================================================
+   CENA AR
+========================================================= */
+
+a-scene {
+
+    position: fixed !important;
+
+    inset: 0;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   PAINEL
+========================================================= */
+
+.painel {
+
+    position: fixed;
+
+    left: 10px;
+    right: 10px;
+
+    bottom: 10px;
+
+    z-index: 20;
+
+    max-height: 55vh;
+
+    overflow-y: auto;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    background: rgba(0, 0, 0, .78);
+
+    color: #fff;
+
+    backdrop-filter: blur(8px);
+}
+
+
+h1 {
+
+    margin: 0 0 8px 0;
+
+    font-size: 20px;
+}
+
+
+#status {
+
+    margin-bottom: 10px;
+
+    font-size: 13px;
+
+    opacity: .85;
+}
+
+
+/* =========================================================
+   CONTROLES
+========================================================= */
+
+.controle {
+
+    margin-top: 10px;
+}
+
+
+.controle label {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 3px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+.controle input {
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   BOTÕES
+========================================================= */
+
+button {
+
+    border: 0;
+
+    border-radius: 10px;
+
+    padding: 10px 13px;
+
+    margin-top: 8px;
+
+    background: #fff;
+
+    color: #000;
+
+    font-size: 13px;
+
+    font-weight: bold;
+}
+
+
+#iniciar {
+
+    width: 100%;
+
+    margin-bottom: 4px;
+}
+
+
+.botoes {
+
+    display: flex;
+
+    gap: 8px;
+}
+
+
+.botoes button {
+
+    flex: 1;
+}
+
+
+/* =========================================================
+   CONFIGURAÇÃO
+========================================================= */
+
+#configuracao {
+
+    margin: 10px 0 0;
+
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background: rgba(255, 255, 255, .08);
+
+    font-size: 11px;
+
+    line-height: 1.4;
+
+    white-space: pre-wrap;
+}
