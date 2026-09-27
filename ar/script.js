@@ -513,7 +513,7 @@ document.addEventListener(
         ) {
 
             modelo.object3D.rotation.x +=
-                deltaY *
+                deltaX *
                 VELOCIDADE_ROTACAO;
 
         }
@@ -528,7 +528,7 @@ document.addEventListener(
         ) {
 
             modelo.object3D.rotation.y +=
-                deltaX *
+                deltaY *
                 VELOCIDADE_ROTACAO;
 
         }
