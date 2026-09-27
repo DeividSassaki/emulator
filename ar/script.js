@@ -512,7 +512,7 @@ document.addEventListener(
             EIXO_ROTACAO === "x"
         ) {
 
-            modelo.object3D.rotation.x +=
+            modelo.object3D.rotation.x -=
                 deltaX *
                 VELOCIDADE_ROTACAO;
 
@@ -527,7 +527,7 @@ document.addEventListener(
             EIXO_ROTACAO === "y"
         ) {
 
-            modelo.object3D.rotation.y +=
+            modelo.object3D.rotation.y -=
                 deltaY *
                 VELOCIDADE_ROTACAO;
 
@@ -542,7 +542,7 @@ document.addEventListener(
             EIXO_ROTACAO === "z"
         ) {
 
-            modelo.object3D.rotation.z +=
+            modelo.object3D.rotation.z -=
                 deltaX *
                 VELOCIDADE_ROTACAO;
 
