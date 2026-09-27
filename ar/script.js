@@ -492,12 +492,6 @@ document.addEventListener(
 
             modelo.object3D
                 .rotation
-                .y +=
-                deltaX * 0.01;
-
-
-            modelo.object3D
-                .rotation
                 .x +=
                 deltaY * 0.01;
 
