@@ -11,6 +11,12 @@ const botaoIniciar =
 const botaoFullscreen =
     document.getElementById("fullscreen");
 
+const botaoComandos =
+    document.getElementById("comandos");
+
+const painel =
+    document.getElementById("painel");
+
 const status =
     document.getElementById("status");
 
@@ -67,6 +73,7 @@ const valorY =
 const valorZ =
     document.getElementById("valorZ");
 
+
 const valorRotacaoX =
     document.getElementById("valorRotacaoX");
 
@@ -75,6 +82,7 @@ const valorRotacaoY =
 
 const valorRotacaoZ =
     document.getElementById("valorRotacaoZ");
+
 
 const valorEscala =
     document.getElementById("valorEscala");
@@ -108,19 +116,19 @@ let arSystem = null;
 
 const PADRAO = {
 
-    x: 0,
+    x: -0.07,
 
-    y: 0,
+    y: -0.84,
 
-    z: 0.1,
+    z: 0.08,
 
-    rotacaoX: 0,
+    rotacaoX: 39,
 
-    rotacaoY: 0,
+    rotacaoY: 205,
 
-    rotacaoZ: 0,
+    rotacaoZ: 98,
 
-    escala: 2
+    escala: 1.16
 
 };
 
@@ -174,7 +182,7 @@ modelo.addEventListener(
 
 
 /* =========================================================
-   ERRO NO MODELO
+   ERRO AO CARREGAR MODELO
 ========================================================= */
 
 modelo.addEventListener(
@@ -314,6 +322,41 @@ botaoFullscreen.addEventListener(
 
 
 /* =========================================================
+   MOSTRAR / OCULTAR COMANDOS
+========================================================= */
+
+botaoComandos.addEventListener(
+    "click",
+    () => {
+
+        painel.classList.toggle(
+            "oculto"
+        );
+
+
+        const oculto =
+            painel.classList.contains(
+                "oculto"
+            );
+
+
+        if (oculto) {
+
+            botaoComandos.textContent =
+                "⚙ Mostrar";
+
+        } else {
+
+            botaoComandos.textContent =
+                "⚙ Comandos";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
    ATUALIZA MODELO
 ========================================================= */
 
@@ -338,14 +381,11 @@ function atualizarModelo() {
         Number(sliderZ.value);
 
 
-    modelo.object3D.position.x =
-        x;
-
-    modelo.object3D.position.y =
-        y;
-
-    modelo.object3D.position.z =
-        z;
+    modelo.object3D.position.set(
+        x,
+        y,
+        z
+    );
 
 
     /* =====================================================
@@ -362,14 +402,11 @@ function atualizarModelo() {
         Number(sliderRotacaoZ.value);
 
 
-    modelo.object3D.rotation.x =
-        grausParaRadiano(rotacaoX);
-
-    modelo.object3D.rotation.y =
-        grausParaRadiano(rotacaoY);
-
-    modelo.object3D.rotation.z =
-        grausParaRadiano(rotacaoZ);
+    modelo.object3D.rotation.set(
+        grausParaRadiano(rotacaoX),
+        grausParaRadiano(rotacaoY),
+        grausParaRadiano(rotacaoZ)
+    );
 
 
     /* =====================================================
@@ -449,7 +486,8 @@ sliderY.addEventListener(
 
 sliderZ.addEventListener(
     "input",
-    atualizarModelo);
+    atualizarModelo
+);
 
 
 sliderRotacaoX.addEventListener(
@@ -466,6 +504,7 @@ sliderRotacaoZ.addEventListener(
     "input",
     atualizarModelo
 );
+
 
 sliderEscala.addEventListener(
     "input",
