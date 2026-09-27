@@ -19,224 +19,148 @@ const modelo =
 
 
 /* =========================================================
-   CONFIGURAÇÃO DO MODELO
+   AJUSTE DO MODELO
 ========================================================= */
 
-/*
-   Aumente este valor para deixar o modelo maior.
+AFRAME.registerComponent("fit-model", {
 
-   1 = tamanho de referência
-   2 = maior
-   3 = ainda maior
-*/
+    schema: {
 
-const TAMANHO_MODELO = 2;
+        tamanho: {
+            type: "number",
+            default: 2
+        }
+
+    },
+
+    init() {
+
+        this.el.addEventListener(
+            "model-loaded",
+            () => {
+
+                console.log(
+                    "Hero of Time.glb carregado."
+                );
 
 
-/*
-   Limites do pinch
-*/
+                const THREE =
+                    AFRAME.THREE;
 
-const ESCALA_MINIMA = 0.2;
-const ESCALA_MAXIMA = 4;
+
+                const object =
+                    this.el.getObject3D("mesh");
+
+
+                if (!object) {
+
+                    console.error(
+                        "Modelo carregado, mas o mesh não foi encontrado."
+                    );
+
+                    mensagem.textContent =
+                        "Erro ao carregar o modelo.";
+
+                    return;
+
+                }
+
+
+                /* =============================================
+                   TAMANHO ORIGINAL
+                ============================================= */
+
+                const caixa =
+                    new THREE.Box3()
+                        .setFromObject(object);
+
+
+                const tamanho =
+                    caixa.getSize(
+                        new THREE.Vector3()
+                    );
+
+
+                const maior =
+                    Math.max(
+                        tamanho.x,
+                        tamanho.y,
+                        tamanho.z
+                    );
+
+
+                if (maior <= 0) {
+
+                    console.error(
+                        "Tamanho inválido do modelo."
+                    );
+
+                    return;
+
+                }
+
+
+                /* =============================================
+                   DEFINE TAMANHO
+                ============================================= */
+
+                const escala =
+                    this.data.tamanho / maior;
+
+
+                object.scale.setScalar(
+                    escala
+                );
+
+
+                object.updateMatrixWorld(
+                    true
+                );
+
+
+                /* =============================================
+                   CENTRALIZA
+                ============================================= */
+
+                const novaCaixa =
+                    new THREE.Box3()
+                        .setFromObject(object);
+
+
+                const centro =
+                    novaCaixa.getCenter(
+                        new THREE.Vector3()
+                    );
+
+
+                object.position.x -=
+                    centro.x;
+
+                object.position.y -=
+                    centro.y;
+
+                object.position.z -=
+                    centro.z;
+
+
+                console.log(
+                    "Modelo ajustado. Tamanho:",
+                    this.data.tamanho
+                );
+
+            }
+        );
+
+    }
+
+});
 
 
 /* =========================================================
-   ESTADO
+   SISTEMA MINDAR
 ========================================================= */
 
 let arSystem = null;
-
-let modeloCarregado = false;
-
-let modeloEncontrado = false;
-
-
-/* =========================================================
-   CARREGAMENTO DO MODELO
-========================================================= */
-
-modelo.addEventListener(
-    "model-loaded",
-    () => {
-
-        console.log(
-            "Hero of Time.glb carregado."
-        );
-
-
-        modeloCarregado = true;
-
-
-        try {
-
-            const THREE =
-                AFRAME.THREE;
-
-
-            const object =
-                modelo.getObject3D("mesh");
-
-
-            if (!object) {
-
-                console.error(
-                    "O modelo carregou, mas o mesh não foi encontrado."
-                );
-
-                mensagem.textContent =
-                    "Erro: modelo sem mesh.";
-
-                return;
-
-            }
-
-
-            /* =============================================
-               DESCOBRE O TAMANHO ORIGINAL
-            ============================================= */
-
-            let caixa =
-                new THREE.Box3()
-                    .setFromObject(object);
-
-
-            const tamanho =
-                caixa.getSize(
-                    new THREE.Vector3()
-                );
-
-
-            const maior =
-                Math.max(
-                    tamanho.x,
-                    tamanho.y,
-                    tamanho.z
-                );
-
-
-            console.log(
-                "Tamanho original do modelo:",
-                tamanho
-            );
-
-
-            if (maior <= 0) {
-
-                console.error(
-                    "O modelo possui tamanho inválido."
-                );
-
-                mensagem.textContent =
-                    "Erro: tamanho do modelo inválido.";
-
-                return;
-
-            }
-
-
-            /* =============================================
-               DEFINE TAMANHO
-            ============================================= */
-
-            const escala =
-                TAMANHO_MODELO / maior;
-
-
-            object.scale.setScalar(
-                escala
-            );
-
-
-            object.updateMatrixWorld(
-                true
-            );
-
-
-            /* =============================================
-               RECALCULA A CAIXA
-            ============================================= */
-
-            caixa =
-                new THREE.Box3()
-                    .setFromObject(object);
-
-
-            const centro =
-                caixa.getCenter(
-                    new THREE.Vector3()
-                );
-
-
-            /* =============================================
-               CENTRALIZA MODELO
-            ============================================= */
-
-            object.position.x -=
-                centro.x;
-
-            object.position.y -=
-                centro.y;
-
-            object.position.z -=
-                centro.z;
-
-
-            modelo.setAttribute(
-                "visible",
-                true
-            );
-
-
-            console.log(
-                "Modelo ajustado. Escala:",
-                escala
-            );
-
-
-            if (modeloEncontrado) {
-
-                mensagem.textContent =
-                    "✅ Marcador encontrado!";
-
-            }
-
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ao ajustar modelo:",
-                erro
-            );
-
-            mensagem.textContent =
-                "Erro ao ajustar o modelo.";
-
-        }
-
-    }
-);
-
-
-/* =========================================================
-   ERRO NO MODELO
-========================================================= */
-
-modelo.addEventListener(
-    "model-error",
-    (evento) => {
-
-        console.error(
-            "ERRO AO CARREGAR O GLB:",
-            evento
-        );
-
-
-        mensagem.innerHTML =
-            "❌ Não foi possível carregar o <b>Hero of Time.glb</b>.";
-
-    }
-);
 
 
 /* =========================================================
@@ -262,7 +186,7 @@ scene.addEventListener(
 
 
 /* =========================================================
-   INICIAR AR
+   INICIAR CÂMERA
 ========================================================= */
 
 botaoIniciar.addEventListener(
@@ -332,20 +256,8 @@ target.addEventListener(
     "targetFound",
     () => {
 
-        modeloEncontrado = true;
-
-
-        if (modeloCarregado) {
-
-            mensagem.textContent =
-                "✅ Marcador encontrado!";
-
-        } else {
-
-            mensagem.textContent =
-                "Marcador encontrado. Carregando modelo...";
-
-        }
+        mensagem.textContent =
+            "✅ Marcador encontrado!";
 
 
         console.log(
@@ -363,9 +275,6 @@ target.addEventListener(
 target.addEventListener(
     "targetLost",
     () => {
-
-        modeloEncontrado = false;
-
 
         mensagem.textContent =
             "Aponte novamente para o marcador.";
@@ -433,10 +342,6 @@ let ultimoY = 0;
 document.addEventListener(
     "touchstart",
     (evento) => {
-
-        /*
-           Não interfere nos botões.
-        */
 
         if (
             evento.target.closest(
@@ -553,7 +458,7 @@ document.addEventListener(
 
 
         /* ================================================
-           DOIS DEDOS = ESCALA
+           DOIS DEDOS = ZOOM
         ================================================= */
 
         if (toques.size === 2) {
@@ -583,9 +488,9 @@ document.addEventListener(
 
                 novaEscala =
                     Math.max(
-                        ESCALA_MINIMA,
+                        0.2,
                         Math.min(
-                            ESCALA_MAXIMA,
+                            4,
                             novaEscala
                         )
                     );
@@ -608,7 +513,7 @@ document.addEventListener(
 
 
         /* ================================================
-           UM DEDO = ROTAÇÃO SOMENTE EM X
+           UM DEDO = ROTAÇÃO SOMENTE NO EIXO X
         ================================================= */
 
         if (toques.size === 1) {
@@ -628,10 +533,7 @@ document.addEventListener(
                 deltaY * 0.01;
 
 
-            /*
-               Limita a rotação para não virar
-               completamente de cabeça para baixo.
-            */
+            /* Limite da rotação */
 
             modelo.object3D
                 .rotation
@@ -682,9 +584,7 @@ document.addEventListener(
         }
 
 
-        if (
-            toques.size < 2
-        ) {
+        if (toques.size < 2) {
 
             distanciaInicial = 0;
 
@@ -721,7 +621,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   DISTÂNCIA ENTRE DOIS DEDOS
+   DISTÂNCIA ENTRE OS DEDOS
 ========================================================= */
 
 function distanciaEntre(a, b) {
