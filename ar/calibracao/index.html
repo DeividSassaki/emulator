@@ -37,16 +37,21 @@
         color-space="sRGB"
 
         renderer="
+            alpha: true;
             colorManagement: true;
             physicallyCorrectLights: true;
         "
+
+        embedded
 
         vr-mode-ui="enabled: false"
 
         device-orientation-permission-ui="enabled: false"
     >
 
-        <!-- CÂMERA -->
+        <!-- =================================================
+             CÂMERA
+        ================================================== -->
 
         <a-camera
             position="0 0 0"
@@ -54,7 +59,9 @@
         ></a-camera>
 
 
-        <!-- MARCADOR -->
+        <!-- =================================================
+             MARCADOR
+        ================================================== -->
 
         <a-entity
             id="targetZelda"
@@ -78,7 +85,9 @@
         </a-entity>
 
 
-        <!-- LUZES -->
+        <!-- =================================================
+             LUZES
+        ================================================== -->
 
         <a-light
             type="ambient"
@@ -95,7 +104,7 @@
 
 
     <!-- =====================================================
-         INTERFACE
+         PAINEL
     ====================================================== -->
 
     <div class="painel">
@@ -112,20 +121,22 @@
         </button>
 
 
-        <!-- X -->
+        <!-- =================================================
+             POSIÇÃO X
+        ================================================== -->
 
         <div class="controle">
 
             <label>
-                X:
+                Posição X:
                 <span id="valorX">0.00</span>
             </label>
 
             <input
                 id="sliderX"
                 type="range"
-                min="-2"
-                max="2"
+                min="-5"
+                max="5"
                 step="0.01"
                 value="0"
             >
@@ -133,20 +144,22 @@
         </div>
 
 
-        <!-- Y -->
+        <!-- =================================================
+             POSIÇÃO Y
+        ================================================== -->
 
         <div class="controle">
 
             <label>
-                Y:
+                Posição Y:
                 <span id="valorY">0.00</span>
             </label>
 
             <input
                 id="sliderY"
                 type="range"
-                min="-2"
-                max="2"
+                min="-5"
+                max="5"
                 step="0.01"
                 value="0"
             >
@@ -154,20 +167,22 @@
         </div>
 
 
-        <!-- Z -->
+        <!-- =================================================
+             POSIÇÃO Z
+        ================================================== -->
 
         <div class="controle">
 
             <label>
-                Z:
+                Posição Z:
                 <span id="valorZ">0.10</span>
             </label>
 
             <input
                 id="sliderZ"
                 type="range"
-                min="-2"
-                max="2"
+                min="-5"
+                max="5"
                 step="0.01"
                 value="0.10"
             >
@@ -175,7 +190,9 @@
         </div>
 
 
-        <!-- ROTAÇÃO X -->
+        <!-- =================================================
+             ROTAÇÃO X
+        ================================================== -->
 
         <div class="controle">
 
@@ -196,7 +213,55 @@
         </div>
 
 
-        <!-- TAMANHO -->
+        <!-- =================================================
+             ROTAÇÃO Y
+        ================================================== -->
+
+        <div class="controle">
+
+            <label>
+                Rotação Y:
+                <span id="valorRotacaoY">0°</span>
+            </label>
+
+            <input
+                id="sliderRotacaoY"
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value="0"
+            >
+
+        </div>
+
+
+        <!-- =================================================
+             ROTAÇÃO Z
+        ================================================== -->
+
+        <div class="controle">
+
+            <label>
+                Rotação Z:
+                <span id="valorRotacaoZ">0°</span>
+            </label>
+
+            <input
+                id="sliderRotacaoZ"
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value="0"
+            >
+
+        </div>
+
+
+        <!-- =================================================
+             TAMANHO
+        ================================================== -->
 
         <div class="controle">
 
@@ -217,6 +282,10 @@
         </div>
 
 
+        <!-- =================================================
+             BOTÕES
+        ================================================== -->
+
         <div class="botoes">
 
             <button id="resetar">
@@ -229,6 +298,10 @@
 
         </div>
 
+
+        <!-- =================================================
+             CONFIGURAÇÃO FINAL
+        ================================================== -->
 
         <pre id="configuracao"></pre>
 
