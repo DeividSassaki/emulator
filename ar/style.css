@@ -97,3 +97,11 @@ a-scene {
     transform: scale(.96);
 
 }
+/* =========================================================
+   ESCONDE BOTÃO VR DO A-FRAME
+========================================================= */
+
+.a-enter-vr,
+.a-enter-ar {
+    display: none !important;
+}
