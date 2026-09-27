@@ -5,57 +5,54 @@
 html,
 body {
     margin: 0;
+
     width: 100%;
     height: 100%;
+
     overflow: hidden;
+
     background: #000;
+
     font-family: Arial, sans-serif;
-}
-
-body {
-    touch-action: none;
-}
-
-/* CÂMERA */
-
-#camera {
-    position: fixed;
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    background: #000;
-}
-
-/* CANVAS 3D */
-
-#canvas3d {
-    position: fixed;
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    z-index: 5;
 
     touch-action: none;
-
-    pointer-events: none;
 }
 
-/* INTERFACE */
+
+/* =========================================================
+   CENA AR
+========================================================= */
+
+a-scene {
+    position: fixed !important;
+
+    inset: 0;
+
+    width: 100vw !important;
+    height: 100vh !important;
+
+    z-index: 1;
+}
+
+
+/* =========================================================
+   INTERFACE
+========================================================= */
 
 .interface {
     position: fixed;
+
     inset: 0;
 
     z-index: 10;
 
     pointer-events: none;
 }
+
+
+/* =========================================================
+   TOPO
+========================================================= */
 
 .topo {
     padding: 15px 16px;
@@ -88,6 +85,11 @@ body {
     opacity: .8;
 }
 
+
+/* =========================================================
+   MENSAGEM
+========================================================= */
+
 .mensagem {
     width: fit-content;
 
@@ -108,10 +110,14 @@ body {
     text-align: center;
 }
 
-/* BOTÕES */
+
+/* =========================================================
+   BOTÕES
+========================================================= */
 
 #iniciar,
 #fullscreen {
+
     position: fixed;
 
     pointer-events: auto;
@@ -129,17 +135,25 @@ body {
     background: #fff;
 
     color: #000;
+
+    touch-action: manipulation;
 }
 
+
 #iniciar {
+
     left: 50%;
+
     bottom: 28px;
 
     transform: translateX(-50%);
 }
 
+
 #fullscreen {
+
     right: 15px;
+
     top: 15px;
 
     padding: 10px 15px;
@@ -147,12 +161,17 @@ body {
     font-size: 14px;
 }
 
-/* AJUDA */
+
+/* =========================================================
+   AJUDA
+========================================================= */
 
 .ajuda {
+
     position: fixed;
 
     left: 50%;
+
     bottom: 20px;
 
     transform: translateX(-50%);
@@ -174,4 +193,14 @@ body {
     opacity: .75;
 
     pointer-events: none;
+}
+
+
+/* =========================================================
+   ESCONDE ALGUNS ELEMENTOS PADRÃO DO MINDAR
+========================================================= */
+
+.mindar-ui-loading,
+.mindar-ui-scanning {
+    z-index: 4 !important;
 }
