@@ -16,7 +16,7 @@ const modelo =
 
 
 /* =========================================================
-   CONTROLES
+   SLIDERS DE POSIÇÃO
 ========================================================= */
 
 const sliderX =
@@ -28,15 +28,31 @@ const sliderY =
 const sliderZ =
     document.getElementById("sliderZ");
 
+
+/* =========================================================
+   SLIDERS DE ROTAÇÃO
+========================================================= */
+
 const sliderRotacaoX =
     document.getElementById("sliderRotacaoX");
+
+const sliderRotacaoY =
+    document.getElementById("sliderRotacaoY");
+
+const sliderRotacaoZ =
+    document.getElementById("sliderRotacaoZ");
+
+
+/* =========================================================
+   SLIDER DE TAMANHO
+========================================================= */
 
 const sliderEscala =
     document.getElementById("sliderEscala");
 
 
 /* =========================================================
-   VALORES VISUAIS
+   VALORES EXIBIDOS
 ========================================================= */
 
 const valorX =
@@ -48,8 +64,16 @@ const valorY =
 const valorZ =
     document.getElementById("valorZ");
 
+
 const valorRotacaoX =
     document.getElementById("valorRotacaoX");
+
+const valorRotacaoY =
+    document.getElementById("valorRotacaoY");
+
+const valorRotacaoZ =
+    document.getElementById("valorRotacaoZ");
+
 
 const valorEscala =
     document.getElementById("valorEscala");
@@ -78,7 +102,7 @@ let arSystem = null;
 
 
 /* =========================================================
-   CONFIGURAÇÃO INICIAL
+   VALORES PADRÃO
 ========================================================= */
 
 const PADRAO = {
@@ -90,6 +114,10 @@ const PADRAO = {
     z: 0.1,
 
     rotacaoX: 0,
+
+    rotacaoY: 0,
+
+    rotacaoZ: 0,
 
     escala: 2
 
@@ -145,6 +173,27 @@ modelo.addEventListener(
 
 
 /* =========================================================
+   ERRO AO CARREGAR MODELO
+========================================================= */
+
+modelo.addEventListener(
+    "model-error",
+    (evento) => {
+
+        console.error(
+            "Erro ao carregar GLB:",
+            evento
+        );
+
+
+        status.textContent =
+            "Erro ao carregar o modelo.";
+
+    }
+);
+
+
+/* =========================================================
    INICIAR CÂMERA
 ========================================================= */
 
@@ -181,6 +230,7 @@ botaoIniciar.addEventListener(
         } catch (erro) {
 
             console.error(
+                "Erro ao iniciar câmera:",
                 erro
             );
 
@@ -225,7 +275,7 @@ target.addEventListener(
 
 
 /* =========================================================
-   ATUALIZAR MODELO
+   ATUALIZA MODELO
 ========================================================= */
 
 function atualizarModelo() {
@@ -244,40 +294,46 @@ function atualizarModelo() {
     const z =
         Number(sliderZ.value);
 
+
     const rotacaoX =
         Number(sliderRotacaoX.value);
+
+    const rotacaoY =
+        Number(sliderRotacaoY.value);
+
+    const rotacaoZ =
+        Number(sliderRotacaoZ.value);
+
 
     const escala =
         Number(sliderEscala.value);
 
 
-    /* ================================================
+    /* =====================================================
        POSIÇÃO
-    ================================================= */
+    ====================================================== */
 
-    modelo.object3D.position.x =
-        x;
-
-    modelo.object3D.position.y =
-        y;
-
-    modelo.object3D.position.z =
-        z;
+    modelo.object3D.position.set(
+        x,
+        y,
+        z
+    );
 
 
-    /* ================================================
-       ROTAÇÃO X
-    ================================================= */
+    /* =====================================================
+       ROTAÇÃO
+    ====================================================== */
 
-    modelo.object3D.rotation.x =
-        rotacaoX *
-        Math.PI /
-        180;
+    modelo.object3D.rotation.set(
+        grausParaRadiano(rotacaoX),
+        grausParaRadiano(rotacaoY),
+        grausParaRadiano(rotacaoZ)
+    );
 
 
-    /* ================================================
-       ESCALA
-    ================================================= */
+    /* =====================================================
+       TAMANHO
+    ====================================================== */
 
     modelo.object3D.scale.set(
         escala,
@@ -286,9 +342,9 @@ function atualizarModelo() {
     );
 
 
-    /* ================================================
+    /* =====================================================
        MOSTRA VALORES
-    ================================================= */
+    ====================================================== */
 
     valorX.textContent =
         x.toFixed(2);
@@ -299,14 +355,35 @@ function atualizarModelo() {
     valorZ.textContent =
         z.toFixed(2);
 
+
     valorRotacaoX.textContent =
         rotacaoX + "°";
+
+    valorRotacaoY.textContent =
+        rotacaoY + "°";
+
+    valorRotacaoZ.textContent =
+        rotacaoZ + "°";
+
 
     valorEscala.textContent =
         escala.toFixed(2);
 
 
     atualizarConfiguracao();
+
+}
+
+
+/* =========================================================
+   CONVERSÃO
+========================================================= */
+
+function grausParaRadiano(graus) {
+
+    return graus *
+        Math.PI /
+        180;
 
 }
 
@@ -330,10 +407,22 @@ sliderZ.addEventListener(
     atualizarModelo
 );
 
+
 sliderRotacaoX.addEventListener(
     "input",
     atualizarModelo
 );
+
+sliderRotacaoY.addEventListener(
+    "input",
+    atualizarModelo
+);
+
+sliderRotacaoZ.addEventListener(
+    "input",
+    atualizarModelo
+);
+
 
 sliderEscala.addEventListener(
     "input",
@@ -342,7 +431,7 @@ sliderEscala.addEventListener(
 
 
 /* =========================================================
-   CONFIGURAÇÃO FINAL
+   MOSTRA CONFIGURAÇÃO
 ========================================================= */
 
 function atualizarConfiguracao() {
@@ -356,8 +445,16 @@ function atualizarConfiguracao() {
     const z =
         Number(sliderZ.value);
 
+
     const rotacaoX =
         Number(sliderRotacaoX.value);
+
+    const rotacaoY =
+        Number(sliderRotacaoY.value);
+
+    const rotacaoZ =
+        Number(sliderRotacaoZ.value);
+
 
     const escala =
         Number(sliderEscala.value);
@@ -365,9 +462,8 @@ function atualizarConfiguracao() {
 
     configuracao.textContent =
 `position="${x.toFixed(2)} ${y.toFixed(2)} ${z.toFixed(2)}"
-rotation="${rotacaoX} 0 0"
+rotation="${rotacaoX} ${rotacaoY} ${rotacaoZ}"
 scale="${escala.toFixed(2)} ${escala.toFixed(2)} ${escala.toFixed(2)}"`;
-
 
 }
 
@@ -389,8 +485,16 @@ botaoResetar.addEventListener(
         sliderZ.value =
             PADRAO.z;
 
+
         sliderRotacaoX.value =
             PADRAO.rotacaoX;
+
+        sliderRotacaoY.value =
+            PADRAO.rotacaoY;
+
+        sliderRotacaoZ.value =
+            PADRAO.rotacaoZ;
+
 
         sliderEscala.value =
             PADRAO.escala;
@@ -435,12 +539,12 @@ botaoCopiar.addEventListener(
                 1500
             );
 
-
         } catch (erro) {
 
             console.error(
                 erro
             );
+
 
             alert(
                 texto
@@ -453,7 +557,7 @@ botaoCopiar.addEventListener(
 
 
 /* =========================================================
-   PRIMEIRA ATUALIZAÇÃO
+   INICIALIZA
 ========================================================= */
 
 atualizarModelo();
