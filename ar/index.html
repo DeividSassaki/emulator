@@ -22,10 +22,6 @@
 
 <body>
 
-    <!-- =====================================================
-         CENA AR
-    ====================================================== -->
-
     <a-scene
         id="scene"
 
@@ -46,9 +42,7 @@
         device-orientation-permission-ui="enabled: false"
     >
 
-        <!-- =================================================
-             CÂMERA
-        ================================================== -->
+        <!-- CÂMERA -->
 
         <a-camera
             position="0 0 0"
@@ -56,25 +50,29 @@
         ></a-camera>
 
 
-        <!-- =================================================
-             MARCADOR
-        ================================================== -->
+        <!-- MODELO -->
+
+        <a-assets>
+
+            <a-asset-item
+                id="heroModel"
+                src="./marcadores/zelda/Hero%20of%20Time.glb"
+            ></a-asset-item>
+
+        </a-assets>
+
+
+        <!-- MARCADOR -->
 
         <a-entity
             id="targetZelda"
             mindar-image-target="targetIndex: 0"
         >
 
-            <!--
-                O modelo agora é carregado diretamente.
-                O caminho corresponde exatamente ao arquivo
-                que está na pasta do GitHub.
-            -->
-
             <a-gltf-model
                 id="heroModelObject"
 
-                gltf-model="url(./marcadores/zelda/Hero%20of%20Time.glb)"
+                src="#heroModel"
 
                 position="0 0 0.1"
 
@@ -82,15 +80,13 @@
 
                 scale="1 1 1"
 
-                visible="false"
+                fit-model="tamanho: 2"
             ></a-gltf-model>
 
         </a-entity>
 
 
-        <!-- =================================================
-             LUZES
-        ================================================== -->
+        <!-- LUZES -->
 
         <a-light
             type="ambient"
@@ -106,9 +102,7 @@
     </a-scene>
 
 
-    <!-- =====================================================
-         INTERFACE
-    ====================================================== -->
+    <!-- INTERFACE -->
 
     <div class="interface">
 
