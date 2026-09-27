@@ -13,189 +13,27 @@ const modelo =
 
 
 /* =========================================================
-   CONFIGURAÇÃO
+   CONFIGURAÇÃO DA ROTAÇÃO
 ========================================================= */
 
-const AR_CONFIG =
-    "./marcadores/zelda/config.json";
+/*
+   Escolha o eixo que será usado para girar o modelo:
+
+   "x" = frente / trás
+   "y" = esquerda / direita
+   "z" = inclinação lateral
+
+   Começando em X, como você pediu.
+*/
+
+const EIXO_ROTACAO = "x";
 
 
-/* =========================================================
-   CONFIGURAÇÃO PADRÃO
-========================================================= */
+/*
+   Sensibilidade da rotação.
+*/
 
-const CONFIG_PADRAO = {
-
-    position: {
-
-        x: 0,
-        y: 0,
-        z: 0
-
-    },
-
-    rotation: {
-
-        x: 0,
-        y: 0,
-        z: 0
-
-    },
-
-    scale: 1
-
-};
-
-
-/* =========================================================
-   CARREGAR CONFIGURAÇÃO
-========================================================= */
-
-async function carregarConfiguracao() {
-
-    try {
-
-        const resposta =
-            await fetch(AR_CONFIG, {
-                cache: "no-store"
-            });
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                "Não foi possível carregar config.json"
-            );
-
-        }
-
-
-        const config =
-            await resposta.json();
-
-
-        aplicarConfiguracao(config);
-
-
-        console.log(
-            "Configuração AR carregada:",
-            config
-        );
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar config.json:",
-            erro
-        );
-
-
-        console.log(
-            "Usando configuração padrão."
-        );
-
-
-        aplicarConfiguracao(
-            CONFIG_PADRAO
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   APLICAR CONFIGURAÇÃO
-========================================================= */
-
-function aplicarConfiguracao(config) {
-
-    if (!modelo) {
-
-        console.error(
-            "Modelo não encontrado."
-        );
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       POSIÇÃO
-    ====================================================== */
-
-    const x =
-        Number(
-            config.position?.x ??
-            CONFIG_PADRAO.position.x
-        );
-
-    const y =
-        Number(
-            config.position?.y ??
-            CONFIG_PADRAO.position.y
-        );
-
-    const z =
-        Number(
-            config.position?.z ??
-            CONFIG_PADRAO.position.z
-        );
-
-
-    modelo.setAttribute(
-        "position",
-        `${x} ${y} ${z}`
-    );
-
-
-    /* =====================================================
-       ROTAÇÃO
-    ====================================================== */
-
-    const rotacaoX =
-        Number(
-            config.rotation?.x ??
-            CONFIG_PADRAO.rotation.x
-        );
-
-    const rotacaoY =
-        Number(
-            config.rotation?.y ??
-            CONFIG_PADRAO.rotation.y
-        );
-
-    const rotacaoZ =
-        Number(
-            config.rotation?.z ??
-            CONFIG_PADRAO.rotation.z
-        );
-
-
-    modelo.setAttribute(
-        "rotation",
-        `${rotacaoX} ${rotacaoY} ${rotacaoZ}`
-    );
-
-
-    /* =====================================================
-       ESCALA
-    ====================================================== */
-
-    const escala =
-        Number(
-            config.scale ??
-            CONFIG_PADRAO.scale
-        );
-
-
-    modelo.setAttribute(
-        "scale",
-        `${escala} ${escala} ${escala}`
-    );
-
-}
+const VELOCIDADE_ROTACAO = 0.01;
 
 
 /* =========================================================
@@ -215,7 +53,7 @@ modelo.addEventListener(
 
 
 /* =========================================================
-   ERRO AO CARREGAR MODELO
+   ERRO NO MODELO
 ========================================================= */
 
 modelo.addEventListener(
@@ -301,7 +139,188 @@ botaoFullscreen.addEventListener(
 
 
 /* =========================================================
-   CARREGA CONFIGURAÇÃO
+   CONTROLE POR TOQUE
 ========================================================= */
 
-carregarConfiguracao();
+let toqueAtivo = false;
+
+let ultimoX = 0;
+
+let ultimoY = 0;
+
+
+/* =========================================================
+   TOUCH START
+========================================================= */
+
+document.addEventListener(
+    "touchstart",
+    (evento) => {
+
+        /*
+           Não interfere no botão de tela cheia.
+        */
+
+        if (
+            evento.target.closest(
+                "button"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+           Usamos somente um dedo para rotação.
+        */
+
+        if (
+            evento.touches.length !== 1
+        ) {
+
+            return;
+
+        }
+
+
+        const toque =
+            evento.touches[0];
+
+
+        toqueAtivo = true;
+
+
+        ultimoX =
+            toque.clientX;
+
+        ultimoY =
+            toque.clientY;
+
+
+        evento.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* =========================================================
+   TOUCH MOVE
+========================================================= */
+
+document.addEventListener(
+    "touchmove",
+    (evento) => {
+
+        /*
+           Somente um dedo.
+        */
+
+        if (
+            !toqueAtivo ||
+            evento.touches.length !== 1
+        ) {
+
+            return;
+
+        }
+
+
+        const toque =
+            evento.touches[0];
+
+
+        const deltaX =
+            toque.clientX -
+            ultimoX;
+
+
+        const deltaY =
+            toque.clientY -
+            ultimoY;
+
+
+        /*
+           Dependendo do eixo escolhido,
+           usamos o movimento apropriado.
+        */
+
+        if (
+            EIXO_ROTACAO === "x"
+        ) {
+
+            modelo.object3D.rotation.x +=
+                deltaY *
+                VELOCIDADE_ROTACAO;
+
+        }
+
+
+        else if (
+            EIXO_ROTACAO === "y"
+        ) {
+
+            modelo.object3D.rotation.y +=
+                deltaX *
+                VELOCIDADE_ROTACAO;
+
+        }
+
+
+        else if (
+            EIXO_ROTACAO === "z"
+        ) {
+
+            modelo.object3D.rotation.z +=
+                deltaX *
+                VELOCIDADE_ROTACAO;
+
+        }
+
+
+        ultimoX =
+            toque.clientX;
+
+        ultimoY =
+            toque.clientY;
+
+
+        evento.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* =========================================================
+   TOUCH END
+========================================================= */
+
+document.addEventListener(
+    "touchend",
+    () => {
+
+        toqueAtivo = false;
+
+    }
+);
+
+
+/* =========================================================
+   TOUCH CANCEL
+========================================================= */
+
+document.addEventListener(
+    "touchcancel",
+    () => {
+
+        toqueAtivo = false;
+
+    }
+);
