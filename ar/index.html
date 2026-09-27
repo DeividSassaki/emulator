@@ -30,7 +30,7 @@
         id="scene"
 
         mindar-image="
-            imageTargetSrc: marcadores/zelda/targets.mind;
+            imageTargetSrc: ./marcadores/zelda/targets.mind;
             autoStart: false;
         "
 
@@ -46,18 +46,9 @@
         device-orientation-permission-ui="enabled: false"
     >
 
-        <!-- MODELO -->
-        <a-assets>
-
-            <a-asset-item
-                id="heroModel"
-                src="marcadores/zelda/Hero%20of%20Time.glb"
-            ></a-asset-item>
-
-        </a-assets>
-
-
-        <!-- CÂMERA AR -->
+        <!-- =================================================
+             CÂMERA
+        ================================================== -->
 
         <a-camera
             position="0 0 0"
@@ -74,10 +65,16 @@
             mindar-image-target="targetIndex: 0"
         >
 
+            <!--
+                O modelo agora é carregado diretamente.
+                O caminho corresponde exatamente ao arquivo
+                que está na pasta do GitHub.
+            -->
+
             <a-gltf-model
                 id="heroModelObject"
 
-                src="#heroModel"
+                gltf-model="url(./marcadores/zelda/Hero%20of%20Time.glb)"
 
                 position="0 0 0.1"
 
@@ -85,13 +82,15 @@
 
                 scale="1 1 1"
 
-                fit-model="tamanho: 2"
+                visible="false"
             ></a-gltf-model>
 
         </a-entity>
 
 
-        <!-- LUZ -->
+        <!-- =================================================
+             LUZES
+        ================================================== -->
 
         <a-light
             type="ambient"
@@ -147,7 +146,7 @@
             🤏 Pinça: aumentar / diminuir
             <br>
 
-            👆 Arraste: girar objeto
+            👆 Arraste para cima/baixo: girar
 
         </div>
 
