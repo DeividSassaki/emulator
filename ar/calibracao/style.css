@@ -24,12 +24,16 @@ body {
 
 .example-container {
 
-    position: absolute;
+    position: fixed;
+
+    inset: 0;
 
     width: 100%;
     height: 100%;
 
     overflow: hidden;
+
+    background: #000;
 }
 
 
@@ -39,8 +43,71 @@ body {
 
 a-scene {
 
+    position: absolute !important;
+
+    top: 0;
+    left: 0;
+
     width: 100% !important;
     height: 100% !important;
+
+    margin: 0 !important;
+
+    background: transparent !important;
+}
+
+
+/* =========================================================
+   BOTÕES SUPERIORES
+========================================================= */
+
+#comandos,
+#fullscreen {
+
+    position: fixed;
+
+    top: 15px;
+
+    z-index: 100;
+
+    border: 0;
+
+    border-radius: 25px;
+
+    padding: 10px 15px;
+
+    background: rgba(0, 0, 0, .65);
+
+    color: #fff;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    backdrop-filter: blur(5px);
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+
+#comandos {
+
+    left: 15px;
+}
+
+
+#fullscreen {
+
+    right: 15px;
+}
+
+
+#comandos:active,
+#fullscreen:active {
+
+    transform: scale(.96);
 }
 
 
@@ -66,11 +133,31 @@ a-scene {
 
     border-radius: 16px;
 
-    background: rgba(0, 0, 0, 0.78);
+    background: rgba(0, 0, 0, .78);
 
     color: #fff;
 
     backdrop-filter: blur(8px);
+
+    transition:
+        opacity .2s ease,
+        transform .2s ease;
+}
+
+
+/* =========================================================
+   PAINEL OCULTO
+========================================================= */
+
+.painel.oculto {
+
+    opacity: 0;
+
+    transform: translateY(
+        calc(100% + 20px)
+    );
+
+    pointer-events: none;
 }
 
 
@@ -101,20 +188,28 @@ h1 {
 
 
 /* =========================================================
-   LINHA DOS BOTÕES
+   BOTÃO INICIAR
 ========================================================= */
 
-.linha-botoes {
+#iniciar {
 
-    display: flex;
+    width: 100%;
 
-    gap: 8px;
-}
+    border: 0;
 
+    border-radius: 10px;
 
-.linha-botoes button {
+    padding: 10px 12px;
 
-    flex: 1;
+    margin-top: 2px;
+
+    background: #fff;
+
+    color: #000;
+
+    font-size: 13px;
+
+    font-weight: bold;
 }
 
 
@@ -151,10 +246,20 @@ h1 {
 
 
 /* =========================================================
-   BOTÕES
+   BOTÕES INFERIORES
 ========================================================= */
 
-button {
+.botoes {
+
+    display: flex;
+
+    gap: 8px;
+}
+
+
+.botoes button {
+
+    flex: 1;
 
     border: 0;
 
