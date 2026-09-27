@@ -1,331 +1,205 @@
-import * as THREE from
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
+/* =========================================================
+   ELEMENTOS
+========================================================= */
 
-import { GLTFLoader } from
-    "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/loaders/GLTFLoader.js";
+const scene = document.getElementById("scene");
+
+const botaoIniciar =
+    document.getElementById("iniciar");
+
+const botaoFullscreen =
+    document.getElementById("fullscreen");
+
+const mensagem =
+    document.getElementById("mensagem");
+
+const modelo =
+    document.getElementById("heroModelObject");
 
 
 /* =========================================================
-   ELEMENTOS DA PÁGINA
+   AJUSTE AUTOMÁTICO DO MODELO
 ========================================================= */
 
-const camera = document.getElementById("camera");
-const botao = document.getElementById("iniciar");
-const mensagem = document.getElementById("mensagem");
-const canvas = document.getElementById("canvas3d");
-const fullscreen = document.getElementById("fullscreen");
+AFRAME.registerComponent("fit-model", {
+
+    schema: {
+        tamanho: {
+            type: "number",
+            default: 0.8
+        }
+    },
+
+    init() {
+
+        this.el.addEventListener(
+            "model-loaded",
+            () => {
+
+                const object =
+                    this.el.getObject3D("mesh");
+
+                if (!object) {
+                    return;
+                }
 
 
-/* =========================================================
-   MODELO
-========================================================= */
-
-const MODELO =
-    "./modelos/Hero%20of%20Time%20by%20Anonymous%20-%202yiMbN3bdIe.glb";
+                const THREE =
+                    AFRAME.THREE;
 
 
-/*
-   Tamanho inicial do modelo.
+                /* -----------------------------------------
+                   CALCULA TAMANHO
+                ----------------------------------------- */
 
-   Se ficar muito grande:
-   diminua para 0.8, 0.6 etc.
-
-   Se ficar pequeno:
-   aumente para 1.5, 2.0 etc.
-*/
-
-const TAMANHO_INICIAL = 1;
+                const caixa =
+                    new THREE.Box3()
+                        .setFromObject(object);
 
 
-/* =========================================================
-   THREE.JS
-========================================================= */
+                const tamanho =
+                    caixa.getSize(
+                        new THREE.Vector3()
+                    );
 
-const scene = new THREE.Scene();
 
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas,
-    alpha: true,
-    antialias: true
+                const maior =
+                    Math.max(
+                        tamanho.x,
+                        tamanho.y,
+                        tamanho.z
+                    );
+
+
+                if (maior <= 0) {
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   NORMALIZA TAMANHO
+                ----------------------------------------- */
+
+                const escala =
+                    this.data.tamanho / maior;
+
+
+                object.scale.setScalar(
+                    escala
+                );
+
+
+                /* -----------------------------------------
+                   CENTRALIZA
+                ----------------------------------------- */
+
+                const centro =
+                    caixa.getCenter(
+                        new THREE.Vector3()
+                    );
+
+
+                object.position.sub(
+                    centro
+                );
+
+
+                console.log(
+                    "Modelo carregado e ajustado."
+                );
+
+            }
+        );
+
+    }
+
 });
 
-renderer.setPixelRatio(
-    Math.min(window.devicePixelRatio, 2)
-);
 
-renderer.setSize(
-    window.innerWidth,
-    window.innerHeight
-);
+/* =========================================================
+   SISTEMA MINDAR
+========================================================= */
 
-renderer.outputColorSpace = THREE.SRGBColorSpace;
+let arSystem = null;
 
 
 /* =========================================================
-   CÂMERA 3D
+   QUANDO A CENA ESTIVER PRONTA
 ========================================================= */
 
-const camera3D = new THREE.PerspectiveCamera(
-    45,
-    window.innerWidth / window.innerHeight,
-    0.01,
-    100
-);
+scene.addEventListener(
+    "loaded",
+    () => {
 
-camera3D.position.set(
-    0,
-    0,
-    5
-);
-
-
-/* =========================================================
-   LUZES
-========================================================= */
-
-const luzAmbiente = new THREE.HemisphereLight(
-    0xffffff,
-    0x444444,
-    2
-);
-
-scene.add(luzAmbiente);
-
-
-const luzDirecional = new THREE.DirectionalLight(
-    0xffffff,
-    3
-);
-
-luzDirecional.position.set(
-    3,
-    5,
-    4
-);
-
-scene.add(luzDirecional);
-
-
-/* =========================================================
-   GRUPO DO OBJETO
-========================================================= */
-
-const objeto = new THREE.Group();
-
-scene.add(objeto);
-
-
-/* =========================================================
-   CARREGAR GLB
-========================================================= */
-
-const loader = new GLTFLoader();
-
-loader.load(
-    MODELO,
-
-    (gltf) => {
-
-        const modelo = gltf.scene;
-
-        /*
-           Centraliza o modelo
-        */
-
-        const caixa = new THREE.Box3()
-            .setFromObject(modelo);
-
-        const centro = caixa.getCenter(
-            new THREE.Vector3()
-        );
-
-        modelo.position.sub(centro);
-
-
-        /*
-           Normaliza o tamanho.
-
-           Isso evita que um modelo vindo de outro
-           site fique gigantesco ou minúsculo.
-        */
-
-        const tamanho = caixa.getSize(
-            new THREE.Vector3()
-        );
-
-        const maior =
-            Math.max(
-                tamanho.x,
-                tamanho.y,
-                tamanho.z
-            );
-
-        if (maior > 0) {
-
-            const escala =
-                2 / maior;
-
-            modelo.scale.setScalar(escala);
-
-        }
-
-
-        /*
-           Escala inicial
-        */
-
-        objeto.scale.setScalar(
-            TAMANHO_INICIAL
-        );
-
-
-        /*
-           Pequena posição para deixar o objeto
-           centralizado na câmera
-        */
-
-        objeto.position.set(
-            0,
-            0,
-            0
-        );
-
-
-        objeto.add(modelo);
-
-
-        /*
-           Se o modelo tiver animação,
-           guardamos o mixer.
-        */
-
-        if (gltf.animations.length > 0) {
-
-            mixer = new THREE.AnimationMixer(
-                modelo
-            );
-
-            gltf.animations.forEach(
-                (animacao) => {
-
-                    mixer
-                        .clipAction(animacao)
-                        .play();
-
-                }
-            );
-
-        }
+        arSystem =
+            scene.systems[
+                "mindar-image-system"
+            ];
 
 
         console.log(
-            "Modelo carregado:",
-            MODELO
+            "MindAR pronto."
         );
-
-    },
-
-    undefined,
-
-    (erro) => {
-
-        console.error(
-            "Erro ao carregar o modelo:",
-            erro
-        );
-
-        mensagem.innerHTML =
-            "Erro ao carregar o modelo 3D.";
 
     }
 );
 
 
 /* =========================================================
-   ANIMAÇÃO
+   INICIAR CÂMERA / AR
 ========================================================= */
 
-let mixer = null;
-
-const clock = new THREE.Clock();
-
-
-function animar() {
-
-    requestAnimationFrame(animar);
-
-    const delta =
-        clock.getDelta();
-
-    if (mixer) {
-        mixer.update(delta);
-    }
-
-    renderer.render(
-        scene,
-        camera3D
-    );
-}
-
-
-animar();
-
-
-/* =========================================================
-   CÂMERA DO CELULAR
-========================================================= */
-
-let stream = null;
-
-
-botao.addEventListener(
+botaoIniciar.addEventListener(
     "click",
     async () => {
 
         try {
 
-            mensagem.textContent =
-                "Solicitando acesso à câmera...";
+            if (!arSystem) {
 
+                mensagem.textContent =
+                    "Preparando câmera...";
 
-            stream =
-                await navigator.mediaDevices.getUserMedia({
+                return;
 
-                    video: {
-                        facingMode: {
-                            ideal: "environment"
-                        }
-                    },
-
-                    audio: false
-
-                });
-
-
-            camera.srcObject = stream;
-
-            await camera.play();
+            }
 
 
             mensagem.textContent =
-                "Câmera funcionando!";
+                "Iniciando câmera...";
 
 
-            botao.style.display =
+            await arSystem.start();
+
+
+            mensagem.innerHTML =
+                "Aponte a câmera para o <b>marcador</b>.";
+
+
+            botaoIniciar.style.display =
                 "none";
 
 
+            console.log(
+                "AR iniciado."
+            );
+
         } catch (erro) {
 
-            console.error(erro);
+            console.error(
+                "Erro ao iniciar AR:",
+                erro
+            );
+
 
             mensagem.innerHTML =
-                "Não foi possível abrir a câmera.<br>" +
+                "Não foi possível iniciar a câmera.<br>" +
                 "<small>" +
-                erro.name +
+                erro.message +
                 "</small>";
 
-            botao.textContent =
+
+            botaoIniciar.textContent =
                 "📷 Tentar novamente";
 
         }
@@ -335,10 +209,54 @@ botao.addEventListener(
 
 
 /* =========================================================
+   MARCADOR ENCONTRADO
+========================================================= */
+
+const target =
+    document.getElementById("targetZelda");
+
+
+target.addEventListener(
+    "targetFound",
+    () => {
+
+        mensagem.textContent =
+            "✅ Marcador encontrado!";
+
+
+        console.log(
+            "Marcador encontrado."
+        );
+
+    }
+);
+
+
+/* =========================================================
+   MARCADOR PERDIDO
+========================================================= */
+
+target.addEventListener(
+    "targetLost",
+    () => {
+
+        mensagem.textContent =
+            "Aponte novamente para o marcador.";
+
+
+        console.log(
+            "Marcador perdido."
+        );
+
+    }
+);
+
+
+/* =========================================================
    TELA CHEIA
 ========================================================= */
 
-fullscreen.addEventListener(
+botaoFullscreen.addEventListener(
     "click",
     async () => {
 
@@ -376,37 +294,61 @@ let toques = new Map();
 
 let distanciaInicial = 0;
 
-let escalaInicial = TAMANHO_INICIAL;
+let escalaInicial = 1;
 
 let ultimoX = 0;
+
 let ultimoY = 0;
 
 
-/*
-   GIRAR COM UM DEDO
-*/
+/* =========================================================
+   TOUCH START
+========================================================= */
 
-canvas.addEventListener(
-    "pointerdown",
+document.addEventListener(
+    "touchstart",
     (evento) => {
 
-        toques.set(
-            evento.pointerId,
-            evento
-        );
+        /*
+           Ignora toque nos botões.
+        */
 
-        canvas.setPointerCapture(
-            evento.pointerId
-        );
+        if (
+            evento.target.closest(
+                "button"
+            )
+        ) {
+            return;
+        }
+
+
+        for (
+            const toque
+            of evento.changedTouches
+        ) {
+
+            toques.set(
+                toque.identifier,
+                {
+                    x: toque.clientX,
+                    y: toque.clientY
+                }
+            );
+
+        }
 
 
         if (toques.size === 1) {
 
+            const primeiro =
+                [...toques.values()][0];
+
+
             ultimoX =
-                evento.clientX;
+                primeiro.x;
 
             ultimoY =
-                evento.clientY;
+                primeiro.y;
 
         }
 
@@ -415,6 +357,7 @@ canvas.addEventListener(
 
             const pontos =
                 [...toques.values()];
+
 
             distanciaInicial =
                 distanciaEntre(
@@ -422,44 +365,68 @@ canvas.addEventListener(
                     pontos[1]
                 );
 
+
             escalaInicial =
-                objeto.scale.x;
+                modelo.object3D.scale.x;
 
         }
 
+
+        evento.preventDefault();
+
+    },
+    {
+        passive: false
     }
 );
 
 
-/*
-   MOVIMENTO
-*/
+/* =========================================================
+   TOUCH MOVE
+========================================================= */
 
-canvas.addEventListener(
-    "pointermove",
+document.addEventListener(
+    "touchmove",
     (evento) => {
 
-        if (!toques.has(
-            evento.pointerId
-        )) {
+        if (toques.size === 0) {
             return;
         }
 
 
-        toques.set(
-            evento.pointerId,
-            evento
-        );
+        for (
+            const toque
+            of evento.changedTouches
+        ) {
+
+            if (
+                toques.has(
+                    toque.identifier
+                )
+            ) {
+
+                toques.set(
+                    toque.identifier,
+                    {
+                        x: toque.clientX,
+                        y: toque.clientY
+                    }
+                );
+
+            }
+
+        }
 
 
-        /*
+        /* ================================================
            DOIS DEDOS = ESCALA
-        */
+        ================================================= */
 
         if (toques.size === 2) {
 
             const pontos =
                 [...toques.values()];
+
 
             const distanciaAtual =
                 distanciaEntre(
@@ -468,7 +435,9 @@ canvas.addEventListener(
                 );
 
 
-            if (distanciaInicial > 0) {
+            if (
+                distanciaInicial > 0
+            ) {
 
                 let novaEscala =
                     escalaInicial *
@@ -478,136 +447,177 @@ canvas.addEventListener(
                     );
 
 
-                /*
-                   Limites de tamanho
-                */
-
                 novaEscala =
-                    THREE.MathUtils.clamp(
+                    THREE_CLAMP(
                         novaEscala,
-                        0.3,
+                        0.2,
                         4
                     );
 
 
-                objeto.scale.setScalar(
-                    novaEscala
-                );
+                modelo.object3D
+                    .scale
+                    .setScalar(
+                        novaEscala
+                    );
 
             }
+
+
+            evento.preventDefault();
 
             return;
         }
 
 
-        /*
-           UM DEDO = GIRAR
-        */
+        /* ================================================
+           UM DEDO = ROTAÇÃO
+        ================================================= */
 
         if (toques.size === 1) {
 
+            const toque =
+                [...toques.values()][0];
+
+
             const deltaX =
-                evento.clientX -
+                toque.x -
                 ultimoX;
 
+
             const deltaY =
-                evento.clientY -
+                toque.y -
                 ultimoY;
 
 
-            objeto.rotation.y +=
+            modelo.object3D
+                .rotation
+                .y +=
                 deltaX * 0.01;
 
-            objeto.rotation.x +=
+
+            modelo.object3D
+                .rotation
+                .x +=
                 deltaY * 0.01;
 
 
-            /*
-               Limita a rotação vertical
-               para não ficar invertendo
-            */
-
-            objeto.rotation.x =
-                THREE.MathUtils.clamp(
-                    objeto.rotation.x,
+            modelo.object3D
+                .rotation
+                .x =
+                Math.max(
                     -Math.PI / 2,
-                    Math.PI / 2
+                    Math.min(
+                        Math.PI / 2,
+                        modelo.object3D
+                            .rotation
+                            .x
+                    )
                 );
 
 
             ultimoX =
-                evento.clientX;
+                toque.x;
 
             ultimoY =
-                evento.clientY;
+                toque.y;
 
         }
 
+
+        evento.preventDefault();
+
+    },
+    {
+        passive: false
     }
 );
 
 
-/*
-   SOLTOU O DEDO
-*/
+/* =========================================================
+   TOUCH END
+========================================================= */
 
-canvas.addEventListener(
-    "pointerup",
+document.addEventListener(
+    "touchend",
     (evento) => {
 
-        toques.delete(
-            evento.pointerId
-        );
+        for (
+            const toque
+            of evento.changedTouches
+        ) {
 
-    }
-);
+            toques.delete(
+                toque.identifier
+            );
 
+        }
 
-canvas.addEventListener(
-    "pointercancel",
-    (evento) => {
+        if (toques.size < 2) {
 
-        toques.delete(
-            evento.pointerId
-        );
+            distanciaInicial = 0;
+
+        }
 
     }
 );
 
 
 /* =========================================================
-   DISTÂNCIA ENTRE DOIS DEDOS
+   TOUCH CANCEL
+========================================================= */
+
+document.addEventListener(
+    "touchcancel",
+    (evento) => {
+
+        for (
+            const toque
+            of evento.changedTouches
+        ) {
+
+            toques.delete(
+                toque.identifier
+            );
+
+        }
+
+        distanciaInicial = 0;
+
+    }
+);
+
+
+/* =========================================================
+   DISTÂNCIA ENTRE DEDOS
 ========================================================= */
 
 function distanciaEntre(a, b) {
 
     return Math.hypot(
-        b.clientX - a.clientX,
-        b.clientY - a.clientY
+        b.x - a.x,
+        b.y - a.y
     );
 
 }
 
 
 /* =========================================================
-   REDIMENSIONAR
+   CLAMP
 ========================================================= */
 
-window.addEventListener(
-    "resize",
-    () => {
+function THREE_CLAMP(
+    valor,
+    minimo,
+    maximo
+) {
 
-        camera3D.aspect =
-            window.innerWidth /
-            window.innerHeight;
+    return Math.max(
+        minimo,
+        Math.min(
+            maximo,
+            valor
+        )
+    );
 
-        camera3D.updateProjectionMatrix();
-
-
-        renderer.setSize(
-            window.innerWidth,
-            window.innerHeight
-        );
-
-    }
-);
+}
