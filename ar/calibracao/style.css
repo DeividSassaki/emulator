@@ -12,9 +12,24 @@ body {
 
     overflow: hidden;
 
-    background: transparent;
+    background: #000;
 
     font-family: Arial, sans-serif;
+}
+
+
+/* =========================================================
+   CONTÊINER DA CÂMERA
+========================================================= */
+
+.example-container {
+
+    position: absolute;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
 }
 
 
@@ -24,26 +39,8 @@ body {
 
 a-scene {
 
-    position: fixed !important;
-
-    inset: 0;
-
-    width: 100vw !important;
-    height: 100vh !important;
-
-    z-index: 1;
-
-    background: transparent !important;
-}
-
-
-/* =========================================================
-   CANVAS A-FRAME
-========================================================= */
-
-.a-canvas {
-
-    background: transparent !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 
@@ -57,12 +54,11 @@ a-scene {
 
     left: 10px;
     right: 10px;
-
     bottom: 10px;
 
     z-index: 20;
 
-    max-height: 60vh;
+    max-height: 62vh;
 
     overflow-y: auto;
 
@@ -70,7 +66,7 @@ a-scene {
 
     border-radius: 16px;
 
-    background: rgba(0, 0, 0, .78);
+    background: rgba(0, 0, 0, 0.78);
 
     color: #fff;
 
@@ -84,7 +80,7 @@ a-scene {
 
 h1 {
 
-    margin: 0 0 8px 0;
+    margin: 0 0 7px;
 
     font-size: 20px;
 }
@@ -96,11 +92,29 @@ h1 {
 
 #status {
 
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 
     font-size: 13px;
 
     opacity: .85;
+}
+
+
+/* =========================================================
+   LINHA DOS BOTÕES
+========================================================= */
+
+.linha-botoes {
+
+    display: flex;
+
+    gap: 8px;
+}
+
+
+.linha-botoes button {
+
+    flex: 1;
 }
 
 
@@ -130,12 +144,14 @@ h1 {
 
 .controle input {
 
+    display: block;
+
     width: 100%;
 }
 
 
 /* =========================================================
-   BOTÃO
+   BOTÕES
 ========================================================= */
 
 button {
@@ -144,7 +160,7 @@ button {
 
     border-radius: 10px;
 
-    padding: 10px 13px;
+    padding: 10px 12px;
 
     margin-top: 8px;
 
@@ -155,32 +171,6 @@ button {
     font-size: 13px;
 
     font-weight: bold;
-}
-
-
-#iniciar {
-
-    width: 100%;
-
-    margin-bottom: 4px;
-}
-
-
-/* =========================================================
-   BOTÕES INFERIORES
-========================================================= */
-
-.botoes {
-
-    display: flex;
-
-    gap: 8px;
-}
-
-
-.botoes button {
-
-    flex: 1;
 }
 
 
