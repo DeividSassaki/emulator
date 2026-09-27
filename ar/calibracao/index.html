@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+
+    <title>Calibração AR</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <!-- MindAR -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         CENA AR
+    ====================================================== -->
+
+    <a-scene
+        id="scene"
+
+        mindar-image="
+            imageTargetSrc: ../marcadores/zelda/targets.mind;
+            autoStart: false;
+        "
+
+        color-space="sRGB"
+
+        renderer="
+            colorManagement: true;
+            physicallyCorrectLights: true;
+        "
+
+        vr-mode-ui="enabled: false"
+
+        device-orientation-permission-ui="enabled: false"
+    >
+
+        <!-- CÂMERA -->
+
+        <a-camera
+            position="0 0 0"
+            look-controls="enabled: false"
+        ></a-camera>
+
+
+        <!-- MARCADOR -->
+
+        <a-entity
+            id="targetZelda"
+            mindar-image-target="targetIndex: 0"
+        >
+
+            <a-gltf-model
+                id="heroModelObject"
+
+                gltf-model="url(../marcadores/zelda/Hero%20of%20Time.glb)"
+
+                position="0 0 0.1"
+
+                rotation="0 0 0"
+
+                scale="2 2 2"
+
+                visible="true"
+            ></a-gltf-model>
+
+        </a-entity>
+
+
+        <!-- LUZES -->
+
+        <a-light
+            type="ambient"
+            intensity="2"
+        ></a-light>
+
+        <a-light
+            type="directional"
+            intensity="3"
+            position="1 3 2"
+        ></a-light>
+
+    </a-scene>
+
+
+    <!-- =====================================================
+         INTERFACE
+    ====================================================== -->
+
+    <div class="painel">
+
+        <h1>Calibração AR</h1>
+
+        <div id="status">
+            Toque em iniciar câmera.
+        </div>
+
+
+        <button id="iniciar">
+            📷 Iniciar câmera
+        </button>
+
+
+        <!-- X -->
+
+        <div class="controle">
+
+            <label>
+                X:
+                <span id="valorX">0.00</span>
+            </label>
+
+            <input
+                id="sliderX"
+                type="range"
+                min="-2"
+                max="2"
+                step="0.01"
+                value="0"
+            >
+
+        </div>
+
+
+        <!-- Y -->
+
+        <div class="controle">
+
+            <label>
+                Y:
+                <span id="valorY">0.00</span>
+            </label>
+
+            <input
+                id="sliderY"
+                type="range"
+                min="-2"
+                max="2"
+                step="0.01"
+                value="0"
+            >
+
+        </div>
+
+
+        <!-- Z -->
+
+        <div class="controle">
+
+            <label>
+                Z:
+                <span id="valorZ">0.10</span>
+            </label>
+
+            <input
+                id="sliderZ"
+                type="range"
+                min="-2"
+                max="2"
+                step="0.01"
+                value="0.10"
+            >
+
+        </div>
+
+
+        <!-- ROTAÇÃO X -->
+
+        <div class="controle">
+
+            <label>
+                Rotação X:
+                <span id="valorRotacaoX">0°</span>
+            </label>
+
+            <input
+                id="sliderRotacaoX"
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value="0"
+            >
+
+        </div>
+
+
+        <!-- TAMANHO -->
+
+        <div class="controle">
+
+            <label>
+                Tamanho:
+                <span id="valorEscala">2.00</span>
+            </label>
+
+            <input
+                id="sliderEscala"
+                type="range"
+                min="0.1"
+                max="5"
+                step="0.01"
+                value="2"
+            >
+
+        </div>
+
+
+        <div class="botoes">
+
+            <button id="resetar">
+                ↺ Resetar
+            </button>
+
+            <button id="copiar">
+                📋 Copiar configuração
+            </button>
+
+        </div>
+
+
+        <pre id="configuracao"></pre>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
