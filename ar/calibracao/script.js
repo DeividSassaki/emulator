@@ -8,6 +8,9 @@ const scene =
 const botaoIniciar =
     document.getElementById("iniciar");
 
+const botaoFullscreen =
+    document.getElementById("fullscreen");
+
 const status =
     document.getElementById("status");
 
@@ -64,7 +67,6 @@ const valorY =
 const valorZ =
     document.getElementById("valorZ");
 
-
 const valorRotacaoX =
     document.getElementById("valorRotacaoX");
 
@@ -73,7 +75,6 @@ const valorRotacaoY =
 
 const valorRotacaoZ =
     document.getElementById("valorRotacaoZ");
-
 
 const valorEscala =
     document.getElementById("valorEscala");
@@ -95,7 +96,7 @@ const botaoCopiar =
 
 
 /* =========================================================
-   SISTEMA AR
+   SISTEMA MINDAR
 ========================================================= */
 
 let arSystem = null;
@@ -125,7 +126,7 @@ const PADRAO = {
 
 
 /* =========================================================
-   CENA PRONTA
+   CENA CARREGADA
 ========================================================= */
 
 scene.addEventListener(
@@ -173,7 +174,7 @@ modelo.addEventListener(
 
 
 /* =========================================================
-   ERRO AO CARREGAR MODELO
+   ERRO NO MODELO
 ========================================================= */
 
 modelo.addEventListener(
@@ -181,13 +182,13 @@ modelo.addEventListener(
     (evento) => {
 
         console.error(
-            "Erro ao carregar GLB:",
+            "Erro ao carregar o GLB:",
             evento
         );
 
 
         status.textContent =
-            "Erro ao carregar o modelo.";
+            "Erro ao carregar o Hero of Time.glb.";
 
     }
 );
@@ -263,12 +264,50 @@ target.addEventListener(
 );
 
 
+/* =========================================================
+   MARCADOR PERDIDO
+========================================================= */
+
 target.addEventListener(
     "targetLost",
     () => {
 
         status.textContent =
             "Aponte novamente para o marcador.";
+
+    }
+);
+
+
+/* =========================================================
+   TELA CHEIA
+========================================================= */
+
+botaoFullscreen.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            if (!document.fullscreenElement) {
+
+                await document.documentElement
+                    .requestFullscreen();
+
+            } else {
+
+                await document.exitFullscreen();
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao entrar em tela cheia:",
+                erro
+            );
+
+        }
 
     }
 );
@@ -285,6 +324,10 @@ function atualizarModelo() {
     }
 
 
+    /* =====================================================
+       POSIÇÃO
+    ====================================================== */
+
     const x =
         Number(sliderX.value);
 
@@ -294,6 +337,20 @@ function atualizarModelo() {
     const z =
         Number(sliderZ.value);
 
+
+    modelo.object3D.position.x =
+        x;
+
+    modelo.object3D.position.y =
+        y;
+
+    modelo.object3D.position.z =
+        z;
+
+
+    /* =====================================================
+       ROTAÇÃO
+    ====================================================== */
 
     const rotacaoX =
         Number(sliderRotacaoX.value);
@@ -305,35 +362,23 @@ function atualizarModelo() {
         Number(sliderRotacaoZ.value);
 
 
+    modelo.object3D.rotation.x =
+        grausParaRadiano(rotacaoX);
+
+    modelo.object3D.rotation.y =
+        grausParaRadiano(rotacaoY);
+
+    modelo.object3D.rotation.z =
+        grausParaRadiano(rotacaoZ);
+
+
+    /* =====================================================
+       ESCALA
+    ====================================================== */
+
     const escala =
         Number(sliderEscala.value);
 
-
-    /* =====================================================
-       POSIÇÃO
-    ====================================================== */
-
-    modelo.object3D.position.set(
-        x,
-        y,
-        z
-    );
-
-
-    /* =====================================================
-       ROTAÇÃO
-    ====================================================== */
-
-    modelo.object3D.rotation.set(
-        grausParaRadiano(rotacaoX),
-        grausParaRadiano(rotacaoY),
-        grausParaRadiano(rotacaoZ)
-    );
-
-
-    /* =====================================================
-       TAMANHO
-    ====================================================== */
 
     modelo.object3D.scale.set(
         escala,
@@ -376,7 +421,7 @@ function atualizarModelo() {
 
 
 /* =========================================================
-   CONVERSÃO
+   GRAUS → RADIANOS
 ========================================================= */
 
 function grausParaRadiano(graus) {
@@ -404,8 +449,7 @@ sliderY.addEventListener(
 
 sliderZ.addEventListener(
     "input",
-    atualizarModelo
-);
+    atualizarModelo);
 
 
 sliderRotacaoX.addEventListener(
@@ -422,7 +466,6 @@ sliderRotacaoZ.addEventListener(
     "input",
     atualizarModelo
 );
-
 
 sliderEscala.addEventListener(
     "input",
