@@ -22,129 +22,119 @@
 
 <body>
 
-    <a-scene
-        id="scene"
+    <!-- =====================================================
+         ÁREA DA CÂMERA
+    ====================================================== -->
 
-        mindar-image="
-            imageTargetSrc: ./marcadores/zelda/targets.mind;
-            autoStart: false;
-        "
+    <div class="example-container">
 
-        color-space="sRGB"
+        <a-scene
+            id="scene"
 
-        renderer="
-            colorManagement: true;
-            physicallyCorrectLights: true;
-        "
+            mindar-image="
+                imageTargetSrc: ./marcadores/zelda/targets.mind;
+                autoStart: true;
+                missTolerance: 20;
+                uiLoading: no;
+                uiError: no;
+                uiScanning: no;
+            "
 
-        vr-mode-ui="enabled: false"
+            embedded
 
-        device-orientation-permission-ui="enabled: false"
-    >
+            color-space="sRGB"
 
-        <!-- CÂMERA -->
+            renderer="
+                alpha: true;
+                colorManagement: true;
+                physicallyCorrectLights: true;
+            "
 
-        <a-camera
-            position="0 0 0"
-            look-controls="enabled: false"
-        ></a-camera>
+            vr-mode-ui="enabled: false"
 
-
-        <!-- MODELO -->
-
-        <a-assets>
-
-            <a-asset-item
-                id="heroModel"
-                src="./marcadores/zelda/Hero%20of%20Time.glb"
-            ></a-asset-item>
-
-        </a-assets>
-
-
-        <!-- MARCADOR -->
-
-        <a-entity
-            id="targetZelda"
-            mindar-image-target="targetIndex: 0"
+            device-orientation-permission-ui="enabled: false"
         >
 
-            <a-gltf-model
-                id="heroModelObject"
+            <!-- =================================================
+                 CÂMERA
+            ================================================== -->
 
-                src="#heroModel"
-
-                position="0 0 0.1"
-
-                rotation="0 0 0"
-
-                scale="1 1 1"
-
-                fit-model="tamanho: 2"
-            ></a-gltf-model>
-
-        </a-entity>
+            <a-camera
+                position="0 0 0"
+                look-controls="enabled: false"
+            ></a-camera>
 
 
-        <!-- LUZES -->
+            <!-- =================================================
+                 MODELO
+            ================================================== -->
 
-        <a-light
-            type="ambient"
-            intensity="2"
-        ></a-light>
+            <a-assets>
 
-        <a-light
-            type="directional"
-            intensity="3"
-            position="1 3 2"
-        ></a-light>
+                <a-asset-item
+                    id="heroModel"
+                    src="./marcadores/zelda/Hero%20of%20Time.glb"
+                ></a-asset-item>
 
-    </a-scene>
+            </a-assets>
 
 
-    <!-- INTERFACE -->
+            <!-- =================================================
+                 MARCADOR
+            ================================================== -->
 
-    <div class="interface">
+            <a-entity
+                id="targetZelda"
+                mindar-image-target="targetIndex: 0"
+            >
 
-        <div class="topo">
+                <a-gltf-model
 
-            <strong>TESTE DE RA</strong>
+                    id="heroModelObject"
 
-            <span>
-                Marcador + objeto 3D
-            </span>
+                    src="#heroModel"
 
-        </div>
+                    position="-0.07 -0.84 0.08"
 
+                    rotation="39 205 98"
 
-        <div
-            id="mensagem"
-            class="mensagem"
-        >
-            Toque em <b>Iniciar câmera</b>.
-        </div>
+                    scale="1.16 1.16 1.16"
 
+                ></a-gltf-model>
 
-        <button id="iniciar">
-            📷 Iniciar câmera
-        </button>
+            </a-entity>
 
 
-        <button id="fullscreen">
-            ⛶ Tela cheia
-        </button>
+            <!-- =================================================
+                 LUZES
+            ================================================== -->
 
+            <a-light
+                type="ambient"
+                intensity="2"
+            ></a-light>
 
-        <div class="ajuda">
+            <a-light
+                type="directional"
+                intensity="3"
+                position="1 3 2"
+            ></a-light>
 
-            🤏 Pinça: aumentar / diminuir
-            <br>
-
-            👆 Arraste para cima/baixo: girar
-
-        </div>
+        </a-scene>
 
     </div>
+
+
+    <!-- =====================================================
+         BOTÃO TELA CHEIA
+    ====================================================== -->
+
+    <button
+        id="fullscreen"
+        aria-label="Tela cheia"
+    >
+        ⛶ Tela cheia
+    </button>
 
 
     <script src="script.js"></script>
