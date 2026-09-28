@@ -14,44 +14,17 @@ const modelo =
 const pivot =
     document.getElementById("heroPivot");
 
+const target =
+    document.getElementById("targetZelda");
+
 
 /* =========================================================
-   ARQUIVO DE CONFIGURAÇÃO
+   CONFIGURAÇÃO
 ========================================================= */
 
 const AR_CONFIG =
     "./marcadores/zelda/config.json";
 
-
-/* =========================================================
-   EIXO DE ROTAÇÃO POR TOQUE
-========================================================= */
-
-/*
-   "x" = rotação no eixo X
-   "y" = rotação no eixo Y
-   "z" = rotação no eixo Z
-
-   O padrão agora é Y.
-
-   O motivo é que o Y representa o eixo vertical,
-   então o modelo gira como uma peça em pé sobre
-   uma base, sem usar o eixo local inclinado do GLB.
-*/
-
-const EIXO_ROTACAO = "z";
-
-
-/*
-   Velocidade da rotação.
-*/
-
-const VELOCIDADE_ROTACAO = 0.01;
-
-
-/* =========================================================
-   CONFIGURAÇÃO PADRÃO
-========================================================= */
 
 const CONFIG_PADRAO = {
 
@@ -69,17 +42,42 @@ const CONFIG_PADRAO = {
 
     scale: 1,
 
+    pivot: {
+        x: 0,
+        y: 0,
+        z: 0
+    },
+
+    pivotRotation: {
+        x: 0,
+        y: 0,
+        z: 0
+    },
+
     audio: null
 
 };
 
 
-/* =========================================================
-   CONFIGURAÇÃO CARREGADA
-========================================================= */
-
 let configuracaoCarregada =
     CONFIG_PADRAO;
+
+
+/* =========================================================
+   ROTAÇÃO PELO DEDO
+========================================================= */
+
+/*
+   O dedo movimenta horizontalmente.
+
+   Esse movimento gira o PIVOT no eixo X.
+*/
+
+const EIXO_ROTACAO = "x";
+
+
+const VELOCIDADE_ROTACAO =
+    0.01;
 
 
 /* =========================================================
@@ -87,8 +85,6 @@ let configuracaoCarregada =
 ========================================================= */
 
 let audio = null;
-
-let marcadorEncontrado = false;
 
 let audioPreparado = false;
 
@@ -113,7 +109,7 @@ async function carregarConfiguracao() {
         if (!resposta.ok) {
 
             throw new Error(
-                "Não foi possível carregar o config.json."
+                "Não foi possível carregar config.json."
             );
 
         }
@@ -159,10 +155,10 @@ async function carregarConfiguracao() {
 
 function aplicarConfiguracao() {
 
-    if (!modelo) {
+    if (!modelo || !pivot) {
 
         console.error(
-            "Modelo não encontrado."
+            "Modelo ou pivot não encontrado."
         );
 
         return;
@@ -171,94 +167,28 @@ function aplicarConfiguracao() {
 
 
     /* =====================================================
-       POSIÇÃO
-    ====================================================== */
+       VALORES DO CONFIG
+    ===================================================== */
 
-    const x =
-        Number(
-            configuracaoCarregada
-                .position?.x
-            ??
-            CONFIG_PADRAO
-                .position.x
-        );
+    const position =
+        configuracaoCarregada.position
+        || CONFIG_PADRAO.position;
 
 
-    const y =
-        Number(
-            configuracaoCarregada
-                .position?.y
-            ??
-            CONFIG_PADRAO
-                .position.y
-        );
+    const rotation =
+        configuracaoCarregada.rotation
+        || CONFIG_PADRAO.rotation;
 
 
-    const z =
-        Number(
-            configuracaoCarregada
-                .position?.z
-            ??
-            CONFIG_PADRAO
-                .position.z
-        );
+    const pivotPosition =
+        configuracaoCarregada.pivot
+        || CONFIG_PADRAO.pivot;
 
 
-    modelo.setAttribute(
-        "position",
-        `${x} ${y} ${z}`
-    );
+    const pivotRotation =
+        configuracaoCarregada.pivotRotation
+        || CONFIG_PADRAO.pivotRotation;
 
-
-    /* =====================================================
-       ROTAÇÃO DO GLB
-       
-       IMPORTANTE:
-       Essa rotação continua sendo aplicada somente
-       ao GLB.
-
-       O pivot não recebe essa rotação.
-    ====================================================== */
-
-    const rotacaoX =
-        Number(
-            configuracaoCarregada
-                .rotation?.x
-            ??
-            CONFIG_PADRAO
-                .rotation.x
-        );
-
-
-    const rotacaoY =
-        Number(
-            configuracaoCarregada
-                .rotation?.y
-            ??
-            CONFIG_PADRAO
-                .rotation.y
-        );
-
-
-    const rotacaoZ =
-        Number(
-            configuracaoCarregada
-                .rotation?.z
-            ??
-            CONFIG_PADRAO
-                .rotation.z
-        );
-
-
-    modelo.setAttribute(
-        "rotation",
-        `${rotacaoX} ${rotacaoY} ${rotacaoZ}`
-    );
-
-
-    /* =====================================================
-       ESCALA
-    ====================================================== */
 
     const escala =
         Number(
@@ -268,24 +198,149 @@ function aplicarConfiguracao() {
         );
 
 
-    modelo.setAttribute(
-        "scale",
-        `${escala} ${escala} ${escala}`
+    /* =====================================================
+       POSIÇÃO DO PIVOT
+    ===================================================== */
+
+    pivot.object3D.position.set(
+
+        Number(pivotPosition.x) || 0,
+
+        Number(pivotPosition.y) || 0,
+
+        Number(pivotPosition.z) || 0
+
+    );
+
+
+    /* =====================================================
+       ROTAÇÃO INICIAL DO PIVOT
+    ===================================================== */
+
+    pivot.object3D.rotation.set(
+
+        THREE.MathUtils.degToRad(
+            Number(pivotRotation.x) || 0
+        ),
+
+        THREE.MathUtils.degToRad(
+            Number(pivotRotation.y) || 0
+        ),
+
+        THREE.MathUtils.degToRad(
+            Number(pivotRotation.z) || 0
+        )
+
+    );
+
+
+    /* =====================================================
+       POSIÇÃO DO MODELO
+
+       O modelo precisa ficar na posição salva no
+       config.json.
+
+       Como ele agora está DENTRO do pivot, precisamos
+       transformar a posição para o espaço local do pivot.
+    ===================================================== */
+
+    const posicaoDesejada =
+        new THREE.Vector3(
+
+            Number(position.x) || 0,
+
+            Number(position.y) || 0,
+
+            Number(position.z) || 0
+
+        );
+
+
+    const posicaoPivot =
+        new THREE.Vector3(
+
+            Number(pivotPosition.x) || 0,
+
+            Number(pivotPosition.y) || 0,
+
+            Number(pivotPosition.z) || 0
+
+        );
+
+
+    const rotacaoPivot =
+        new THREE.Quaternion();
+
+
+    pivot.object3D.getWorldQuaternion(
+        rotacaoPivot
+    );
+
+
+    /*
+       Como o pivot está diretamente dentro do
+       marcador, podemos usar sua rotação para
+       transformar a posição para o espaço local.
+    */
+
+    const posicaoLocal =
+        posicaoDesejada
+            .sub(posicaoPivot)
+            .applyQuaternion(
+                rotacaoPivot.clone().invert()
+            );
+
+
+    modelo.object3D.position.copy(
+        posicaoLocal
+    );
+
+
+    /* =====================================================
+       ROTAÇÃO DO OBJETO
+
+       Essa é a rotação própria do modelo.
+
+       Ela NÃO é a rotação do pivot.
+    ===================================================== */
+
+    modelo.object3D.rotation.set(
+
+        THREE.MathUtils.degToRad(
+            Number(rotation.x) || 0
+        ),
+
+        THREE.MathUtils.degToRad(
+            Number(rotation.y) || 0
+        ),
+
+        THREE.MathUtils.degToRad(
+            Number(rotation.z) || 0
+        )
+
+    );
+
+
+    /* =====================================================
+       ESCALA
+    ===================================================== */
+
+    modelo.object3D.scale.set(
+
+        escala,
+        escala,
+        escala
+
     );
 
 }
 
 
 /* =========================================================
-   PREPARAR ÁUDIO
+   ÁUDIO
 ========================================================= */
 
 function prepararAudio() {
-
-    /*
-       Se não houver áudio no config.json,
-       não faz nada.
-    */
 
     if (
         !configuracaoCarregada.audio
@@ -300,18 +355,16 @@ function prepararAudio() {
     }
 
 
-    /*
-       Monta o caminho do áudio relativo
-       ao próprio config.json.
-    */
-
     const caminhoAudio =
         new URL(
+
             configuracaoCarregada.audio,
+
             new URL(
                 AR_CONFIG,
                 window.location.href
             )
+
         ).href;
 
 
@@ -321,29 +374,8 @@ function prepararAudio() {
         );
 
 
-    /*
-       Carrega o áudio antecipadamente.
-    */
-
-    audio.preload = "auto";
-
-
-    /*
-       Quando chegar ao fim, permite que,
-       em um próximo targetFound, ele volte
-       ao início.
-    */
-
-    audio.addEventListener(
-        "ended",
-        () => {
-
-            console.log(
-                "Áudio terminou."
-            );
-
-        }
-    );
+    audio.preload =
+        "auto";
 
 
     console.log(
@@ -355,7 +387,7 @@ function prepararAudio() {
 
 
 /* =========================================================
-   DESBLOQUEAR ÁUDIO APÓS INTERAÇÃO
+   DESBLOQUEAR ÁUDIO
 ========================================================= */
 
 async function desbloquearAudio() {
@@ -372,32 +404,19 @@ async function desbloquearAudio() {
 
     try {
 
-        /*
-           Tentamos iniciar o áudio dentro de uma
-           interação do usuário e imediatamente pausamos.
-        */
-
         await audio.play();
-
 
         audio.pause();
 
-
         audio.currentTime = 0;
 
-
         audioPreparado = true;
-
-
-        console.log(
-            "Áudio preparado para reprodução."
-        );
 
 
     } catch (erro) {
 
         console.log(
-            "Navegador ainda não liberou o áudio.",
+            "Áudio ainda bloqueado.",
             erro
         );
 
@@ -405,10 +424,6 @@ async function desbloquearAudio() {
 
 }
 
-
-/* =========================================================
-   TOQUE / CLIQUE DO USUÁRIO
-========================================================= */
 
 document.addEventListener(
     "pointerdown",
@@ -418,7 +433,6 @@ document.addEventListener(
 
     },
     {
-        once: false,
         passive: true
     }
 );
@@ -439,14 +453,7 @@ async function tocarAudio() {
 
     try {
 
-        /*
-           Caso a música tenha terminado,
-           começa novamente.
-        */
-
-        if (
-            audio.ended
-        ) {
+        if (audio.ended) {
 
             audio.currentTime = 0;
 
@@ -456,15 +463,10 @@ async function tocarAudio() {
         await audio.play();
 
 
-        console.log(
-            "Áudio reproduzindo."
-        );
-
-
     } catch (erro) {
 
         console.log(
-            "O navegador bloqueou a reprodução automática.",
+            "Navegador bloqueou o áudio.",
             erro
         );
 
@@ -486,19 +488,7 @@ function pausarAudio() {
     }
 
 
-    /*
-       Pausa, mas NÃO reinicia.
-
-       Quando o marcador voltar,
-       a música continua do mesmo ponto.
-    */
-
     audio.pause();
-
-
-    console.log(
-        "Áudio pausado."
-    );
 
 }
 
@@ -512,7 +502,7 @@ modelo.addEventListener(
     () => {
 
         console.log(
-            "Hero of Time.glb carregado."
+            "Modelo carregado."
         );
 
 
@@ -523,7 +513,7 @@ modelo.addEventListener(
 
 
 /* =========================================================
-   ERRO NO MODELO
+   ERRO DO MODELO
 ========================================================= */
 
 modelo.addEventListener(
@@ -531,7 +521,7 @@ modelo.addEventListener(
     (evento) => {
 
         console.error(
-            "Erro ao carregar Hero of Time.glb:",
+            "Erro ao carregar modelo:",
             evento
         );
 
@@ -543,16 +533,9 @@ modelo.addEventListener(
    MARCADOR ENCONTRADO
 ========================================================= */
 
-const target =
-    document.getElementById("targetZelda");
-
-
 target.addEventListener(
     "targetFound",
     () => {
-
-        marcadorEncontrado = true;
-
 
         console.log(
             "Marcador encontrado."
@@ -573,19 +556,10 @@ target.addEventListener(
     "targetLost",
     () => {
 
-        marcadorEncontrado = false;
-
-
         console.log(
             "Marcador perdido."
         );
 
-
-        /*
-           Pausa, mas NÃO reinicia.
-           Ao encontrar novamente, continua
-           do mesmo ponto.
-        */
 
         pausarAudio();
 
@@ -607,19 +581,22 @@ botaoFullscreen.addEventListener(
                 !document.fullscreenElement
             ) {
 
-                await document.documentElement
+                await document
+                    .documentElement
                     .requestFullscreen();
+
 
             } else {
 
-                await document.exitFullscreen();
+                await document
+                    .exitFullscreen();
 
             }
 
         } catch (erro) {
 
             console.error(
-                "Erro ao entrar em tela cheia:",
+                "Erro na tela cheia:",
                 erro
             );
 
@@ -630,14 +607,15 @@ botaoFullscreen.addEventListener(
 
 
 /* =========================================================
-   ROTAÇÃO POR TOQUE
+   ROTAÇÃO PELO DEDO
 ========================================================= */
 
-let toqueAtivo = false;
+let toqueAtivo =
+    false;
 
-let ultimoX = 0;
 
-let ultimoY = 0;
+let ultimoX =
+    0;
 
 
 /* =========================================================
@@ -649,13 +627,12 @@ document.addEventListener(
     (evento) => {
 
         /*
-           Ignora botão.
+           Não começa a rotação quando o dedo
+           estiver sobre o botão de tela cheia.
         */
 
         if (
-            evento.target.closest(
-                "button"
-            )
+            evento.target.closest("button")
         ) {
 
             return;
@@ -680,21 +657,13 @@ document.addEventListener(
             evento.touches[0];
 
 
-        toqueAtivo = true;
+        toqueAtivo =
+            true;
 
 
         ultimoX =
             toque.clientX;
 
-
-        ultimoY =
-            toque.clientY;
-
-
-        /*
-           Também tenta desbloquear o áudio
-           através do toque.
-        */
 
         desbloquearAudio();
 
@@ -735,17 +704,12 @@ document.addEventListener(
             ultimoX;
 
 
-        const deltaY =
-            toque.clientY -
-            ultimoY;
+        /*
+           O DEDO GIRA O PIVOT.
 
-
-        /* =================================================
-           EIXO X
-
-           Agora a rotação acontece no PIVOT,
-           não no GLB.
-        ================================================== */
+           Portanto o modelo inteiro acompanha
+           o movimento ao redor do pivot.
+        */
 
         if (
             EIXO_ROTACAO === "x"
@@ -758,47 +722,8 @@ document.addEventListener(
         }
 
 
-        /* =================================================
-           EIXO Y
-
-           Este é o eixo atualmente utilizado.
-
-           O Y é o eixo vertical, portanto o modelo
-           gira como uma peça em pé.
-        ================================================== */
-
-        else if (
-            EIXO_ROTACAO === "y"
-        ) {
-
-            pivot.object3D.rotation.y -=
-                deltaX *
-                VELOCIDADE_ROTACAO;
-
-        }
-
-
-        /* =================================================
-           EIXO Z
-        ================================================== */
-
-        else if (
-            EIXO_ROTACAO === "z"
-        ) {
-
-            pivot.object3D.rotation.z -=
-                deltaX *
-                VELOCIDADE_ROTACAO;
-
-        }
-
-
         ultimoX =
             toque.clientX;
-
-
-        ultimoY =
-            toque.clientY;
 
 
         evento.preventDefault();
@@ -818,7 +743,8 @@ document.addEventListener(
     "touchend",
     () => {
 
-        toqueAtivo = false;
+        toqueAtivo =
+            false;
 
     }
 );
@@ -832,14 +758,15 @@ document.addEventListener(
     "touchcancel",
     () => {
 
-        toqueAtivo = false;
+        toqueAtivo =
+            false;
 
     }
 );
 
 
 /* =========================================================
-   CARREGAR CONFIGURAÇÃO
+   INICIAR
 ========================================================= */
 
 carregarConfiguracao();
