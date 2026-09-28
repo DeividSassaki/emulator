@@ -1,25 +1,33 @@
 {
+  "nome": "Zelda AR",
   "modelo": "Hero of Time.glb",
+  "marcador": "targets.mind",
+
   "position": {
     "x": -0.2,
     "y": -0.9,
     "z": 0
   },
+
   "rotation": {
     "x": 9,
     "y": 17.9,
     "z": -81
   },
+
   "scale": 0.88,
+
   "pivot": {
     "x": -0.3,
     "y": -0.9,
     "z": -0.2
   },
-  "audio": "musica.mp3",
+
   "pivotRotation": {
     "x": 46.8,
     "y": -172.1,
     "z": 0
-  }
+  },
+
+  "audio": "musica.mp3"
 }
