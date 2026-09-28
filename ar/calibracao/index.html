@@ -63,7 +63,9 @@
         >
 
 
-            <!-- CÂMERA -->
+            <!-- =================================================
+                 CÂMERA
+            ================================================== -->
 
             <a-camera
                 position="0 0 0"
@@ -71,7 +73,9 @@
             ></a-camera>
 
 
-            <!-- MODELO -->
+            <!-- =================================================
+                 MODELO
+            ================================================== -->
 
             <a-assets>
 
@@ -83,7 +87,9 @@
             </a-assets>
 
 
-            <!-- MARCADOR -->
+            <!-- =================================================
+                 MARCADOR
+            ================================================== -->
 
             <a-entity
                 id="targetZelda"
@@ -91,28 +97,109 @@
             >
 
 
-                <!-- PIVOT -->
+                <!-- =================================================
+                     PIVOT
+                ================================================== -->
 
-                
-  <a-entity
+                <a-entity
                     id="heroPivot"
                     position="0 0 0"
                     rotation="0 0 0"
                 >
 
 
-                    <!-- CUBO VERMELHO DO PIVOT -->
+                    <!-- =================================================
+                         CUBO DE CALIBRAÇÃO
+                    ================================================== -->
 
-                    <a-box
-    id="pivotVisual"
-    position="0 0 0"
-    width="0.08"
+                    <a-entity id="pivotVisual">
+
+
+                        <!-- Frente -->
+                        <a-box
+                            position="0 0 0.041"
+                            width="0.08"
+                            height="0.08"
+                            depth="0.002"
+                            color="red">
+                        </a-box>
+
+
+                        <!-- Trás -->
+                        <a-box
+                            position="0 0 -0.041"
+                            width="0.08"
+                            height="0.08"
+                            depth="0.002"
+                            color="orange">
+                        </a-box>
+
+
+                        <!-- Direita -->
+                        <a-box
+                            position="0.041 0 0"
+                            width="0.002"
+                            height="0.08"
+                            depth="0.08"
+                            color="green">
+                        </a-box>
+
+
+                        <!-- Esquerda -->
+                        <a-box
+                            position="-0.041 0 0"
+                            width="0.002"
+                            height="0.08"
+                            depth="0.08"
+                            color="yellow">
+                        </a-box>
+
+
+                        <!-- Cima -->
+                        <a-box
+                            position="0 0.041 0"
+                            width="0.08"
+                            height="0.002"
+                            depth="0.08"
+                            color="blue">
+                        </a-box>
+
+
+                        <!-- Baixo -->
+                        <a-box
+                            position="0 -0.041 0"
+                            width="0.08"
+                            height="0.002"
+                            depth="0.08"
+                            color="purple">
+                        </a-box>
+
+
+                    </a-entity>
+
+
+                    <!-- =================================================
+                         MODELO 3D
+                    ================================================== -->
+
+                    <a-gltf-model
+                        id="heroModelObject"
+                        src="#heroModel"
+                        position="0 0 0"
+                        rotation="0 0 0"
+                        scale="1 1 1"
+                    ></a-gltf-model>
+
+
+                </a-entity>
 
 
             </a-entity>
 
 
-            <!-- LUZES -->
+            <!-- =================================================
+                 LUZES
+            ================================================== -->
 
             <a-light
                 type="ambient"
@@ -134,7 +221,7 @@
 
 
     <!-- =====================================================
-         PAINEL
+         PAINEL DE CALIBRAÇÃO
     ====================================================== -->
 
     <div class="painel">
@@ -156,6 +243,7 @@
 
         <div class="seletor">
 
+
             <button
                 id="botaoPivot"
                 class="ativo"
@@ -176,6 +264,7 @@
             >
                 PO
             </button>
+
 
         </div>
 
@@ -210,14 +299,10 @@
 
             <input
                 id="sliderX"
-
                 type="range"
-
                 min="-5"
                 max="5"
-
                 step="0.01"
-
                 value="0"
             >
 
@@ -246,14 +331,10 @@
 
             <input
                 id="sliderY"
-
                 type="range"
-
                 min="-5"
                 max="5"
-
                 step="0.01"
-
                 value="0"
             >
 
@@ -282,14 +363,10 @@
 
             <input
                 id="sliderZ"
-
                 type="range"
-
                 min="-5"
                 max="5"
-
                 step="0.01"
-
                 value="0"
             >
 
@@ -318,14 +395,10 @@
 
             <input
                 id="sliderEscala"
-
                 type="range"
-
                 min="0.1"
                 max="5"
-
                 step="0.01"
-
                 value="1"
             >
 
@@ -339,6 +412,7 @@
 
         <div class="botoes">
 
+
             <button id="resetar">
                 ↺ Resetar
             </button>
@@ -348,8 +422,13 @@
                 💾 Salvar config.json
             </button>
 
+
         </div>
 
+
+        <!-- =================================================
+             CONFIGURAÇÃO ATUAL
+        ================================================== -->
 
         <pre id="configuracao"></pre>
 
@@ -357,7 +436,12 @@
     </div>
 
 
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
     <script src="script.js"></script>
+
 
 </body>
 
