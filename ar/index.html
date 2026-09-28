@@ -90,13 +90,31 @@
                 mindar-image-target="targetIndex: 0"
             >
 
-                <a-gltf-model
-                    id="heroModelObject"
-                    src="#heroModel"
+                <!-- =================================================
+                     PIVOT
+
+                     O pivot fica com a rotação independente
+                     do GLB.
+
+                     O GLB mantém sua posição, rotação e escala
+                     vindas do config.json.
+                ================================================== -->
+
+                <a-entity
+                    id="heroPivot"
                     position="0 0 0"
                     rotation="0 0 0"
-                    scale="1 1 1"
-                ></a-gltf-model>
+                >
+
+                    <a-gltf-model
+                        id="heroModelObject"
+                        src="#heroModel"
+                        position="0 0 0"
+                        rotation="0 0 0"
+                        scale="1 1 1"
+                    ></a-gltf-model>
+
+                </a-entity>
 
             </a-entity>
 
