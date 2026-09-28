@@ -39,7 +39,7 @@ const AR_CONFIG =
    uma base, sem usar o eixo local inclinado do GLB.
 */
 
-const EIXO_ROTACAO = "y";
+const EIXO_ROTACAO = "x";
 
 
 /*
