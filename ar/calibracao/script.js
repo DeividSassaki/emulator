@@ -711,22 +711,22 @@ function criarCena() {
 
 
     /* =====================================================
-       COLOCAR CENA NA PÁGINA
-    ===================================================== */
+   EVENTO SCENE LOADED
+===================================================== */
 
-    container.appendChild(
-        scene
-    );
+scene.addEventListener(
+    "loaded",
+    cenaPronta
+);
 
 
-    /* =====================================================
-       EVENTO SCENE LOADED
-    ===================================================== */
+/* =====================================================
+   COLOCAR CENA NA PÁGINA
+===================================================== */
 
-    scene.addEventListener(
-        "loaded",
-        cenaPronta
-    );
+container.appendChild(
+    scene
+);
 
 }
 
