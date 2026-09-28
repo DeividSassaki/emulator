@@ -1,642 +1,440 @@
-/* =========================================================
-   ELEMENTOS
-========================================================= */
+```javascript
+const params = new URLSearchParams(window.location.search);
+const pasta = params.get("pasta") || "zelda";
 
-const modelo =
-    document.getElementById("heroModelObject");
+const CONFIG_URL = `./marcadores/${encodeURIComponent(pasta)}/config.json`;
 
-const pivot =
-    document.getElementById("heroPivot");
+const scene = document.getElementById("scene");
+const target = document.getElementById("arTarget");
+const pivot = document.getElementById("arPivot");
+const model = document.getElementById("arModelObject");
+const modelAsset = document.getElementById("arModel");
 
-const target =
-    document.getElementById("targetZelda");
+const fullscreenButton = document.getElementById("fullscreen");
 
-const botaoFullscreen =
-    document.getElementById("fullscreen");
+let config = null;
+let audio = null;
+let mindarStarted = false;
+let modeloCarregado = false;
 
-
-/* =========================================================
-   CONFIG
-========================================================= */
-
-const AR_CONFIG =
-    "./marcadores/zelda/config.json";
-
-
-let configuracao =
-    null;
+let tocando = false;
 
 
 /* =========================================================
-   ROTAÇÃO PELO DEDO
-========================================================= */
+   FUNÇÕES
+   ========================================================= */
 
-const VELOCIDADE_ROTACAO =
-    0.01;
+function numero(valor, padrao = 0) {
+    const n = Number(valor);
+    return Number.isFinite(n) ? n : padrao;
+}
+
+
+function caminhoArquivo(nome) {
+    if (!nome) return "";
+
+    return `./marcadores/${encodeURIComponent(pasta)}/${nome
+        .split("/")
+        .map(parte => encodeURIComponent(parte))
+        .join("/")}`;
+}
+
+
+function aplicarConfiguracao() {
+
+    if (!config) return;
+
+    /* -----------------------------------------------------
+       PIVÔ
+       ----------------------------------------------------- */
+
+    if (config.pivot) {
+
+        pivot.object3D.position.set(
+            numero(config.pivot.x),
+            numero(config.pivot.y),
+            numero(config.pivot.z)
+        );
+    }
+
+    if (config.pivotRotation) {
+
+        pivot.object3D.rotation.set(
+            THREE.MathUtils.degToRad(numero(config.pivotRotation.x)),
+            THREE.MathUtils.degToRad(numero(config.pivotRotation.y)),
+            THREE.MathUtils.degToRad(numero(config.pivotRotation.z))
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       MODELO
+       ----------------------------------------------------- */
+
+    if (config.position) {
+
+        model.object3D.position.set(
+            numero(config.position.x),
+            numero(config.position.y),
+            numero(config.position.z)
+        );
+    }
+
+
+    if (config.rotation) {
+
+        model.object3D.rotation.set(
+            THREE.MathUtils.degToRad(numero(config.rotation.x)),
+            THREE.MathUtils.degToRad(numero(config.rotation.y)),
+            THREE.MathUtils.degToRad(numero(config.rotation.z))
+        );
+    }
+
+
+    /* -----------------------------------------------------
+       ESCALA
+       ----------------------------------------------------- */
+
+    if (config.scale !== undefined) {
+
+        const escala = numero(config.scale, 1);
+
+        model.object3D.scale.set(
+            escala,
+            escala,
+            escala
+        );
+    }
+}
 
 
 /* =========================================================
    ÁUDIO
-========================================================= */
+   ========================================================= */
 
-let audio = null;
+function prepararAudio() {
+
+    if (!config || !config.audio) {
+        return;
+    }
+
+    const audioURL = caminhoArquivo(config.audio);
+
+    audio = new Audio(audioURL);
+
+    audio.loop = true;
+    audio.preload = "auto";
+
+    audio.volume = 1;
+
+    audio.addEventListener("error", () => {
+        console.warn("Não foi possível carregar o áudio:", audioURL);
+    });
+}
+
+
+function tocarAudio() {
+
+    if (!audio) return;
+
+    const promessa = audio.play();
+
+    if (promessa !== undefined) {
+
+        promessa
+            .then(() => {
+                tocando = true;
+            })
+            .catch(() => {
+                /*
+                 * Alguns navegadores podem bloquear o áudio
+                 * até existir interação do usuário.
+                 */
+            });
+    }
+}
+
+
+function pararAudio() {
+
+    if (!audio) return;
+
+    audio.pause();
+    tocando = false;
+}
 
 
 /* =========================================================
-   CARREGAR CONFIG.JSON
-========================================================= */
+   MINDAR
+   ========================================================= */
+
+async function iniciarMindAR() {
+
+    if (mindarStarted) return;
+
+    const marcador = config.marcador || "targets.mind";
+
+    const marcadorURL = caminhoArquivo(marcador);
+
+    /*
+     * Aqui colocamos o marcador vindo do JSON.
+     * Não existe mais caminho fixo para Zelda no HTML.
+     */
+
+    scene.setAttribute(
+        "mindar-image",
+        `
+        imageTargetSrc: ${marcadorURL};
+        autoStart: false;
+        missTolerance: 20;
+        filterMinCF: 0.0001;
+        filterBeta: 1000;
+        uiLoading: no;
+        uiError: no;
+        uiScanning: no;
+        `
+    );
+
+
+    const sistema = scene.systems["mindar-image-system"];
+
+    if (!sistema) {
+
+        console.error("Sistema MindAR não encontrado.");
+        return;
+    }
+
+
+    try {
+
+        await sistema.start();
+
+        mindarStarted = true;
+
+        console.log("MindAR iniciado.");
+        console.log("Marcador:", marcadorURL);
+
+    } catch (erro) {
+
+        console.error("Erro ao iniciar MindAR:", erro);
+    }
+}
+
+
+/* =========================================================
+   CARREGAR CONFIGURAÇÃO
+   ========================================================= */
 
 async function carregarConfiguracao() {
 
     try {
 
-        const resposta =
-            await fetch(
-                AR_CONFIG,
-                {
-                    cache: "no-store"
-                }
-            );
-
+        const resposta = await fetch(CONFIG_URL, {
+            cache: "no-store"
+        });
 
         if (!resposta.ok) {
 
             throw new Error(
-                "Não foi possível carregar config.json."
+                `Erro HTTP ${resposta.status} ao carregar ${CONFIG_URL}`
             );
+        }
 
+        config = await resposta.json();
+
+        console.log("Configuração carregada:", config);
+
+
+        /* -------------------------------------------------
+           TÍTULO
+           ------------------------------------------------- */
+
+        if (config.nome) {
+            document.title = config.nome;
+        } else {
+            document.title = "AR";
         }
 
 
-        configuracao =
-            await resposta.json();
+        /* -------------------------------------------------
+           MODELO
+           ------------------------------------------------- */
+
+        if (!config.modelo) {
+
+            throw new Error(
+                "O config.json não possui o campo 'modelo'."
+            );
+        }
+
+        const modeloURL = caminhoArquivo(config.modelo);
+
+        modelAsset.setAttribute("src", modeloURL);
+
+        console.log("Modelo:", modeloURL);
 
 
-        console.log(
-            "Configuração:",
-            configuracao
-        );
-
-
-        aplicarConfiguracao();
+        /* -------------------------------------------------
+           ÁUDIO
+           ------------------------------------------------- */
 
         prepararAudio();
 
 
+        /* -------------------------------------------------
+           EVENTOS
+           ------------------------------------------------- */
+
+        target.addEventListener("targetFound", () => {
+
+            console.log("Marcador encontrado.");
+
+            tocarAudio();
+        });
+
+
+        target.addEventListener("targetLost", () => {
+
+            console.log("Marcador perdido.");
+
+            pararAudio();
+        });
+
+
+        /* -------------------------------------------------
+           MODELO CARREGADO
+           ------------------------------------------------- */
+
+        model.addEventListener("model-loaded", () => {
+
+            modeloCarregado = true;
+
+            console.log("Modelo carregado.");
+
+            aplicarConfiguracao();
+        });
+
+
+        /*
+         * Se o modelo já estiver carregado antes do evento,
+         * aplicamos mesmo assim.
+         */
+
+        if (model.hasLoaded) {
+
+            modeloCarregado = true;
+
+            aplicarConfiguracao();
+        }
+
+
+        /* -------------------------------------------------
+           INICIAR MINDAR
+           ------------------------------------------------- */
+
+        await iniciarMindAR();
+
     } catch (erro) {
 
         console.error(
-            "Erro ao carregar config.json:",
+            "Erro ao carregar configuração:",
             erro
         );
-
     }
-
 }
 
 
 /* =========================================================
-   APLICAR CONFIGURAÇÃO
-========================================================= */
+   ROTAÇÃO COM O DEDO
+   ========================================================= */
 
-function aplicarConfiguracao() {
+let tocandoTela = false;
+let ultimoX = 0;
 
-    if (
-        !modelo ||
-        !pivot
-    ) {
+const VELOCIDADE_ROTACAO = 0.01;
 
-        console.error(
-            "Pivot ou modelo não encontrado."
-        );
 
-        return;
-
-    }
-
-
-    /* =====================================================
-       VALORES
-    ====================================================== */
-
-    const position =
-        configuracao.position || {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-
-    const rotation =
-        configuracao.rotation || {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-
-    const pivotPosition =
-        configuracao.pivot || {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-
-    const pivotRotation =
-        configuracao.pivotRotation || {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-
-    const scale =
-        Number(
-            configuracao.scale ?? 1
-        );
-
-
-    /* =====================================================
-       PIVOT
-
-       O pivot recebe exatamente a posição
-       calibrada.
-    ====================================================== */
-
-    pivot.object3D.position.set(
-
-        Number(pivotPosition.x) || 0,
-
-        Number(pivotPosition.y) || 0,
-
-        Number(pivotPosition.z) || 0
-
-    );
-
-
-    /* =====================================================
-       ROTAÇÃO INICIAL DO PIVOT
-    ====================================================== */
-
-    pivot.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(pivotRotation.x) || 0
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(pivotRotation.y) || 0
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(pivotRotation.z) || 0
-        )
-
-    );
-
-
-    /* =====================================================
-       POSIÇÃO DO MODELO
-
-       O modelo está DENTRO do pivot.
-
-       Portanto precisamos transformar a posição
-       absoluta salva no config para uma posição
-       relativa ao pivot.
-    ====================================================== */
-
-    const posicaoModelo =
-        new THREE.Vector3(
-
-            Number(position.x) || 0,
-
-            Number(position.y) || 0,
-
-            Number(position.z) || 0
-
-        );
-
-
-    const posicaoPivot =
-        new THREE.Vector3(
-
-            Number(pivotPosition.x) || 0,
-
-            Number(pivotPosition.y) || 0,
-
-            Number(pivotPosition.z) || 0
-
-        );
-
-
-    const quaternionPivot =
-        new THREE.Quaternion();
-
-
-    pivot.object3D.getWorldQuaternion(
-        quaternionPivot
-    );
-
-
-    const posicaoLocal =
-        posicaoModelo
-            .sub(posicaoPivot)
-            .applyQuaternion(
-                quaternionPivot.clone().invert()
-            );
-
-
-    modelo.object3D.position.copy(
-        posicaoLocal
-    );
-
-
-    /* =====================================================
-       ROTAÇÃO DO PRÓPRIO OBJETO
-    ====================================================== */
-
-    modelo.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(rotation.x) || 0
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(rotation.y) || 0
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(rotation.z) || 0
-        )
-
-    );
-
-
-    /* =====================================================
-       ESCALA
-    ====================================================== */
-
-    modelo.object3D.scale.set(
-
-        scale,
-        scale,
-        scale
-
-    );
-
-
-    console.log(
-        "Configuração aplicada."
-    );
-
-}
-
-
-/* =========================================================
-   MODELO CARREGADO
-========================================================= */
-
-modelo.addEventListener(
-    "model-loaded",
-    () => {
-
-        console.log(
-            "GLB carregado com sucesso."
-        );
-
-
-        aplicarConfiguracao();
-
-    }
-);
-
-
-/* =========================================================
-   ERRO NO GLB
-========================================================= */
-
-modelo.addEventListener(
-    "model-error",
+window.addEventListener(
+    "touchstart",
     (evento) => {
 
-        console.error(
-            "ERRO AO CARREGAR GLB:",
-            evento
-        );
+        if (evento.touches.length !== 1) return;
 
-    }
+        tocandoTela = true;
+
+        ultimoX = evento.touches[0].clientX;
+    },
+    { passive: true }
 );
 
 
-/* =========================================================
-   ÁUDIO
-========================================================= */
+window.addEventListener(
+    "touchmove",
+    (evento) => {
 
-function prepararAudio() {
+        if (!tocandoTela) return;
 
-    if (
-        !configuracao ||
-        !configuracao.audio
-    ) {
+        if (evento.touches.length !== 1) return;
 
-        return;
+        const atualX = evento.touches[0].clientX;
 
-    }
+        const deltaX = atualX - ultimoX;
 
+        ultimoX = atualX;
 
-    const caminhoAudio =
-        new URL(
+        /*
+         * Rotação do PIVÔ.
+         *
+         * O modelo gira em torno do pivô calibrado.
+         */
 
-            configuracao.audio,
-
-            new URL(
-                AR_CONFIG,
-                window.location.href
-            )
-
-        ).href;
-
-
-    audio =
-        new Audio(
-            caminhoAudio
-        );
-
-
-    audio.preload =
-        "auto";
-
-
-    console.log(
-        "Áudio:",
-        caminhoAudio
-    );
-
-}
-
-
-/* =========================================================
-   TOCAR ÁUDIO
-========================================================= */
-
-async function tocarAudio() {
-
-    if (!audio) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await audio.play();
-
-    } catch (erro) {
-
-        console.log(
-            "Áudio bloqueado:",
-            erro
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   PAUSAR ÁUDIO
-========================================================= */
-
-function pausarAudio() {
-
-    if (!audio) {
-
-        return;
-
-    }
-
-
-    audio.pause();
-
-}
-
-
-/* =========================================================
-   MARCADOR ENCONTRADO
-========================================================= */
-
-target.addEventListener(
-    "targetFound",
-    () => {
-
-        console.log(
-            "Marcador encontrado."
-        );
-
-
-        tocarAudio();
-
-    }
+        pivot.object3D.rotation.x -=
+            deltaX * VELOCIDADE_ROTACAO;
+    },
+    { passive: true }
 );
 
 
-/* =========================================================
-   MARCADOR PERDIDO
-========================================================= */
-
-target.addEventListener(
-    "targetLost",
+window.addEventListener(
+    "touchend",
     () => {
 
-        console.log(
-            "Marcador perdido."
-        );
-
-
-        pausarAudio();
-
-    }
+        tocandoTela = false;
+    },
+    { passive: true }
 );
 
 
 /* =========================================================
    TELA CHEIA
-========================================================= */
+   ========================================================= */
 
-botaoFullscreen.addEventListener(
-    "click",
-    async () => {
+fullscreenButton.addEventListener("click", async () => {
 
-        try {
+    try {
 
-            if (
-                !document.fullscreenElement
-            ) {
+        if (!document.fullscreenElement) {
 
-                await document
-                    .documentElement
-                    .requestFullscreen();
+            await document.documentElement.requestFullscreen();
 
-            } else {
+        } else {
 
-                await document
-                    .exitFullscreen();
-
-            }
-
-        } catch (erro) {
-
-            console.error(
-                "Erro na tela cheia:",
-                erro
-            );
-
+            await document.exitFullscreen();
         }
 
+    } catch (erro) {
+
+        console.warn(
+            "Não foi possível ativar tela cheia:",
+            erro
+        );
     }
-);
+});
 
 
 /* =========================================================
-   ROTAÇÃO PELO DEDO
-========================================================= */
-
-let tocando =
-    false;
-
-
-let ultimoX =
-    0;
-
-
-/* =========================================================
-   TOUCH START
-========================================================= */
-
-document.addEventListener(
-    "touchstart",
-    (evento) => {
-
-        if (
-            evento.target.closest("button")
-        ) {
-
-            return;
-
-        }
-
-
-        if (
-            evento.touches.length !== 1
-        ) {
-
-            return;
-
-        }
-
-
-        tocando =
-            true;
-
-
-        ultimoX =
-            evento.touches[0].clientX;
-
-
-        evento.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-/* =========================================================
-   TOUCH MOVE
-========================================================= */
-
-document.addEventListener(
-    "touchmove",
-    (evento) => {
-
-        if (
-            !tocando ||
-            evento.touches.length !== 1
-        ) {
-
-            return;
-
-        }
-
-
-        const atualX =
-            evento.touches[0].clientX;
-
-
-        const deltaX =
-            atualX -
-            ultimoX;
-
-
-        /*
-           O DEDO GIRA O PIVOT.
-
-           Eixo X, conforme você pediu.
-        */
-
-        pivot.object3D.rotation.x -=
-            deltaX *
-            VELOCIDADE_ROTACAO;
-
-
-        ultimoX =
-            atualX;
-
-
-        evento.preventDefault();
-
-    },
-    {
-        passive: false
-    }
-);
-
-
-/* =========================================================
-   TOUCH END
-========================================================= */
-
-document.addEventListener(
-    "touchend",
-    () => {
-
-        tocando =
-            false;
-
-    }
-);
-
-
-/* =========================================================
-   TOUCH CANCEL
-========================================================= */
-
-document.addEventListener(
-    "touchcancel",
-    () => {
-
-        tocando =
-            false;
-
-    }
-);
-
-
-/* =========================================================
-   INICIAR
-========================================================= */
+   INÍCIO
+   ========================================================= */
 
 carregarConfiguracao();
+```
