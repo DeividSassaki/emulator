@@ -1,127 +1,85 @@
-/* =========================================================
-   PASTA
-========================================================= */
+const scene = document.getElementById("scene");
 
-const parametros =
-    new URLSearchParams(window.location.search);
+const target = document.getElementById("targetZelda");
 
-const pasta =
-    parametros.get("pasta") || "zelda";
+const pivot = document.getElementById("pivotEntity");
 
-const CONFIG_URL =
-    `../marcadores/${pasta}/config.json`;
+const objeto = document.getElementById("objectEntity");
 
+const modelo = document.getElementById("heroModelObject");
 
-/* =========================================================
-   ELEMENTOS
-========================================================= */
+const status = document.getElementById("status");
 
-const scene =
-    document.getElementById("scene");
-
-const target =
-    document.getElementById("targetZelda");
-
-const pivot =
-    document.getElementById("heroPivot");
-
-const modelo =
-    document.getElementById("heroModelObject");
-
-const pivotVisual =
-    document.getElementById("pivotVisual");
-
-const status =
-    document.getElementById("status");
+const configuracao = document.getElementById("configuracao");
 
 
-/* =========================================================
-   SLIDERS
-========================================================= */
+// ============================================================
+// BOTÕES
+// ============================================================
 
-const sliderX =
-    document.getElementById("sliderX");
+const botaoPivot = document.getElementById("botaoPivot");
+const botaoObjeto = document.getElementById("botaoObjeto");
 
-const sliderY =
-    document.getElementById("sliderY");
+const botaoRotacao = document.getElementById("botaoRotacao");
+const botaoMovimento = document.getElementById("botaoMovimento");
 
-const sliderZ =
-    document.getElementById("sliderZ");
-
-const sliderEscala =
-    document.getElementById("sliderEscala");
+const botaoResetar = document.getElementById("resetar");
+const botaoSalvar = document.getElementById("salvar");
 
 
-/* =========================================================
-   VALORES
-========================================================= */
+// ============================================================
+// SLIDERS
+// ============================================================
 
-const valorX =
-    document.getElementById("valorX");
+const sliderX = document.getElementById("sliderX");
+const sliderY = document.getElementById("sliderY");
+const sliderZ = document.getElementById("sliderZ");
 
-const valorY =
-    document.getElementById("valorY");
-
-const valorZ =
-    document.getElementById("valorZ");
-
-const valorEscala =
-    document.getElementById("valorEscala");
+const sliderEscala = document.getElementById("sliderEscala");
 
 
-/* =========================================================
-   LABELS
-========================================================= */
+// ============================================================
+// VALORES
+// ============================================================
 
-const labelX =
-    document.getElementById("labelX");
+const valorX = document.getElementById("valorX");
+const valorY = document.getElementById("valorY");
+const valorZ = document.getElementById("valorZ");
 
-const labelY =
-    document.getElementById("labelY");
+const valorEscala = document.getElementById("valorEscala");
 
-const labelZ =
-    document.getElementById("labelZ");
-
-const nomeControle =
-    document.getElementById("nomeControle");
+const labelX = document.getElementById("labelX");
+const labelY = document.getElementById("labelY");
+const labelZ = document.getElementById("labelZ");
 
 
-/* =========================================================
-   BOTÕES
-========================================================= */
+// ============================================================
+// ESTADO
+// ============================================================
 
-const botaoPivot =
-    document.getElementById("botaoPivot");
+let elementoSelecionado = "pivot";
 
-const botaoRotacao =
-    document.getElementById("botaoRotacao");
+let controleSelecionado = "rotacao";
 
-const botaoPosicao =
-    document.getElementById("botaoPosicao");
+let configOriginal = null;
 
-const botaoResetar =
-    document.getElementById("resetar");
-
-const botaoSalvar =
-    document.getElementById("salvar");
-
-const configuracao =
-    document.getElementById("configuracao");
+let config = null;
 
 
-/* =========================================================
-   MODO ATUAL
-========================================================= */
+// ============================================================
+// PASTA
+// ============================================================
 
-let modoAtual =
-    "pivot";
+const parametros = new URLSearchParams(window.location.search);
+
+const pasta = parametros.get("pasta") || "zelda";
 
 
-/* =========================================================
-   CONFIGURAÇÃO
-========================================================= */
+// ============================================================
+// CONFIGURAÇÃO PADRÃO
+// ============================================================
 
-let config = {
+const configPadrao = {
 
     modelo: "Hero of Time.glb",
 
@@ -145,693 +103,563 @@ let config = {
         z: 0
     },
 
+    pivotRotation: {
+        x: 0,
+        y: 0,
+        z: 0
+    },
+
     audio: "musica.mp3"
 
 };
 
 
-let configOriginal = null;
+// ============================================================
+// COPIAR CONFIG
+// ============================================================
 
+function copiar(obj) {
 
-/* =========================================================
-   GRAUS → RADIANOS
-========================================================= */
-
-function grausParaRad(graus) {
-
-    return graus * Math.PI / 180;
+    return JSON.parse(JSON.stringify(obj));
 
 }
 
 
-/* =========================================================
-   APLICAR PIVOT
-========================================================= */
-
-function aplicarPivot() {
-
-    /*
-     * O pivot representa o ponto ao redor do qual
-     * o modelo será rotacionado.
-     */
-
-    pivot.object3D.position.set(
-
-        Number(config.pivot.x),
-        Number(config.pivot.y),
-        Number(config.pivot.z)
-
-    );
-
-}
-
-
-/* =========================================================
-   APLICAR ROTAÇÃO
-========================================================= */
-
-function aplicarRotacao() {
-
-    /*
-     * A rotação agora pertence ao PIVOT,
-     * e não diretamente ao modelo.
-     *
-     * Isso faz o modelo girar ao redor
-     * do cubo de calibração.
-     */
-
-    pivot.object3D.rotation.set(
-
-        grausParaRad(
-            Number(config.rotation.x)
-        ),
-
-        grausParaRad(
-            Number(config.rotation.y)
-        ),
-
-        grausParaRad(
-            Number(config.rotation.z)
-        )
-
-    );
-
-}
-
-
-/* =========================================================
-   APLICAR POSIÇÃO
-========================================================= */
-
-function aplicarPosicao() {
-
-    /*
-     * "position" representa a posição desejada
-     * do modelo no espaço do marcador.
-     *
-     * Como o modelo está dentro do pivot,
-     * transformamos essa posição em posição local.
-     */
-
-    modelo.object3D.position.set(
-
-        Number(config.position.x)
-        -
-        Number(config.pivot.x),
-
-        Number(config.position.y)
-        -
-        Number(config.pivot.y),
-
-        Number(config.position.z)
-        -
-        Number(config.pivot.z)
-
-    );
-
-}
-
-
-/* =========================================================
-   APLICAR ESCALA
-========================================================= */
-
-function aplicarEscala() {
-
-    const escala =
-        Number(config.scale);
-
-    modelo.object3D.scale.set(
-        escala,
-        escala,
-        escala
-    );
-
-}
-
-
-/* =========================================================
-   APLICAR TUDO
-========================================================= */
-
-function aplicarModelo() {
-
-    if (!config) {
-        return;
-    }
-
-    aplicarPivot();
-
-    aplicarRotacao();
-
-    aplicarPosicao();
-
-    aplicarEscala();
-
-}
-
-
-/* =========================================================
-   CARREGAR CONFIG.JSON
-========================================================= */
+// ============================================================
+// CARREGAR CONFIG
+// ============================================================
 
 async function carregarConfig() {
 
     try {
 
-        status.textContent =
-            `Carregando ${pasta}...`;
-
-
-        const resposta =
-            await fetch(
-                CONFIG_URL,
-                {
-                    cache: "no-store"
-                }
-            );
+        const resposta = await fetch(
+            `../marcadores/${pasta}/config.json?${Date.now()}`
+        );
 
 
         if (!resposta.ok) {
 
-            throw new Error(
-                `HTTP ${resposta.status}`
-            );
+            throw new Error("config.json não encontrado");
 
         }
 
 
-        const dados =
-            await resposta.json();
+        config = await resposta.json();
 
 
-        config = {
-
-            ...config,
-
-            ...dados,
-
-            position: {
-
-                ...config.position,
-
-                ...(dados.position || {})
-
-            },
-
-            rotation: {
-
-                ...config.rotation,
-
-                ...(dados.rotation || {})
-
-            },
-
-            pivot: {
-
-                ...config.pivot,
-
-                ...(dados.pivot || {})
-
-            }
-
-        };
+        configOriginal = copiar(config);
 
 
-        configOriginal =
-            JSON.parse(
-                JSON.stringify(config)
-            );
+        // Garantir campos novos
+
+        if (!config.pivot) {
+
+            config.pivot = {
+                x: 0,
+                y: 0,
+                z: 0
+            };
+
+        }
 
 
-        aplicarModelo();
+        if (!config.pivotRotation) {
 
-        carregarSliders();
+            config.pivotRotation = {
+                x: 0,
+                y: 0,
+                z: 0
+            };
 
-        atualizarConfiguracao();
+        }
+
+
+        if (config.scale === undefined) {
+
+            config.scale = 1;
+
+        }
+
+
+        aplicarConfiguracao();
 
 
         status.textContent =
-            `📷 Câmera ativa — ${pasta}. Aponte para o marcador.`;
+            `Configuração carregada: ${pasta}`;
 
 
     } catch (erro) {
 
-        console.error(
-            "Erro ao carregar config.json:",
-            erro
-        );
+        console.error(erro);
+
+
+        config = copiar(configPadrao);
+
+        configOriginal = copiar(config);
+
+
+        aplicarConfiguracao();
 
 
         status.textContent =
-            "❌ Erro ao carregar config.json.";
+            "Usando configuração padrão";
+
 
     }
 
 }
 
 
-/* =========================================================
-   CARREGAR SLIDERS
-========================================================= */
+// ============================================================
+// APLICAR CONFIGURAÇÃO
+// ============================================================
 
-function carregarSliders() {
-
-    if (!config) {
-        return;
-    }
+function aplicarConfiguracao() {
 
 
-    if (modoAtual === "pivot") {
+    // --------------------------------------------------------
+    // PIVOT
+    // --------------------------------------------------------
 
-        sliderX.value =
-            config.pivot.x;
-
-        sliderY.value =
-            config.pivot.y;
-
-        sliderZ.value =
-            config.pivot.z;
-
-    }
+    pivot.object3D.position.set(
+        config.pivot.x,
+        config.pivot.y,
+        config.pivot.z
+    );
 
 
-    if (modoAtual === "rotacao") {
-
-        sliderX.value =
-            config.rotation.x;
-
-        sliderY.value =
-            config.rotation.y;
-
-        sliderZ.value =
-            config.rotation.z;
-
-    }
+    pivot.object3D.rotation.set(
+        THREE.MathUtils.degToRad(config.pivotRotation.x),
+        THREE.MathUtils.degToRad(config.pivotRotation.y),
+        THREE.MathUtils.degToRad(config.pivotRotation.z)
+    );
 
 
-    if (modoAtual === "posicao") {
+    // --------------------------------------------------------
+    // OBJETO
+    // --------------------------------------------------------
 
-        sliderX.value =
-            config.position.x;
-
-        sliderY.value =
-            config.position.y;
-
-        sliderZ.value =
-            config.position.z;
-
-    }
+    objeto.object3D.position.set(
+        config.position.x,
+        config.position.y,
+        config.position.z
+    );
 
 
-    sliderEscala.value =
-        config.scale;
+    objeto.object3D.rotation.set(
+        THREE.MathUtils.degToRad(config.rotation.x),
+        THREE.MathUtils.degToRad(config.rotation.y),
+        THREE.MathUtils.degToRad(config.rotation.z)
+    );
 
 
-    atualizarValoresTela();
+    modelo.object3D.scale.set(
+        config.scale,
+        config.scale,
+        config.scale
+    );
+
+
+    atualizarInterface();
+
+    atualizarJSON();
 
 }
 
 
-/* =========================================================
-   ATUALIZAR VALORES
-========================================================= */
+// ============================================================
+// ATUALIZAR INTERFACE
+// ============================================================
 
-function atualizarValoresTela() {
+function atualizarInterface() {
+
+    let dados;
+
+
+    if (elementoSelecionado === "pivot") {
+
+        if (controleSelecionado === "rotacao") {
+
+            dados = config.pivotRotation;
+
+        } else {
+
+            dados = config.pivot;
+
+        }
+
+    } else {
+
+        if (controleSelecionado === "rotacao") {
+
+            dados = config.rotation;
+
+        } else {
+
+            dados = config.position;
+
+        }
+
+    }
+
+
+    sliderX.value = dados.x;
+    sliderY.value = dados.y;
+    sliderZ.value = dados.z;
+
 
     valorX.textContent =
-        Number(
-            sliderX.value
-        ).toFixed(2);
-
+        Number(dados.x).toFixed(2);
 
     valorY.textContent =
-        Number(
-            sliderY.value
-        ).toFixed(2);
-
+        Number(dados.y).toFixed(2);
 
     valorZ.textContent =
-        Number(
-            sliderZ.value
-        ).toFixed(2);
+        Number(dados.z).toFixed(2);
 
 
     valorEscala.textContent =
-        Number(
-            sliderEscala.value
-        ).toFixed(2);
+        Number(config.scale).toFixed(2);
+
+
+    atualizarLabels();
 
 }
 
 
-/* =========================================================
-   DEFINIR MODO
-========================================================= */
+// ============================================================
+// LABELS
+// ============================================================
 
-function definirModo(modo) {
+function atualizarLabels() {
 
-    modoAtual =
-        modo;
-
-
-    botaoPivot.classList.remove(
-        "ativo"
-    );
-
-    botaoRotacao.classList.remove(
-        "ativo"
-    );
-
-    botaoPosicao.classList.remove(
-        "ativo"
-    );
+    const nome =
+        elementoSelecionado === "pivot"
+            ? "Pivot"
+            : "Objeto";
 
 
-    if (modo === "pivot") {
-
-        botaoPivot.classList.add(
-            "ativo"
-        );
-
-
-        nomeControle.textContent =
-            "PIVOT";
-
+    if (controleSelecionado === "rotacao") {
 
         labelX.textContent =
-            "Pivot X";
+            `${nome} Rotação X`;
 
         labelY.textContent =
-            "Pivot Y";
+            `${nome} Rotação Y`;
 
         labelZ.textContent =
-            "Pivot Z";
-
-    }
+            `${nome} Rotação Z`;
 
 
-    if (modo === "rotacao") {
+        sliderX.min = -360;
+        sliderX.max = 360;
 
-        botaoRotacao.classList.add(
-            "ativo"
-        );
+        sliderY.min = -360;
+        sliderY.max = 360;
+
+        sliderZ.min = -360;
+        sliderZ.max = 360;
 
 
-        nomeControle.textContent =
-            "ROTAÇÃO";
-
+    } else {
 
         labelX.textContent =
-            "Rotação X";
+            `${nome} Movimento X`;
 
         labelY.textContent =
-            "Rotação Y";
+            `${nome} Movimento Y`;
 
         labelZ.textContent =
-            "Rotação Z";
+            `${nome} Movimento Z`;
+
+
+        sliderX.min = -5;
+        sliderX.max = 5;
+
+        sliderY.min = -5;
+        sliderY.max = 5;
+
+        sliderZ.min = -5;
+        sliderZ.max = 5;
 
     }
-
-
-    if (modo === "posicao") {
-
-        botaoPosicao.classList.add(
-            "ativo"
-        );
-
-
-        nomeControle.textContent =
-            "POSIÇÃO";
-
-
-        labelX.textContent =
-            "Posição X";
-
-        labelY.textContent =
-            "Posição Y";
-
-        labelZ.textContent =
-            "Posição Z";
-
-    }
-
-
-    carregarSliders();
 
 }
 
 
-/* =========================================================
-   SLIDER X
-========================================================= */
+// ============================================================
+// SELECIONAR ELEMENTO
+// ============================================================
+
+function selecionarElemento(elemento) {
+
+    elementoSelecionado = elemento;
+
+
+    botaoPivot.classList.toggle(
+        "ativo",
+        elemento === "pivot"
+    );
+
+
+    botaoObjeto.classList.toggle(
+        "ativo",
+        elemento === "objeto"
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// SELECIONAR CONTROLE
+// ============================================================
+
+function selecionarControle(controle) {
+
+    controleSelecionado = controle;
+
+
+    botaoRotacao.classList.toggle(
+        "ativo",
+        controle === "rotacao"
+    );
+
+
+    botaoMovimento.classList.toggle(
+        "ativo",
+        controle === "movimento"
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// BOTÃO PIVOT
+// ============================================================
+
+botaoPivot.addEventListener(
+    "click",
+    () => {
+
+        selecionarElemento("pivot");
+
+    }
+);
+
+
+// ============================================================
+// BOTÃO OBJETO
+// ============================================================
+
+botaoObjeto.addEventListener(
+    "click",
+    () => {
+
+        selecionarElemento("objeto");
+
+    }
+);
+
+
+// ============================================================
+// BOTÃO ROTAÇÃO
+// ============================================================
+
+botaoRotacao.addEventListener(
+    "click",
+    () => {
+
+        selecionarControle("rotacao");
+
+    }
+);
+
+
+// ============================================================
+// BOTÃO MOVIMENTO
+// ============================================================
+
+botaoMovimento.addEventListener(
+    "click",
+    () => {
+
+        selecionarControle("movimento");
+
+    }
+);
+
+
+// ============================================================
+// SLIDER X
+// ============================================================
 
 sliderX.addEventListener(
     "input",
     () => {
 
-        const valor =
-            Number(sliderX.value);
-
-
-        if (modoAtual === "pivot") {
-
-            config.pivot.x =
-                valor;
-
-            aplicarPivot();
-
-            aplicarPosicao();
-
-        }
-
-
-        if (modoAtual === "rotacao") {
-
-            config.rotation.x =
-                valor;
-
-            aplicarRotacao();
-
-        }
-
-
-        if (modoAtual === "posicao") {
-
-            config.position.x =
-                valor;
-
-            aplicarPosicao();
-
-        }
-
-
-        atualizarValoresTela();
-
-        atualizarConfiguracao();
+        alterarValor(
+            "x",
+            Number(sliderX.value)
+        );
 
     }
 );
 
 
-/* =========================================================
-   SLIDER Y
-========================================================= */
+// ============================================================
+// SLIDER Y
+// ============================================================
 
 sliderY.addEventListener(
     "input",
     () => {
 
-        const valor =
-            Number(sliderY.value);
-
-
-        if (modoAtual === "pivot") {
-
-            config.pivot.y =
-                valor;
-
-            aplicarPivot();
-
-            aplicarPosicao();
-
-        }
-
-
-        if (modoAtual === "rotacao") {
-
-            config.rotation.y =
-                valor;
-
-            aplicarRotacao();
-
-        }
-
-
-        if (modoAtual === "posicao") {
-
-            config.position.y =
-                valor;
-
-            aplicarPosicao();
-
-        }
-
-
-        atualizarValoresTela();
-
-        atualizarConfiguracao();
+        alterarValor(
+            "y",
+            Number(sliderY.value)
+        );
 
     }
 );
 
 
-/* =========================================================
-   SLIDER Z
-========================================================= */
+// ============================================================
+// SLIDER Z
+// ============================================================
 
 sliderZ.addEventListener(
     "input",
     () => {
 
-        const valor =
-            Number(sliderZ.value);
-
-
-        if (modoAtual === "pivot") {
-
-            config.pivot.z =
-                valor;
-
-            aplicarPivot();
-
-            aplicarPosicao();
-
-        }
-
-
-        if (modoAtual === "rotacao") {
-
-            config.rotation.z =
-                valor;
-
-            aplicarRotacao();
-
-        }
-
-
-        if (modoAtual === "posicao") {
-
-            config.position.z =
-                valor;
-
-            aplicarPosicao();
-
-        }
-
-
-        atualizarValoresTela();
-
-        atualizarConfiguracao();
+        alterarValor(
+            "z",
+            Number(sliderZ.value)
+        );
 
     }
 );
 
 
-/* =========================================================
-   ESCALA
-========================================================= */
+// ============================================================
+// ALTERAR X/Y/Z
+// ============================================================
+
+function alterarValor(eixo, valor) {
+
+
+    if (elementoSelecionado === "pivot") {
+
+
+        if (controleSelecionado === "rotacao") {
+
+            config.pivotRotation[eixo] = valor;
+
+
+            pivot.object3D.rotation[eixo] =
+                THREE.MathUtils.degToRad(valor);
+
+
+        } else {
+
+            config.pivot[eixo] = valor;
+
+
+            pivot.object3D.position[eixo] = valor;
+
+        }
+
+
+    } else {
+
+
+        if (controleSelecionado === "rotacao") {
+
+            config.rotation[eixo] = valor;
+
+
+            objeto.object3D.rotation[eixo] =
+                THREE.MathUtils.degToRad(valor);
+
+
+        } else {
+
+            config.position[eixo] = valor;
+
+
+            objeto.object3D.position[eixo] = valor;
+
+        }
+
+    }
+
+
+    atualizarInterface();
+
+    atualizarJSON();
+
+}
+
+
+// ============================================================
+// ESCALA
+// ============================================================
 
 sliderEscala.addEventListener(
     "input",
     () => {
 
         config.scale =
-            Number(
-                sliderEscala.value
-            );
+            Number(sliderEscala.value);
 
 
-        aplicarEscala();
-
-        atualizarValoresTela();
-
-        atualizarConfiguracao();
-
-    }
-);
+        modelo.object3D.scale.set(
+            config.scale,
+            config.scale,
+            config.scale
+        );
 
 
-/* =========================================================
-   BOTÕES DE MODO
-========================================================= */
+        valorEscala.textContent =
+            config.scale.toFixed(2);
 
-botaoPivot.addEventListener(
-    "click",
-    () => {
 
-        definirModo("pivot");
+        atualizarJSON();
 
     }
 );
 
 
-botaoRotacao.addEventListener(
-    "click",
-    () => {
-
-        definirModo("rotacao");
-
-    }
-);
-
-
-botaoPosicao.addEventListener(
-    "click",
-    () => {
-
-        definirModo("posicao");
-
-    }
-);
-
-
-/* =========================================================
-   RESETAR
-========================================================= */
+// ============================================================
+// RESETAR
+// ============================================================
 
 botaoResetar.addEventListener(
     "click",
     () => {
 
-        if (!configOriginal) {
-            return;
-        }
+        config = copiar(configOriginal);
 
+        aplicarConfiguracao();
 
-        config =
-            JSON.parse(
-                JSON.stringify(
-                    configOriginal
-                )
-            );
-
-
-        aplicarModelo();
-
-        carregarSliders();
-
-        atualizarConfiguracao();
+        status.textContent =
+            "Configuração restaurada.";
 
     }
 );
 
 
-/* =========================================================
-   MOSTRAR CONFIG
-========================================================= */
+// ============================================================
+// MOSTRAR JSON
+// ============================================================
 
-function atualizarConfiguracao() {
+function atualizarJSON() {
 
     configuracao.textContent =
         JSON.stringify(
@@ -843,17 +671,16 @@ function atualizarConfiguracao() {
 }
 
 
-/* =========================================================
-   SALVAR
-========================================================= */
+// ============================================================
+// SALVAR CONFIG
+// ============================================================
 
 botaoSalvar.addEventListener(
     "click",
     () => {
 
-        const blob =
+        const arquivo =
             new Blob(
-
                 [
                     JSON.stringify(
                         config,
@@ -861,152 +688,103 @@ botaoSalvar.addEventListener(
                         2
                     )
                 ],
-
                 {
-                    type:
-                        "application/json"
+                    type: "application/json"
                 }
-
             );
 
 
         const url =
-            URL.createObjectURL(
-                blob
-            );
+            URL.createObjectURL(arquivo);
 
 
         const link =
-            document.createElement(
-                "a"
-            );
+            document.createElement("a");
 
 
-        link.href =
-            url;
-
+        link.href = url;
 
         link.download =
             "config.json";
 
 
-        document.body.appendChild(
-            link
-        );
-
+        document.body.appendChild(link);
 
         link.click();
-
 
         link.remove();
 
 
-        URL.revokeObjectURL(
-            url
-        );
+        URL.revokeObjectURL(url);
+
+
+        status.textContent =
+            "config.json salvo.";
 
     }
 );
 
 
-/* =========================================================
-   MARCADOR ENCONTRADO
-========================================================= */
+// ============================================================
+// MARCADOR
+// ============================================================
 
 target.addEventListener(
     "targetFound",
     () => {
 
-        console.log(
-            "TARGET FOUND"
-        );
-
-
         status.textContent =
-            "✅ Marcador encontrado.";
+            `Marcador encontrado — ${pasta}`;
 
     }
 );
 
-
-/* =========================================================
-   MARCADOR PERDIDO
-========================================================= */
 
 target.addEventListener(
     "targetLost",
     () => {
 
-        console.log(
-            "TARGET LOST"
-        );
-
-
         status.textContent =
-            "Aponte novamente para o marcador.";
+            "Marcador perdido";
 
     }
 );
 
 
-/* =========================================================
-   MODELO CARREGADO
-========================================================= */
+// ============================================================
+// MODELO CARREGADO
+// ============================================================
 
 modelo.addEventListener(
     "model-loaded",
     () => {
 
         console.log(
-            "GLB CARREGADO COM SUCESSO"
+            "Modelo carregado."
         );
-
-
-        aplicarModelo();
-
-
-        status.textContent =
-            "✅ Modelo 3D carregado.";
 
     }
 );
 
-
-/* =========================================================
-   ERRO NO MODELO
-========================================================= */
 
 modelo.addEventListener(
     "model-error",
-    evento => {
+    (evento) => {
 
         console.error(
-            "ERRO AO CARREGAR GLB:",
+            "Erro ao carregar modelo:",
             evento
         );
 
-
         status.textContent =
-            "❌ Erro ao carregar o GLB.";
+            "Erro ao carregar o modelo.";
 
     }
 );
 
 
-/* =========================================================
-   INICIALIZAÇÃO
-========================================================= */
+// ============================================================
+// INICIAR
+// ============================================================
 
-scene.addEventListener(
-    "loaded",
-    () => {
-
-        console.log(
-            "A-Frame carregado."
-        );
-
-
-        carregarConfig();
-
-    }
-);
+carregarConfig();
