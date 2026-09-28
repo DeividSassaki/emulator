@@ -11,6 +11,12 @@ const botaoIniciar =
 const status =
     document.getElementById("status");
 
+const modelo =
+    document.getElementById("heroModelObject");
+
+const pivot =
+    document.getElementById("heroPivot");
+
 
 /* =========================================================
    SLIDERS
@@ -92,7 +98,31 @@ const configuracao =
 
 
 /* =========================================================
-   PASTA DO MODELO
+   SISTEMA AR
+========================================================= */
+
+let arSystem = null;
+
+
+/* =========================================================
+   MARCADOR
+========================================================= */
+
+const target =
+    document.getElementById(
+        "targetZelda"
+    );
+
+
+/* =========================================================
+   MODO ATUAL
+========================================================= */
+
+let modoAtual = "pivot";
+
+
+/* =========================================================
+   CONFIGURAÇÃO
 ========================================================= */
 
 const parametros =
@@ -100,21 +130,15 @@ const parametros =
         window.location.search
     );
 
+
 const pasta =
-    parametros.get("pasta") || "zelda";
+    parametros.get("pasta") ||
+    "zelda";
 
-
-/* =========================================================
-   CAMINHO DA CONFIGURAÇÃO
-========================================================= */
 
 const CONFIG_URL =
     `../marcadores/${pasta}/config.json`;
 
-
-/* =========================================================
-   CONFIGURAÇÃO PADRÃO
-========================================================= */
 
 let config = {
 
@@ -153,25 +177,10 @@ let configOriginal = null;
 
 
 /* =========================================================
-   OBJETOS AR
+   MODELO ENCONTRADO
 ========================================================= */
 
-let target = null;
-
-let pivot = null;
-
-let modelo = null;
-
-let pivotVisual = null;
-
-let arSystem = null;
-
-
-/* =========================================================
-   MODO ATUAL
-========================================================= */
-
-let modoAtual = "pivot";
+let modeloEncontrado = false;
 
 
 /* =========================================================
@@ -243,7 +252,13 @@ async function carregarConfig() {
             );
 
 
-        criarCena();
+        carregarSliders();
+
+        atualizarConfiguracao();
+
+
+        status.textContent =
+            `Configuração pronta: ${pasta}. Aponte para o marcador.`;
 
 
     } catch (erro) {
@@ -263,362 +278,10 @@ async function carregarConfig() {
 
 
 /* =========================================================
-   CRIAR CENA AR
-========================================================= */
-
-function criarCena() {
-
-    const caminhoMind =
-        `../marcadores/${pasta}/targets.mind`;
-
-
-    scene.setAttribute(
-        "mindar-image",
-        `
-        imageTargetSrc: ${caminhoMind};
-        autoStart: false;
-        missTolerance: 20;
-        uiLoading: no;
-        uiError: no;
-        uiScanning: no;
-        `
-    );
-
-
-    /* =====================================================
-       TARGET
-    ===================================================== */
-
-    target =
-        document.createElement(
-            "a-entity"
-        );
-
-    target.setAttribute(
-        "id",
-        "targetAR"
-    );
-
-    target.setAttribute(
-        "mindar-image-target",
-        "targetIndex: 0"
-    );
-
-
-    /* =====================================================
-       PIVOT
-    ===================================================== */
-
-    pivot =
-        document.createElement(
-            "a-entity"
-        );
-
-    pivot.setAttribute(
-        "id",
-        "heroPivot"
-    );
-
-
-    /* =====================================================
-       CUBO DO PIVOT
-    ===================================================== */
-
-    pivotVisual =
-        document.createElement(
-            "a-box"
-        );
-
-    pivotVisual.setAttribute(
-        "id",
-        "pivotVisual"
-    );
-
-    pivotVisual.setAttribute(
-        "position",
-        "0 0 0"
-    );
-
-    pivotVisual.setAttribute(
-        "width",
-        "0.06"
-    );
-
-    pivotVisual.setAttribute(
-        "height",
-        "0.06"
-    );
-
-    pivotVisual.setAttribute(
-        "depth",
-        "0.06"
-    );
-
-    pivotVisual.setAttribute(
-        "color",
-        "red"
-    );
-
-
-    /* =====================================================
-       MODELO
-    ===================================================== */
-
-    modelo =
-        document.createElement(
-            "a-gltf-model"
-        );
-
-
-    modelo.setAttribute(
-        "id",
-        "heroModelObject"
-    );
-
-
-    const caminhoModelo =
-        `../marcadores/${pasta}/${config.modelo}`;
-
-
-    modelo.setAttribute(
-        "gltf-model",
-        `url(${caminhoModelo})`
-    );
-
-
-    modelo.setAttribute(
-        "visible",
-        "true"
-    );
-
-
-    /* =====================================================
-       HIERARQUIA
-    ===================================================== */
-
-    pivot.appendChild(
-        pivotVisual
-    );
-
-    pivot.appendChild(
-        modelo
-    );
-
-    target.appendChild(
-        pivot
-    );
-
-    scene.appendChild(
-        target
-    );
-
-
-    /* =====================================================
-       LUZES
-    ===================================================== */
-
-    const luzAmbiente =
-        document.createElement(
-            "a-light"
-        );
-
-    luzAmbiente.setAttribute(
-        "type",
-        "ambient"
-    );
-
-    luzAmbiente.setAttribute(
-        "intensity",
-        "2"
-    );
-
-
-    const luzDirecional =
-        document.createElement(
-            "a-light"
-        );
-
-    luzDirecional.setAttribute(
-        "type",
-        "directional"
-    );
-
-    luzDirecional.setAttribute(
-        "intensity",
-        "3"
-    );
-
-    luzDirecional.setAttribute(
-        "position",
-        "1 3 2"
-    );
-
-
-    scene.appendChild(
-        luzAmbiente
-    );
-
-    scene.appendChild(
-        luzDirecional
-    );
-
-
-    /* =====================================================
-       EVENTOS DO MODELO
-    ===================================================== */
-
-    modelo.addEventListener(
-        "model-loaded",
-        () => {
-
-            console.log(
-                `${config.modelo} carregado.`
-            );
-
-            atualizarModelo();
-
-            status.textContent =
-                `Modelo carregado: ${config.modelo}`;
-
-        }
-    );
-
-
-    modelo.addEventListener(
-        "model-error",
-        (evento) => {
-
-            console.error(
-                "Erro ao carregar GLB:",
-                evento
-            );
-
-            status.textContent =
-                "Erro ao carregar o modelo.";
-
-        }
-    );
-
-
-    /* =====================================================
-       EVENTOS DO MARCADOR
-    ===================================================== */
-
-    target.addEventListener(
-        "targetFound",
-        () => {
-
-            status.textContent =
-                "✅ Marcador encontrado.";
-
-        }
-    );
-
-
-    target.addEventListener(
-        "targetLost",
-        () => {
-
-            status.textContent =
-                "Aponte novamente para o marcador.";
-
-        }
-    );
-
-
-    /* =====================================================
-       SISTEMA MINDAR
-    ===================================================== */
-
-    scene.addEventListener(
-        "loaded",
-        () => {
-
-            arSystem =
-                scene.systems[
-                    "mindar-image-system"
-                ];
-
-            console.log(
-                "MindAR pronto."
-            );
-
-        }
-    );
-
-
-    carregarSliders();
-
-    atualizarModelo();
-
-    status.textContent =
-        `Configuração carregada: ${pasta}`;
-
-}
-
-
-/* =========================================================
-   INICIAR CÂMERA
-========================================================= */
-
-botaoIniciar.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            if (!arSystem) {
-
-                status.textContent =
-                    "Preparando câmera...";
-
-                return;
-
-            }
-
-
-            status.textContent =
-                "Iniciando câmera...";
-
-
-            await arSystem.start();
-
-
-            status.textContent =
-                "Aponte para o marcador.";
-
-
-            botaoIniciar.style.display =
-                "none";
-
-
-        } catch (erro) {
-
-            console.error(
-                "Erro ao iniciar câmera:",
-                erro
-            );
-
-
-            status.textContent =
-                "Erro ao iniciar a câmera.";
-
-        }
-
-    }
-);
-
-
-/* =========================================================
    CARREGAR VALORES NOS SLIDERS
 ========================================================= */
 
 function carregarSliders() {
-
-    if (!config) {
-        return;
-    }
-
 
     sliderX.value =
 
@@ -661,6 +324,9 @@ function carregarSliders() {
 
     sliderEscala.value =
         config.scale;
+
+
+    atualizarValoresTela();
 
 }
 
@@ -753,9 +419,250 @@ function definirModo(modo) {
 
     carregarSliders();
 
-    atualizarModelo();
-
 }
+
+
+/* =========================================================
+   CENA PRONTA
+========================================================= */
+
+scene.addEventListener(
+    "loaded",
+    () => {
+
+        arSystem =
+            scene.systems[
+                "mindar-image-system"
+            ];
+
+
+        console.log(
+            "MindAR pronto."
+        );
+
+
+        /*
+         * O modelo começa escondido.
+         * Ele só será mostrado quando
+         * o marcador for encontrado.
+         */
+
+        if (modelo) {
+
+            modelo.setAttribute(
+                "visible",
+                "false"
+            );
+
+        }
+
+
+        if (pivot) {
+
+            pivot.setAttribute(
+                "visible",
+                "false"
+            );
+
+        }
+
+
+        carregarConfig();
+
+    }
+);
+
+
+/* =========================================================
+   MODELO CARREGADO
+========================================================= */
+
+modelo.addEventListener(
+    "model-loaded",
+    () => {
+
+        console.log(
+            `${config.modelo} carregado.`
+        );
+
+
+        atualizarModelo();
+
+
+        /*
+         * Mesmo que o GLB tenha terminado
+         * de carregar, continua invisível
+         * até o marcador ser encontrado.
+         */
+
+        modelo.setAttribute(
+            "visible",
+            modeloEncontrado
+        );
+
+    }
+);
+
+
+/* =========================================================
+   ERRO MODELO
+========================================================= */
+
+modelo.addEventListener(
+    "model-error",
+    (evento) => {
+
+        console.error(
+            "Erro ao carregar GLB:",
+            evento
+        );
+
+
+        status.textContent =
+            "Erro ao carregar o modelo.";
+
+    }
+);
+
+
+/* =========================================================
+   INICIAR CÂMERA
+========================================================= */
+
+botaoIniciar.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            if (!arSystem) {
+
+                status.textContent =
+                    "Preparando câmera...";
+
+                return;
+
+            }
+
+
+            status.textContent =
+                "Iniciando câmera...";
+
+
+            await arSystem.start();
+
+
+            status.textContent =
+                "Aponte para o marcador.";
+
+
+            botaoIniciar.style.display =
+                "none";
+
+
+        } catch (erro) {
+
+            console.error(
+                "Erro ao iniciar câmera:",
+                erro
+            );
+
+
+            status.textContent =
+                "Erro ao iniciar a câmera.";
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   MARCADOR ENCONTRADO
+========================================================= */
+
+target.addEventListener(
+    "targetFound",
+    () => {
+
+        modeloEncontrado =
+            true;
+
+
+        /*
+         * Mostra o pivot inteiro,
+         * incluindo o cubo vermelho.
+         */
+
+        if (pivot) {
+
+            pivot.setAttribute(
+                "visible",
+                "true"
+            );
+
+        }
+
+
+        if (modelo) {
+
+            modelo.setAttribute(
+                "visible",
+                "true"
+            );
+
+        }
+
+
+        status.textContent =
+            "✅ Marcador encontrado.";
+
+    }
+);
+
+
+/* =========================================================
+   MARCADOR PERDIDO
+========================================================= */
+
+target.addEventListener(
+    "targetLost",
+    () => {
+
+        modeloEncontrado =
+            false;
+
+
+        /*
+         * Esconde o modelo e o pivot
+         * quando o marcador desaparece.
+         */
+
+        if (pivot) {
+
+            pivot.setAttribute(
+                "visible",
+                "false"
+            );
+
+        }
+
+
+        if (modelo) {
+
+            modelo.setAttribute(
+                "visible",
+                "false"
+            );
+
+        }
+
+
+        status.textContent =
+            "Aponte novamente para o marcador.";
+
+    }
+);
 
 
 /* =========================================================
@@ -764,10 +671,7 @@ function definirModo(modo) {
 
 function atualizarModelo() {
 
-    if (
-        !modelo ||
-        !pivot
-    ) {
+    if (!modelo || !pivot) {
 
         return;
 
@@ -789,6 +693,7 @@ function atualizarModelo() {
             sliderZ.value
         );
 
+
     const escala =
         Number(
             sliderEscala.value
@@ -797,7 +702,7 @@ function atualizarModelo() {
 
     /* =====================================================
        POSIÇÃO
-    ===================================================== */
+    ====================================================== */
 
     if (
         modoAtual === "posicao"
@@ -817,7 +722,7 @@ function atualizarModelo() {
 
     /* =====================================================
        ROTAÇÃO
-    ===================================================== */
+    ====================================================== */
 
     if (
         modoAtual === "rotacao"
@@ -837,7 +742,7 @@ function atualizarModelo() {
 
     /* =====================================================
        PIVOT
-    ===================================================== */
+    ====================================================== */
 
     if (
         modoAtual === "pivot"
@@ -857,7 +762,7 @@ function atualizarModelo() {
 
     /* =====================================================
        ESCALA
-    ===================================================== */
+    ====================================================== */
 
     config.scale =
         escala;
@@ -865,7 +770,7 @@ function atualizarModelo() {
 
     /* =====================================================
        ROTAÇÃO
-    ===================================================== */
+    ====================================================== */
 
     modelo.object3D.rotation.set(
 
@@ -886,7 +791,7 @@ function atualizarModelo() {
 
     /* =====================================================
        ESCALA
-    ===================================================== */
+    ====================================================== */
 
     modelo.object3D.scale.set(
 
@@ -901,7 +806,7 @@ function atualizarModelo() {
 
     /* =====================================================
        PIVOT
-    ===================================================== */
+    ====================================================== */
 
     pivot.object3D.position.set(
 
@@ -928,9 +833,18 @@ function atualizarModelo() {
     );
 
 
-    /* =====================================================
-       MOSTRAR VALORES
-    ===================================================== */
+    atualizarValoresTela();
+
+    atualizarConfiguracao();
+
+}
+
+
+/* =========================================================
+   ATUALIZAR VALORES NA TELA
+========================================================= */
+
+function atualizarValoresTela() {
 
     valorX.textContent =
         Number(
@@ -951,10 +865,9 @@ function atualizarModelo() {
 
 
     valorEscala.textContent =
-        config.scale.toFixed(2);
-
-
-    atualizarConfiguracao();
+        Number(
+            sliderEscala.value
+        ).toFixed(2);
 
 }
 
@@ -985,15 +898,18 @@ sliderX.addEventListener(
     atualizarModelo
 );
 
+
 sliderY.addEventListener(
     "input",
     atualizarModelo
 );
 
+
 sliderZ.addEventListener(
     "input",
     atualizarModelo
 );
+
 
 sliderEscala.addEventListener(
     "input",
@@ -1002,7 +918,7 @@ sliderEscala.addEventListener(
 
 
 /* =========================================================
-   BOTÕES P / R / PO
+   BOTÃO P
 ========================================================= */
 
 botaoPivot.addEventListener(
@@ -1017,6 +933,10 @@ botaoPivot.addEventListener(
 );
 
 
+/* =========================================================
+   BOTÃO R
+========================================================= */
+
 botaoRotacao.addEventListener(
     "click",
     () => {
@@ -1028,6 +948,10 @@ botaoRotacao.addEventListener(
     }
 );
 
+
+/* =========================================================
+   BOTÃO PO
+========================================================= */
 
 botaoPosicao.addEventListener(
     "click",
@@ -1066,7 +990,9 @@ botaoResetar.addEventListener(
     () => {
 
         if (!configOriginal) {
+
             return;
+
         }
 
 
@@ -1079,6 +1005,7 @@ botaoResetar.addEventListener(
 
 
         carregarSliders();
+
 
         atualizarModelo();
 
@@ -1175,5 +1102,3 @@ botaoSalvar.addEventListener(
 definirModo(
     "pivot"
 );
-
-carregarConfig();
