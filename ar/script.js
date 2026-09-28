@@ -16,11 +16,6 @@ const modelo =
    ARQUIVO DE CONFIGURAÇÃO
 ========================================================= */
 
-/*
-   A posição, rotação e tamanho do modelo
-   ficam neste arquivo.
-*/
-
 const AR_CONFIG =
     "./marcadores/zelda/config.json";
 
@@ -33,15 +28,13 @@ const AR_CONFIG =
    "x" = rotação no eixo X
    "y" = rotação no eixo Y
    "z" = rotação no eixo Z
-
-   Começando em X.
 */
 
 const EIXO_ROTACAO = "x";
 
 
 /*
-   Sensibilidade da rotação por toque.
+   Velocidade da rotação.
 */
 
 const VELOCIDADE_ROTACAO = 0.01;
@@ -54,22 +47,20 @@ const VELOCIDADE_ROTACAO = 0.01;
 const CONFIG_PADRAO = {
 
     position: {
-
         x: 0,
         y: 0,
         z: 0
-
     },
 
     rotation: {
-
         x: 0,
         y: 0,
         z: 0
-
     },
 
-    scale: 1
+    scale: 1,
+
+    audio: null
 
 };
 
@@ -80,6 +71,17 @@ const CONFIG_PADRAO = {
 
 let configuracaoCarregada =
     CONFIG_PADRAO;
+
+
+/* =========================================================
+   ÁUDIO
+========================================================= */
+
+let audio = null;
+
+let marcadorEncontrado = false;
+
+let audioPreparado = false;
 
 
 /* =========================================================
@@ -118,18 +120,9 @@ async function carregarConfiguracao() {
         );
 
 
-        /*
-           Caso o modelo já tenha carregado,
-           aplica imediatamente.
-        */
+        aplicarConfiguracao();
 
-        if (
-            modelo.hasLoaded
-        ) {
-
-            aplicarConfiguracao();
-
-        }
+        prepararAudio();
 
     } catch (erro) {
 
@@ -143,13 +136,7 @@ async function carregarConfiguracao() {
             CONFIG_PADRAO;
 
 
-        if (
-            modelo.hasLoaded
-        ) {
-
-            aplicarConfiguracao();
-
-        }
+        aplicarConfiguracao();
 
     }
 
@@ -157,12 +144,16 @@ async function carregarConfiguracao() {
 
 
 /* =========================================================
-   APLICAR CONFIGURAÇÃO AO MODELO
+   APLICAR CONFIGURAÇÃO
 ========================================================= */
 
 function aplicarConfiguracao() {
 
     if (!modelo) {
+
+        console.error(
+            "Modelo não encontrado."
+        );
 
         return;
 
@@ -266,28 +257,224 @@ function aplicarConfiguracao() {
         `${escala} ${escala} ${escala}`
     );
 
+}
 
-    console.log(
-        "Configuração aplicada ao modelo:"
+
+/* =========================================================
+   PREPARAR ÁUDIO
+========================================================= */
+
+function prepararAudio() {
+
+    /*
+       Se não houver áudio no config.json,
+       não faz nada.
+    */
+
+    if (
+        !configuracaoCarregada.audio
+    ) {
+
+        console.log(
+            "Nenhum áudio configurado."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Monta o caminho do áudio relativo
+       ao próprio config.json.
+    */
+
+    const caminhoAudio =
+        new URL(
+            configuracaoCarregada.audio,
+            new URL(
+                AR_CONFIG,
+                window.location.href
+            )
+        ).href;
+
+
+    audio =
+        new Audio(
+            caminhoAudio
+        );
+
+
+    /*
+       Carrega o áudio antecipadamente.
+    */
+
+    audio.preload = "auto";
+
+
+    /*
+       Quando chegar ao fim, permite que,
+       em um próximo targetFound, ele volte
+       ao início.
+    */
+
+    audio.addEventListener(
+        "ended",
+        () => {
+
+            console.log(
+                "Áudio terminou."
+            );
+
+        }
     );
 
-    console.log(
-        "Posição:",
-        x,
-        y,
-        z
-    );
 
     console.log(
-        "Rotação:",
-        rotacaoX,
-        rotacaoY,
-        rotacaoZ
+        "Áudio preparado:",
+        caminhoAudio
     );
 
+}
+
+
+/* =========================================================
+   DESBLOQUEAR ÁUDIO APÓS INTERAÇÃO
+========================================================= */
+
+async function desbloquearAudio() {
+
+    if (
+        !audio ||
+        audioPreparado
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+           Tentamos iniciar o áudio dentro de uma
+           interação do usuário e imediatamente pausamos.
+           Isso ajuda o navegador a autorizar futuras
+           reproduções controladas pelo aplicativo.
+        */
+
+        await audio.play();
+
+
+        audio.pause();
+
+
+        audio.currentTime = 0;
+
+
+        audioPreparado = true;
+
+
+        console.log(
+            "Áudio preparado para reprodução."
+        );
+
+    } catch (erro) {
+
+        console.log(
+            "Navegador ainda não liberou o áudio.",
+            erro
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   TOQUE / CLIQUE DO USUÁRIO
+========================================================= */
+
+document.addEventListener(
+    "pointerdown",
+    () => {
+
+        desbloquearAudio();
+
+    },
+    {
+        once: false,
+        passive: true
+    }
+);
+
+
+/* =========================================================
+   TOCAR ÁUDIO
+========================================================= */
+
+async function tocarAudio() {
+
+    if (!audio) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+           Caso a música tenha terminado,
+           começa novamente.
+        */
+
+        if (
+            audio.ended
+        ) {
+
+            audio.currentTime = 0;
+
+        }
+
+
+        await audio.play();
+
+
+        console.log(
+            "Áudio reproduzindo."
+        );
+
+    } catch (erro) {
+
+        console.log(
+            "O navegador bloqueou a reprodução automática.",
+            erro
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PAUSAR ÁUDIO
+========================================================= */
+
+function pausarAudio() {
+
+    if (!audio) {
+
+        return;
+
+    }
+
+
+    audio.pause();
+
+
     console.log(
-        "Escala:",
-        escala
+        "Áudio pausado."
     );
 
 }
@@ -305,11 +492,6 @@ modelo.addEventListener(
             "Hero of Time.glb carregado."
         );
 
-
-        /*
-           Só aplica a configuração depois
-           que o GLB realmente terminou de carregar.
-        */
 
         aplicarConfiguracao();
 
@@ -335,7 +517,7 @@ modelo.addEventListener(
 
 
 /* =========================================================
-   MARCADOR
+   MARCADOR ENCONTRADO
 ========================================================= */
 
 const target =
@@ -346,21 +528,43 @@ target.addEventListener(
     "targetFound",
     () => {
 
+        marcadorEncontrado = true;
+
+
         console.log(
             "Marcador encontrado."
         );
+
+
+        tocarAudio();
 
     }
 );
 
 
+/* =========================================================
+   MARCADOR PERDIDO
+========================================================= */
+
 target.addEventListener(
     "targetLost",
     () => {
 
+        marcadorEncontrado = false;
+
+
         console.log(
             "Marcador perdido."
         );
+
+
+        /*
+           Pausa, mas NÃO reinicia.
+           Ao encontrar novamente, continua
+           do mesmo ponto.
+        */
+
+        pausarAudio();
 
     }
 );
@@ -422,7 +626,7 @@ document.addEventListener(
     (evento) => {
 
         /*
-           Não interfere no botão.
+           Ignora botão.
         */
 
         if (
@@ -461,6 +665,14 @@ document.addEventListener(
 
         ultimoY =
             toque.clientY;
+
+
+        /*
+           Também tenta desbloquear o áudio
+           através do toque.
+        */
+
+        desbloquearAudio();
 
 
         evento.preventDefault();
@@ -505,7 +717,7 @@ document.addEventListener(
 
 
         /* =================================================
-           ROTAÇÃO X
+           EIXO X
         ================================================== */
 
         if (
@@ -520,7 +732,7 @@ document.addEventListener(
 
 
         /* =================================================
-           ROTAÇÃO Y
+           EIXO Y
         ================================================== */
 
         else if (
@@ -528,14 +740,14 @@ document.addEventListener(
         ) {
 
             modelo.object3D.rotation.y -=
-                deltaY *
+                deltaX *
                 VELOCIDADE_ROTACAO;
 
         }
 
 
         /* =================================================
-           ROTAÇÃO Z
+           EIXO Z
         ================================================== */
 
         else if (
@@ -594,7 +806,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   INICIA CONFIGURAÇÃO
+   CARREGAR CONFIGURAÇÃO
 ========================================================= */
 
 carregarConfiguracao();
