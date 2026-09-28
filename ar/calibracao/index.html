@@ -1,240 +1,277 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Calibração AR</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css"
-    >
-
-    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
-    <!-- MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-    <!-- =====================================================
-         CENA AR
-    ====================================================== -->
+    <div class="example-container">
 
-    <div id="ar-container"></div>
+        <a-scene
+            id="scene"
+            mindar-image="
+                imageTargetSrc: ../marcadores/zelda/targets.mind;
+                autoStart: true;
+                missTolerance: 20;
+                filterMinCF: 0.0001;
+                filterBeta: 1000;
+                uiLoading: no;
+                uiError: no;
+                uiScanning: no;
+            "
+            embedded
+            color-space="sRGB"
+            renderer="
+                alpha: true;
+                colorManagement: true;
+                physicallyCorrectLights: true;
+            "
+            vr-mode-ui="enabled: false"
+            device-orientation-permission-ui="enabled: false">
+
+            <a-camera
+                position="0 0 0"
+                look-controls="enabled: false">
+            </a-camera>
+
+            <a-assets>
+
+                <a-asset-item
+                    id="heroModel"
+                    src="../marcadores/zelda/Hero%20of%20Time.glb">
+                </a-asset-item>
+
+            </a-assets>
+
+            <a-entity
+                id="targetZelda"
+                mindar-image-target="targetIndex: 0">
+
+                <!-- Pivô -->
+                <a-entity
+                    id="heroPivot"
+                    position="0 0 0"
+                    rotation="0 0 0">
+
+                    <!-- Cubo vermelho de calibração -->
+                    <a-box
+                        id="pivotVisual"
+                        position="0 0 0"
+                        width="0.08"
+                        height="0.08"
+                        depth="0.08"
+                        color="red">
+                    </a-box>
+
+                    <!-- Modelo -->
+                    <a-gltf-model
+                        id="heroModelObject"
+                        src="#heroModel"
+                        position="0 0 0"
+                        rotation="0 0 0"
+                        scale="1 1 1">
+                    </a-gltf-model>
+
+                </a-entity>
+
+            </a-entity>
+
+            <a-light
+                type="ambient"
+                intensity="2">
+            </a-light>
+
+            <a-light
+                type="directional"
+                intensity="3"
+                position="1 3 2">
+            </a-light>
+
+        </a-scene>
+
+    </div>
 
 
-    <!-- =====================================================
-         PAINEL
-    ====================================================== -->
+    <!-- Painel de calibração -->
 
-    <div class="painel">
-
-        <h1>Calibração AR</h1>
-
+    <div id="painel">
 
         <div id="status">
-            Carregando configuração...
+            📷 Aponte a câmera para o marcador
         </div>
 
+        <div class="botoes-principais">
 
-        <button id="iniciar">
-            📷 Iniciar câmera
-        </button>
-
-
-        <!-- =================================================
-             SELEÇÃO
-        ================================================== -->
-
-        <div class="seletor">
-
-            <button
-                id="botaoPivot"
-                class="ativo"
-            >
-                P
-            </button>
-
-
-            <button
-                id="botaoRotacao"
-            >
-                R
-            </button>
-
-
-            <button
-                id="botaoPosicao"
-            >
-                PO
-            </button>
+            <button id="btnPivot">P</button>
+            <button id="btnRotacao">R</button>
+            <button id="btnPosicao">PO</button>
 
         </div>
 
 
-        <div
-            id="nomeControle"
-            class="nome-controle"
-        >
-            PIVOT
-        </div>
+        <div id="controles">
 
 
-        <!-- =================================================
-             X
-        ================================================== -->
+            <!-- PIVOT -->
 
-        <div class="controle">
+            <div id="grupoPivot" class="grupo">
 
-            <label>
-
-                <span id="labelX">
+                <label>
                     Pivot X
-                </span>
+                    <input
+                        id="pivotX"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
 
-                <span id="valorX">
-                    0.00
-                </span>
-
-            </label>
-
-
-            <input
-                id="sliderX"
-                type="range"
-                min="-5"
-                max="5"
-                step="0.01"
-                value="0"
-            >
-
-        </div>
-
-
-        <!-- =================================================
-             Y
-        ================================================== -->
-
-        <div class="controle">
-
-            <label>
-
-                <span id="labelY">
+                <label>
                     Pivot Y
-                </span>
+                    <input
+                        id="pivotY"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
 
-                <span id="valorY">
-                    0.00
-                </span>
-
-            </label>
-
-
-            <input
-                id="sliderY"
-                type="range"
-                min="-5"
-                max="5"
-                step="0.01"
-                value="0"
-            >
-
-        </div>
-
-
-        <!-- =================================================
-             Z
-        ================================================== -->
-
-        <div class="controle">
-
-            <label>
-
-                <span id="labelZ">
+                <label>
                     Pivot Z
-                </span>
+                    <input
+                        id="pivotZ"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
 
-                <span id="valorZ">
-                    0.00
-                </span>
-
-            </label>
+            </div>
 
 
-            <input
-                id="sliderZ"
-                type="range"
-                min="-5"
-                max="5"
-                step="0.01"
-                value="0"
-            >
+            <!-- ROTAÇÃO -->
+
+            <div id="grupoRotacao" class="grupo">
+
+                <label>
+                    Rotação X
+                    <input
+                        id="rotX"
+                        type="range"
+                        min="-360"
+                        max="360"
+                        step="1">
+                </label>
+
+                <label>
+                    Rotação Y
+                    <input
+                        id="rotY"
+                        type="range"
+                        min="-360"
+                        max="360"
+                        step="1">
+                </label>
+
+                <label>
+                    Rotação Z
+                    <input
+                        id="rotZ"
+                        type="range"
+                        min="-360"
+                        max="360"
+                        step="1">
+                </label>
+
+            </div>
+
+
+            <!-- POSIÇÃO -->
+
+            <div id="grupoPosicao" class="grupo">
+
+                <label>
+                    Posição X
+                    <input
+                        id="posX"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
+
+                <label>
+                    Posição Y
+                    <input
+                        id="posY"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
+
+                <label>
+                    Posição Z
+                    <input
+                        id="posZ"
+                        type="range"
+                        min="-2"
+                        max="2"
+                        step="0.01">
+                </label>
+
+            </div>
+
+
+            <!-- ESCALA -->
+
+            <div class="grupo">
+
+                <label>
+                    Escala
+                    <input
+                        id="escala"
+                        type="range"
+                        min="0.01"
+                        max="3"
+                        step="0.01">
+                </label>
+
+            </div>
+
+
+            <div class="valores">
+
+                <div id="valorPivot"></div>
+                <div id="valorRotacao"></div>
+                <div id="valorPosicao"></div>
+                <div id="valorEscala"></div>
+
+            </div>
+
+
+            <div class="botoes-final">
+
+                <button id="btnReset">
+                    ↩ Resetar
+                </button>
+
+                <button id="btnSalvar">
+                    💾 Salvar config.json
+                </button>
+
+            </div>
 
         </div>
-
-
-        <!-- =================================================
-             TAMANHO
-        ================================================== -->
-
-        <div class="controle tamanho">
-
-            <label>
-
-                <span>
-                    Tamanho
-                </span>
-
-                <span id="valorEscala">
-                    1.00
-                </span>
-
-            </label>
-
-
-            <input
-                id="sliderEscala"
-                type="range"
-                min="0.1"
-                max="5"
-                step="0.01"
-                value="1"
-            >
-
-        </div>
-
-
-        <!-- =================================================
-             BOTÕES
-        ================================================== -->
-
-        <div class="botoes">
-
-            <button id="resetar">
-                ↺ Resetar
-            </button>
-
-
-            <button id="salvar">
-                💾 Salvar config.json
-            </button>
-
-        </div>
-
-
-        <pre id="configuracao"></pre>
 
     </div>
 
@@ -242,5 +279,4 @@
     <script src="script.js"></script>
 
 </body>
-
 </html>
