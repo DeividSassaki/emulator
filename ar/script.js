@@ -11,6 +11,9 @@ const botaoFullscreen =
 const modelo =
     document.getElementById("heroModelObject");
 
+const pivot =
+    document.getElementById("heroPivot");
+
 
 /* =========================================================
    ARQUIVO DE CONFIGURAÇÃO
@@ -28,9 +31,15 @@ const AR_CONFIG =
    "x" = rotação no eixo X
    "y" = rotação no eixo Y
    "z" = rotação no eixo Z
+
+   O padrão agora é Y.
+
+   O motivo é que o Y representa o eixo vertical,
+   então o modelo gira como uma peça em pé sobre
+   uma base, sem usar o eixo local inclinado do GLB.
 */
 
-const EIXO_ROTACAO = "x";
+const EIXO_ROTACAO = "y";
 
 
 /*
@@ -124,6 +133,7 @@ async function carregarConfiguracao() {
 
         prepararAudio();
 
+
     } catch (erro) {
 
         console.error(
@@ -201,7 +211,13 @@ function aplicarConfiguracao() {
 
 
     /* =====================================================
-       ROTAÇÃO
+       ROTAÇÃO DO GLB
+       
+       IMPORTANTE:
+       Essa rotação continua sendo aplicada somente
+       ao GLB.
+
+       O pivot não recebe essa rotação.
     ====================================================== */
 
     const rotacaoX =
@@ -359,8 +375,6 @@ async function desbloquearAudio() {
         /*
            Tentamos iniciar o áudio dentro de uma
            interação do usuário e imediatamente pausamos.
-           Isso ajuda o navegador a autorizar futuras
-           reproduções controladas pelo aplicativo.
         */
 
         await audio.play();
@@ -378,6 +392,7 @@ async function desbloquearAudio() {
         console.log(
             "Áudio preparado para reprodução."
         );
+
 
     } catch (erro) {
 
@@ -445,6 +460,7 @@ async function tocarAudio() {
             "Áudio reproduzindo."
         );
 
+
     } catch (erro) {
 
         console.log(
@@ -469,6 +485,13 @@ function pausarAudio() {
 
     }
 
+
+    /*
+       Pausa, mas NÃO reinicia.
+
+       Quando o marcador voltar,
+       a música continua do mesmo ponto.
+    */
 
     audio.pause();
 
@@ -663,6 +686,7 @@ document.addEventListener(
         ultimoX =
             toque.clientX;
 
+
         ultimoY =
             toque.clientY;
 
@@ -718,13 +742,16 @@ document.addEventListener(
 
         /* =================================================
            EIXO X
+
+           Agora a rotação acontece no PIVOT,
+           não no GLB.
         ================================================== */
 
         if (
             EIXO_ROTACAO === "x"
         ) {
 
-            modelo.object3D.rotation.x -=
+            pivot.object3D.rotation.x -=
                 deltaX *
                 VELOCIDADE_ROTACAO;
 
@@ -733,13 +760,18 @@ document.addEventListener(
 
         /* =================================================
            EIXO Y
+
+           Este é o eixo atualmente utilizado.
+
+           O Y é o eixo vertical, portanto o modelo
+           gira como uma peça em pé.
         ================================================== */
 
         else if (
             EIXO_ROTACAO === "y"
         ) {
 
-            modelo.object3D.rotation.y -=
+            pivot.object3D.rotation.y -=
                 deltaX *
                 VELOCIDADE_ROTACAO;
 
@@ -754,7 +786,7 @@ document.addEventListener(
             EIXO_ROTACAO === "z"
         ) {
 
-            modelo.object3D.rotation.z -=
+            pivot.object3D.rotation.z -=
                 deltaX *
                 VELOCIDADE_ROTACAO;
 
@@ -763,6 +795,7 @@ document.addEventListener(
 
         ultimoX =
             toque.clientX;
+
 
         ultimoY =
             toque.clientY;
