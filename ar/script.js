@@ -1,4 +1,3 @@
-```javascript
 const params = new URLSearchParams(window.location.search);
 const pasta = params.get("pasta") || "zelda";
 
@@ -533,4 +532,3 @@ if (document.readyState === "loading") {
 
     carregarConfiguracao();
 }
-```
