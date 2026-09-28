@@ -9,28 +9,19 @@ const target = document.getElementById("arTarget");
 const pivot = document.getElementById("arPivot");
 const model = document.getElementById("arModelObject");
 const modelAsset = document.getElementById("arModel");
-
 const fullscreenButton = document.getElementById("fullscreen");
 
 let config = null;
 let audio = null;
 let mindarStarted = false;
-let modeloCarregado = false;
-
-let tocando = false;
 
 
 /* =========================================================
-   FUNÇÕES
+   CAMINHO DOS ARQUIVOS
    ========================================================= */
 
-function numero(valor, padrao = 0) {
-    const n = Number(valor);
-    return Number.isFinite(n) ? n : padrao;
-}
-
-
 function caminhoArquivo(nome) {
+
     if (!nome) return "";
 
     return `./marcadores/${encodeURIComponent(pasta)}/${nome
@@ -40,13 +31,30 @@ function caminhoArquivo(nome) {
 }
 
 
+/* =========================================================
+   NÚMEROS
+   ========================================================= */
+
+function numero(valor, padrao = 0) {
+
+    const n = Number(valor);
+
+    return Number.isFinite(n) ? n : padrao;
+}
+
+
+/* =========================================================
+   APLICAR CONFIGURAÇÃO
+   ========================================================= */
+
 function aplicarConfiguracao() {
 
     if (!config) return;
 
-    /* -----------------------------------------------------
+
+    /* -----------------------------
        PIVÔ
-       ----------------------------------------------------- */
+    ----------------------------- */
 
     if (config.pivot) {
 
@@ -57,19 +65,28 @@ function aplicarConfiguracao() {
         );
     }
 
+
     if (config.pivotRotation) {
 
         pivot.object3D.rotation.set(
-            THREE.MathUtils.degToRad(numero(config.pivotRotation.x)),
-            THREE.MathUtils.degToRad(numero(config.pivotRotation.y)),
-            THREE.MathUtils.degToRad(numero(config.pivotRotation.z))
+            THREE.MathUtils.degToRad(
+                numero(config.pivotRotation.x)
+            ),
+
+            THREE.MathUtils.degToRad(
+                numero(config.pivotRotation.y)
+            ),
+
+            THREE.MathUtils.degToRad(
+                numero(config.pivotRotation.z)
+            )
         );
     }
 
 
-    /* -----------------------------------------------------
+    /* -----------------------------
        MODELO
-       ----------------------------------------------------- */
+    ----------------------------- */
 
     if (config.position) {
 
@@ -84,16 +101,24 @@ function aplicarConfiguracao() {
     if (config.rotation) {
 
         model.object3D.rotation.set(
-            THREE.MathUtils.degToRad(numero(config.rotation.x)),
-            THREE.MathUtils.degToRad(numero(config.rotation.y)),
-            THREE.MathUtils.degToRad(numero(config.rotation.z))
+            THREE.MathUtils.degToRad(
+                numero(config.rotation.x)
+            ),
+
+            THREE.MathUtils.degToRad(
+                numero(config.rotation.y)
+            ),
+
+            THREE.MathUtils.degToRad(
+                numero(config.rotation.z)
+            )
         );
     }
 
 
-    /* -----------------------------------------------------
+    /* -----------------------------
        ESCALA
-       ----------------------------------------------------- */
+    ----------------------------- */
 
     if (config.scale !== undefined) {
 
@@ -114,9 +139,7 @@ function aplicarConfiguracao() {
 
 function prepararAudio() {
 
-    if (!config || !config.audio) {
-        return;
-    }
+    if (!config || !config.audio) return;
 
     const audioURL = caminhoArquivo(config.audio);
 
@@ -124,11 +147,14 @@ function prepararAudio() {
 
     audio.loop = true;
     audio.preload = "auto";
-
     audio.volume = 1;
 
     audio.addEventListener("error", () => {
-        console.warn("Não foi possível carregar o áudio:", audioURL);
+
+        console.warn(
+            "Não foi possível carregar o áudio:",
+            audioURL
+        );
     });
 }
 
@@ -137,21 +163,11 @@ function tocarAudio() {
 
     if (!audio) return;
 
-    const promessa = audio.play();
-
-    if (promessa !== undefined) {
-
-        promessa
-            .then(() => {
-                tocando = true;
-            })
-            .catch(() => {
-                /*
-                 * Alguns navegadores podem bloquear o áudio
-                 * até existir interação do usuário.
-                 */
-            });
-    }
+    audio.play().catch(() => {
+        console.warn(
+            "O navegador bloqueou o áudio até uma interação do usuário."
+        );
+    });
 }
 
 
@@ -160,25 +176,55 @@ function pararAudio() {
     if (!audio) return;
 
     audio.pause();
-    tocando = false;
 }
 
 
 /* =========================================================
-   MINDAR
+   EVENTOS DO MARCADOR
+   ========================================================= */
+
+target.addEventListener("targetFound", () => {
+
+    console.log("Marcador encontrado.");
+
+    tocarAudio();
+});
+
+
+target.addEventListener("targetLost", () => {
+
+    console.log("Marcador perdido.");
+
+    pararAudio();
+});
+
+
+/* =========================================================
+   INICIAR MINDAR
    ========================================================= */
 
 async function iniciarMindAR() {
 
     if (mindarStarted) return;
 
-    const marcador = config.marcador || "targets.mind";
+    if (!config) return;
 
-    const marcadorURL = caminhoArquivo(marcador);
+
+    const marcador =
+        config.marcador || "targets.mind";
+
+    const marcadorURL =
+        caminhoArquivo(marcador);
+
+
+    console.log(
+        "Iniciando MindAR com:",
+        marcadorURL
+    );
+
 
     /*
-     * Aqui colocamos o marcador vindo do JSON.
-     * Não existe mais caminho fixo para Zelda no HTML.
+     * Configura o MindAR antes de iniciar.
      */
 
     scene.setAttribute(
@@ -196,11 +242,37 @@ async function iniciarMindAR() {
     );
 
 
-    const sistema = scene.systems["mindar-image-system"];
+    /*
+     * Espera o A-Frame terminar de carregar.
+     */
+
+    if (!scene.hasLoaded) {
+
+        await new Promise(resolve => {
+
+            scene.addEventListener(
+                "loaded",
+                resolve,
+                { once: true }
+            );
+        });
+    }
+
+
+    /*
+     * Pega o sistema MindAR.
+     */
+
+    const sistema =
+        scene.systems["mindar-image-system"];
+
 
     if (!sistema) {
 
-        console.error("Sistema MindAR não encontrado.");
+        console.error(
+            "MindAR não foi encontrado na cena."
+        );
+
         return;
     }
 
@@ -211,126 +283,134 @@ async function iniciarMindAR() {
 
         mindarStarted = true;
 
-        console.log("MindAR iniciado.");
-        console.log("Marcador:", marcadorURL);
+        console.log(
+            "MindAR iniciado com sucesso."
+        );
 
     } catch (erro) {
 
-        console.error("Erro ao iniciar MindAR:", erro);
+        console.error(
+            "Erro ao iniciar câmera/MindAR:",
+            erro
+        );
     }
 }
 
 
 /* =========================================================
-   CARREGAR CONFIGURAÇÃO
+   CARREGAR CONFIG.JSON
    ========================================================= */
 
 async function carregarConfiguracao() {
 
     try {
 
-        const resposta = await fetch(CONFIG_URL, {
-            cache: "no-store"
-        });
+        console.log(
+            "Carregando configuração:",
+            CONFIG_URL
+        );
+
+
+        const resposta = await fetch(
+            CONFIG_URL,
+            {
+                cache: "no-store"
+            }
+        );
+
 
         if (!resposta.ok) {
 
             throw new Error(
-                `Erro HTTP ${resposta.status} ao carregar ${CONFIG_URL}`
+                `Erro HTTP ${resposta.status}`
             );
         }
 
+
         config = await resposta.json();
 
-        console.log("Configuração carregada:", config);
+
+        console.log(
+            "Configuração carregada:",
+            config
+        );
 
 
-        /* -------------------------------------------------
+        /* -----------------------------
            TÍTULO
-           ------------------------------------------------- */
+        ----------------------------- */
 
-        if (config.nome) {
-            document.title = config.nome;
-        } else {
-            document.title = "AR";
-        }
+        document.title =
+            config.nome || "AR";
 
 
-        /* -------------------------------------------------
+        /* -----------------------------
            MODELO
-           ------------------------------------------------- */
+        ----------------------------- */
 
         if (!config.modelo) {
 
             throw new Error(
-                "O config.json não possui o campo 'modelo'."
+                "O config.json não possui 'modelo'."
             );
         }
 
-        const modeloURL = caminhoArquivo(config.modelo);
 
-        modelAsset.setAttribute("src", modeloURL);
-
-        console.log("Modelo:", modeloURL);
+        const modeloURL =
+            caminhoArquivo(config.modelo);
 
 
-        /* -------------------------------------------------
+        console.log(
+            "Carregando modelo:",
+            modeloURL
+        );
+
+
+        modelAsset.setAttribute(
+            "src",
+            modeloURL
+        );
+
+
+        /* -----------------------------
            ÁUDIO
-           ------------------------------------------------- */
+        ----------------------------- */
 
         prepararAudio();
 
 
-        /* -------------------------------------------------
-           EVENTOS
-           ------------------------------------------------- */
-
-        target.addEventListener("targetFound", () => {
-
-            console.log("Marcador encontrado.");
-
-            tocarAudio();
-        });
-
-
-        target.addEventListener("targetLost", () => {
-
-            console.log("Marcador perdido.");
-
-            pararAudio();
-        });
-
-
-        /* -------------------------------------------------
+        /* -----------------------------
            MODELO CARREGADO
-           ------------------------------------------------- */
+        ----------------------------- */
 
-        model.addEventListener("model-loaded", () => {
+        model.addEventListener(
+            "model-loaded",
+            () => {
 
-            modeloCarregado = true;
+                console.log(
+                    "GLB carregado."
+                );
 
-            console.log("Modelo carregado.");
+                aplicarConfiguracao();
 
-            aplicarConfiguracao();
-        });
+            },
+            { once: true }
+        );
 
 
         /*
-         * Se o modelo já estiver carregado antes do evento,
-         * aplicamos mesmo assim.
+         * Se o GLB já tiver carregado.
          */
 
         if (model.hasLoaded) {
-
-            modeloCarregado = true;
 
             aplicarConfiguracao();
         }
 
 
-        /* -------------------------------------------------
-           INICIAR MINDAR
-           ------------------------------------------------- */
+        /* -----------------------------
+           INICIAR CÂMERA
+        ----------------------------- */
 
         await iniciarMindAR();
 
@@ -356,13 +436,14 @@ const VELOCIDADE_ROTACAO = 0.01;
 
 window.addEventListener(
     "touchstart",
-    (evento) => {
+    evento => {
 
         if (evento.touches.length !== 1) return;
 
         tocandoTela = true;
 
-        ultimoX = evento.touches[0].clientX;
+        ultimoX =
+            evento.touches[0].clientX;
     },
     { passive: true }
 );
@@ -370,23 +451,23 @@ window.addEventListener(
 
 window.addEventListener(
     "touchmove",
-    (evento) => {
+    evento => {
 
         if (!tocandoTela) return;
 
         if (evento.touches.length !== 1) return;
 
-        const atualX = evento.touches[0].clientX;
 
-        const deltaX = atualX - ultimoX;
+        const atualX =
+            evento.touches[0].clientX;
+
+
+        const deltaX =
+            atualX - ultimoX;
+
 
         ultimoX = atualX;
 
-        /*
-         * Rotação do PIVÔ.
-         *
-         * O modelo gira em torno do pivô calibrado.
-         */
 
         pivot.object3D.rotation.x -=
             deltaX * VELOCIDADE_ROTACAO;
@@ -409,32 +490,47 @@ window.addEventListener(
    TELA CHEIA
    ========================================================= */
 
-fullscreenButton.addEventListener("click", async () => {
+fullscreenButton.addEventListener(
+    "click",
+    async () => {
 
-    try {
+        try {
 
-        if (!document.fullscreenElement) {
+            if (!document.fullscreenElement) {
 
-            await document.documentElement.requestFullscreen();
+                await document.documentElement
+                    .requestFullscreen();
 
-        } else {
+            } else {
 
-            await document.exitFullscreen();
+                await document.exitFullscreen();
+            }
+
+        } catch (erro) {
+
+            console.warn(
+                "Não foi possível ativar tela cheia:",
+                erro
+            );
         }
-
-    } catch (erro) {
-
-        console.warn(
-            "Não foi possível ativar tela cheia:",
-            erro
-        );
     }
-});
+);
 
 
 /* =========================================================
    INÍCIO
    ========================================================= */
 
-carregarConfiguracao();
+if (document.readyState === "loading") {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        carregarConfiguracao,
+        { once: true }
+    );
+
+} else {
+
+    carregarConfiguracao();
+}
 ```
