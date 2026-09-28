@@ -1,282 +1,133 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Calibração AR</title>
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Teste AR 3D</title>
 
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
 
-    <div class="example-container">
+<body style="margin:0; overflow:hidden; background:#000;">
 
-        <a-scene
-            id="scene"
-            mindar-image="
-                imageTargetSrc: ../marcadores/zelda/targets.mind;
-                autoStart: true;
-                missTolerance: 20;
-                filterMinCF: 0.0001;
-                filterBeta: 1000;
-                uiLoading: no;
-                uiError: no;
-                uiScanning: no;
-            "
-            embedded
-            color-space="sRGB"
-            renderer="
-                alpha: true;
-                colorManagement: true;
-                physicallyCorrectLights: true;
-            "
-            vr-mode-ui="enabled: false"
-            device-orientation-permission-ui="enabled: false">
+    <a-scene
+        id="scene"
 
-            <a-camera
+        mindar-image="
+            imageTargetSrc: ../marcadores/zelda/targets.mind;
+            autoStart: true;
+            missTolerance: 20;
+            filterMinCF: 0.0001;
+            filterBeta: 1000;
+            uiLoading: no;
+            uiError: no;
+            uiScanning: no;
+        "
+
+        embedded
+
+        renderer="
+            colorManagement: true;
+            physicallyCorrectLights: true;
+        "
+
+        vr-mode-ui="enabled:false"
+
+        device-orientation-permission-ui="enabled:false">
+
+
+        <a-camera
+            position="0 0 0"
+            look-controls="enabled:false">
+        </a-camera>
+
+
+        <a-assets>
+
+            <a-asset-item
+                id="heroModel"
+                src="../marcadores/zelda/Hero%20of%20Time.glb">
+            </a-asset-item>
+
+        </a-assets>
+
+
+        <a-entity
+            id="target"
+            mindar-image-target="targetIndex:0">
+
+
+            <!-- CUBO VERMELHO -->
+
+            <a-box
+                id="cubo"
                 position="0 0 0"
-                look-controls="enabled: false">
-            </a-camera>
-
-            <a-assets>
-
-                <a-asset-item
-                    id="heroModel"
-                    src="../marcadores/zelda/Hero%20of%20Time.glb">
-                </a-asset-item>
-
-            </a-assets>
-
-            <a-entity
-                id="targetZelda"
-                mindar-image-target="targetIndex: 0">
-
-                <!-- Pivô -->
-                <a-entity
-                    id="heroPivot"
-                    position="0 0 0"
-                    rotation="0 0 0">
-
-                    <!-- Cubo vermelho de calibração -->
-                    <a-box
-                        id="pivotVisual"
-                        position="0 0 0"
-                        width="0.08"
-                        height="0.08"
-                        depth="0.08"
-                        color="red">
-                    </a-box>
-
-                    <!-- Modelo -->
-                    <a-gltf-model
-                        id="heroModelObject"
-                        src="#heroModel"
-                        position="0 0 0"
-                        rotation="0 0 0"
-                        scale="1 1 1">
-                    </a-gltf-model>
-
-                </a-entity>
-
-            </a-entity>
-
-            <a-light
-                type="ambient"
-                intensity="2">
-            </a-light>
-
-            <a-light
-                type="directional"
-                intensity="3"
-                position="1 3 2">
-            </a-light>
-
-        </a-scene>
-
-    </div>
+                width="0.2"
+                height="0.2"
+                depth="0.2"
+                color="red">
+            </a-box>
 
 
-    <!-- Painel de calibração -->
+            <!-- MODELO 3D -->
 
-    <div id="painel">
-
-        <div id="status">
-            📷 Aponte a câmera para o marcador
-        </div>
-
-        <div class="botoes-principais">
-
-            <button id="btnPivot">P</button>
-            <button id="btnRotacao">R</button>
-            <button id="btnPosicao">PO</button>
-
-        </div>
+            <a-gltf-model
+                id="modelo"
+                src="#heroModel"
+                position="0 0 0"
+                rotation="0 0 0"
+                scale="1 1 1">
+            </a-gltf-model>
 
 
-        <div id="controles">
+        </a-entity>
 
 
-            <!-- PIVOT -->
-
-            <div id="grupoPivot" class="grupo">
-
-                <label>
-                    Pivot X
-                    <input
-                        id="pivotX"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-                <label>
-                    Pivot Y
-                    <input
-                        id="pivotY"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-                <label>
-                    Pivot Z
-                    <input
-                        id="pivotZ"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-            </div>
+        <a-light
+            type="ambient"
+            intensity="2">
+        </a-light>
 
 
-            <!-- ROTAÇÃO -->
-
-            <div id="grupoRotacao" class="grupo">
-
-                <label>
-                    Rotação X
-                    <input
-                        id="rotX"
-                        type="range"
-                        min="-360"
-                        max="360"
-                        step="1">
-                </label>
-
-                <label>
-                    Rotação Y
-                    <input
-                        id="rotY"
-                        type="range"
-                        min="-360"
-                        max="360"
-                        step="1">
-                </label>
-
-                <label>
-                    Rotação Z
-                    <input
-                        id="rotZ"
-                        type="range"
-                        min="-360"
-                        max="360"
-                        step="1">
-                </label>
-
-            </div>
+        <a-light
+            type="directional"
+            intensity="3"
+            position="1 3 2">
+        </a-light>
 
 
-            <!-- POSIÇÃO -->
-
-            <div id="grupoPosicao" class="grupo">
-
-                <label>
-                    Posição X
-                    <input
-                        id="posX"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-                <label>
-                    Posição Y
-                    <input
-                        id="posY"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-                <label>
-                    Posição Z
-                    <input
-                        id="posZ"
-                        type="range"
-                        min="-2"
-                        max="2"
-                        step="0.01">
-                </label>
-
-            </div>
+    </a-scene>
 
 
-            <!-- ESCALA -->
-
-            <div class="grupo">
-
-                <label>
-                    Escala
-                    <input
-                        id="escala"
-                        type="range"
-                        min="0.01"
-                        max="3"
-                        step="0.01">
-                </label>
-
-            </div>
-
-
-            <div class="valores">
-
-                <div id="valorPivot"></div>
-                <div id="valorRotacao"></div>
-                <div id="valorPosicao"></div>
-                <div id="valorEscala"></div>
-
-            </div>
-
-
-            <div class="botoes-final">
-
-                <button id="btnReset">
-                    ↩ Resetar
-                </button>
-
-                <button id="btnSalvar">
-                    💾 Salvar config.json
-                </button>
-
-            </div>
-
-        </div>
-
+    <div
+        id="status"
+        style="
+            position:fixed;
+            top:10px;
+            left:10px;
+            z-index:9999;
+            color:white;
+            background:rgba(0,0,0,.7);
+            padding:10px;
+            font-family:Arial;
+        "
+    >
+        Iniciando...
     </div>
 
 
     <script src="script.js"></script>
 
 </body>
+
 </html>
