@@ -3,31 +3,45 @@
   "modelo": "Hero of Time.glb",
   "marcador": "targets.mind",
 
+  "pivotAvo": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+
+  "pivotPai": {
+    "position": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    },
+    "rotation": {
+      "x": 0,
+      "y": 0,
+      "z": 0
+    }
+  },
+
   "position": {
-    "x": -0.2,
-    "y": -0.9,
+    "x": 0,
+    "y": 0,
     "z": 0
   },
 
   "rotation": {
     "x": 0,
     "y": 0,
-    "z": 286.30
+    "z": 0
   },
 
-  "scale": 0.88,
-
-  "pivot": {
-    "x": -0.5,
-    "y": -0.9,
-    "z": -0.2
-  },
-
-  "pivotRotation": {
-    "x": 0,
-    "y": 0,
-    "z": 270
-  },
+  "scale": 1,
 
   "audio": "musica.mp3"
 }
