@@ -1,5 +1,6 @@
 {
   "nome": "Zelda AR",
+  "imagem": "Zeal_final.webp",
   "modelo": "Hero of Time.glb",
   "marcador": "targets.mind",
   "pivotAvo": {
