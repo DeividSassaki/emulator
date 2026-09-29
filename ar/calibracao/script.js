@@ -1,5 +1,3 @@
-const scene = document.getElementById("scene");
-
 const target = document.getElementById("targetZelda");
 
 const pivot = document.getElementById("pivotEntity");
@@ -8,7 +6,8 @@ const objeto = document.getElementById("objectEntity");
 
 const status = document.getElementById("status");
 
-const configuracao = document.getElementById("configuracao");
+const configuracao =
+    document.getElementById("configuracao");
 
 
 // ============================================================
@@ -29,6 +28,9 @@ const botaoMovimento =
 
 const botaoResetar =
     document.getElementById("resetar");
+
+const botaoCopiar =
+    document.getElementById("copiarJSON");
 
 
 // ============================================================
@@ -81,8 +83,6 @@ const labelZ =
 let elementoSelecionado = "pivot";
 
 let controleSelecionado = "rotacao";
-
-let configOriginal = null;
 
 let config = null;
 
@@ -157,7 +157,7 @@ function copiar(obj) {
 
 
 // ============================================================
-// GARANTIR CONFIGURAÇÃO
+// GARANTIR CAMPOS
 // ============================================================
 
 function garantirConfiguracao() {
@@ -244,7 +244,7 @@ function garantirConfiguracao() {
 
 
 // ============================================================
-// CAMINHO DOS RECURSOS
+// CAMINHO DO RECURSO
 // ============================================================
 
 function caminhoRecurso(nome) {
@@ -270,49 +270,51 @@ function criarModeloGLB(nome) {
 
     if (!nome) {
 
-        return null;
+        return;
 
     }
 
 
-    const entidade =
+    const modelo =
         document.createElement(
             "a-gltf-model"
         );
 
 
-    entidade.id =
-        "recursoModelo";
+    modelo.id =
+        "heroModelObject";
 
 
-    entidade.setAttribute(
+    modelo.setAttribute(
         "src",
         caminhoRecurso(nome)
     );
 
 
-    entidade.setAttribute(
+    modelo.setAttribute(
         "position",
         "0 0 0"
     );
 
 
-    entidade.setAttribute(
+    modelo.setAttribute(
         "rotation",
         "0 0 0"
     );
 
 
-    objeto.appendChild(entidade);
+    modelo.setAttribute(
+        "scale",
+        "1 1 1"
+    );
 
 
-    entidade.addEventListener(
+    objeto.appendChild(modelo);
+
+
+    modelo.addEventListener(
         "model-loaded",
         () => {
-
-            console.log(
-                "Modelo GLB carregado."
-            );
 
             status.textContent =
                 `GLB carregado: ${nome}`;
@@ -321,23 +323,15 @@ function criarModeloGLB(nome) {
     );
 
 
-    entidade.addEventListener(
+    modelo.addEventListener(
         "model-error",
-        evento => {
-
-            console.error(
-                "Erro no GLB:",
-                evento
-            );
+        () => {
 
             status.textContent =
                 `Erro ao carregar GLB: ${nome}`;
 
         }
     );
-
-
-    return entidade;
 
 }
 
@@ -350,7 +344,7 @@ function criarImagem(nome) {
 
     if (!nome) {
 
-        return null;
+        return;
 
     }
 
@@ -397,24 +391,6 @@ function criarImagem(nome) {
 
     objeto.appendChild(imagem);
 
-
-    imagem.addEventListener(
-        "materialtextureloaded",
-        () => {
-
-            console.log(
-                "Imagem carregada."
-            );
-
-            status.textContent =
-                `Imagem carregada: ${nome}`;
-
-        }
-    );
-
-
-    return imagem;
-
 }
 
 
@@ -426,7 +402,7 @@ function criarVideo(nome) {
 
     if (!nome) {
 
-        return null;
+        return;
 
     }
 
@@ -440,8 +416,10 @@ function criarVideo(nome) {
     video.id =
         "recursoVideo";
 
+
     video.src =
         caminhoRecurso(nome);
+
 
     video.loop = true;
 
@@ -506,40 +484,6 @@ function criarVideo(nome) {
 
     objeto.appendChild(entidade);
 
-
-    video.addEventListener(
-        "loadeddata",
-        () => {
-
-            console.log(
-                "Vídeo carregado."
-            );
-
-            status.textContent =
-                `Vídeo carregado: ${nome}`;
-
-        }
-    );
-
-
-    video.addEventListener(
-        "error",
-        evento => {
-
-            console.error(
-                "Erro no vídeo:",
-                evento
-            );
-
-            status.textContent =
-                `Erro ao carregar vídeo: ${nome}`;
-
-        }
-    );
-
-
-    return entidade;
-
 }
 
 
@@ -552,16 +496,11 @@ function carregarRecursos() {
     objeto.innerHTML = "";
 
 
-    let quantidade = 0;
-
-
     if (config.modelo) {
 
         criarModeloGLB(
             config.modelo
         );
-
-        quantidade++;
 
     }
 
@@ -572,8 +511,6 @@ function carregarRecursos() {
             config.imagem
         );
 
-        quantidade++;
-
     }
 
 
@@ -583,25 +520,17 @@ function carregarRecursos() {
             config.video
         );
 
-        quantidade++;
-
     }
 
 
-    if (quantidade === 0) {
+    if (
+        !config.modelo &&
+        !config.imagem &&
+        !config.video
+    ) {
 
         status.textContent =
             "Nenhum recurso visual configurado.";
-
-    }
-
-
-    if (config.audio) {
-
-        console.log(
-            "Áudio configurado:",
-            config.audio
-        );
 
     }
 
@@ -638,10 +567,6 @@ async function carregarConfig() {
         garantirConfiguracao();
 
 
-        configOriginal =
-            copiar(config);
-
-
         carregarRecursos();
 
 
@@ -655,17 +580,11 @@ async function carregarConfig() {
 
     catch (erro) {
 
-        console.error(
-            erro
-        );
+        console.error(erro);
 
 
         config =
             copiar(configPadrao);
-
-
-        configOriginal =
-            copiar(config);
 
 
         carregarRecursos();
@@ -689,17 +608,20 @@ async function carregarConfig() {
 function aplicarConfiguracao() {
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // PIVOT
-    // --------------------------------------------------------
+    //
+    // REFERÊNCIA:
+    // MARCADOR
+    // ========================================================
 
     pivot.object3D.position.set(
 
-        config.pivot.x,
+        Number(config.pivot.x),
 
-        config.pivot.y,
+        Number(config.pivot.y),
 
-        config.pivot.z
+        Number(config.pivot.z)
 
     );
 
@@ -707,31 +629,36 @@ function aplicarConfiguracao() {
     pivot.object3D.rotation.set(
 
         THREE.MathUtils.degToRad(
-            config.pivotRotation.x
+            Number(config.pivotRotation.x)
         ),
 
         THREE.MathUtils.degToRad(
-            config.pivotRotation.y
+            Number(config.pivotRotation.y)
         ),
 
         THREE.MathUtils.degToRad(
-            config.pivotRotation.z
+            Number(config.pivotRotation.z)
         )
 
     );
 
 
-    // --------------------------------------------------------
+    // ========================================================
     // OBJETO
-    // --------------------------------------------------------
+    //
+    // REFERÊNCIA:
+    // PIVOT
+    //
+    // Estes valores agora são LOCAIS ao pivot.
+    // ========================================================
 
     objeto.object3D.position.set(
 
-        config.position.x,
+        Number(config.position.x),
 
-        config.position.y,
+        Number(config.position.y),
 
-        config.position.z
+        Number(config.position.z)
 
     );
 
@@ -739,15 +666,15 @@ function aplicarConfiguracao() {
     objeto.object3D.rotation.set(
 
         THREE.MathUtils.degToRad(
-            config.rotation.x
+            Number(config.rotation.x)
         ),
 
         THREE.MathUtils.degToRad(
-            config.rotation.y
+            Number(config.rotation.y)
         ),
 
         THREE.MathUtils.degToRad(
-            config.rotation.z
+            Number(config.rotation.z)
         )
 
     );
@@ -755,11 +682,11 @@ function aplicarConfiguracao() {
 
     objeto.object3D.scale.set(
 
-        config.scale,
+        Number(config.scale),
 
-        config.scale,
+        Number(config.scale),
 
-        config.scale
+        Number(config.scale)
 
     );
 
@@ -772,7 +699,7 @@ function aplicarConfiguracao() {
 
 
 // ============================================================
-// INTERFACE
+// ATUALIZAR INTERFACE
 // ============================================================
 
 function atualizarInterface() {
@@ -1050,9 +977,7 @@ sliderX.addEventListener(
 
         alterarValor(
             "x",
-            Number(
-                sliderX.value
-            )
+            Number(sliderX.value)
         );
 
     }
@@ -1065,9 +990,7 @@ sliderY.addEventListener(
 
         alterarValor(
             "y",
-            Number(
-                sliderY.value
-            )
+            Number(sliderY.value)
         );
 
     }
@@ -1080,9 +1003,7 @@ sliderZ.addEventListener(
 
         alterarValor(
             "z",
-            Number(
-                sliderZ.value
-            )
+            Number(sliderZ.value)
         );
 
     }
@@ -1090,7 +1011,7 @@ sliderZ.addEventListener(
 
 
 // ============================================================
-// ALTERAR X/Y/Z
+// ALTERAR VALOR
 // ============================================================
 
 function alterarValor(
@@ -1208,24 +1129,75 @@ sliderEscala.addEventListener(
 
 
 // ============================================================
-// RESETAR
+// RESET
+// ============================================================
+//
+// IMPORTANTE:
+//
+// NÃO volta ao config.json.
+//
+// Coloca tudo em ZERO:
+//
+// Pivot:
+// posição = 0,0,0
+// rotação = 0,0,0
+//
+// Objeto:
+// posição = 0,0,0
+// rotação = 0,0,0
+//
+// Escala = 1
 // ============================================================
 
 botaoResetar.addEventListener(
     "click",
     () => {
 
-        config =
-            copiar(
-                configOriginal
-            );
+
+        config.pivot = {
+
+            x: 0,
+            y: 0,
+            z: 0
+
+        };
+
+
+        config.pivotRotation = {
+
+            x: 0,
+            y: 0,
+            z: 0
+
+        };
+
+
+        config.position = {
+
+            x: 0,
+            y: 0,
+            z: 0
+
+        };
+
+
+        config.rotation = {
+
+            x: 0,
+            y: 0,
+            z: 0
+
+        };
+
+
+        config.scale = 1;
 
 
         aplicarConfiguracao();
 
 
         status.textContent =
-            "Configuração restaurada.";
+            "Tudo foi zerado.";
 
     }
 );
@@ -1234,11 +1206,6 @@ botaoResetar.addEventListener(
 // ============================================================
 // MOSTRAR JSON
 // ============================================================
-//
-// IMPORTANTE:
-// Isto apenas mostra o JSON.
-// NÃO salva e NÃO baixa nenhum arquivo.
-//
 
 function atualizarJSON() {
 
@@ -1250,6 +1217,42 @@ function atualizarJSON() {
         );
 
 }
+
+
+// ============================================================
+// COPIAR JSON
+// ============================================================
+
+botaoCopiar.addEventListener(
+    "click",
+    async () => {
+
+        try {
+
+            await navigator.clipboard.writeText(
+                configuracao.textContent
+            );
+
+
+            status.textContent =
+                "JSON copiado para a área de transferência.";
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                erro
+            );
+
+
+            status.textContent =
+                "Não foi possível copiar o JSON.";
+
+        }
+
+    }
+);
 
 
 // ============================================================
