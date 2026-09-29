@@ -58,16 +58,16 @@
 
         <a-camera
             position="0 0 0"
-            look-controls="enabled: false"
+            look-controls="enabled:false"
         ></a-camera>
 
 
         <a-assets>
 
-            <a-asset-item
-                id="heroModel"
-                src="../marcadores/zelda/Hero%20of%20Time.glb"
-            ></a-asset-item>
+            <!--
+                Os recursos são criados pelo script
+                de acordo com o config.json.
+            -->
 
         </a-assets>
 
@@ -91,7 +91,6 @@
 
                 <a-entity id="pivotVisual">
 
-
                     <!-- frente -->
                     <a-box
                         position="0 0 0.041"
@@ -100,7 +99,6 @@
                         depth="0.002"
                         color="red"
                     ></a-box>
-
 
                     <!-- trás -->
                     <a-box
@@ -111,7 +109,6 @@
                         color="orange"
                     ></a-box>
 
-
                     <!-- direita -->
                     <a-box
                         position="0.041 0 0"
@@ -120,7 +117,6 @@
                         depth="0.08"
                         color="green"
                     ></a-box>
-
 
                     <!-- esquerda -->
                     <a-box
@@ -131,7 +127,6 @@
                         color="yellow"
                     ></a-box>
 
-
                     <!-- cima -->
                     <a-box
                         position="0 0.041 0"
@@ -141,7 +136,6 @@
                         color="blue"
                     ></a-box>
 
-
                     <!-- baixo -->
                     <a-box
                         position="0 -0.041 0"
@@ -150,7 +144,6 @@
                         depth="0.08"
                         color="purple"
                     ></a-box>
-
 
                 </a-entity>
 
@@ -166,17 +159,7 @@
                 id="objectEntity"
                 position="0 0 0"
                 rotation="0 0 0"
-            >
-
-                <a-gltf-model
-                    id="heroModelObject"
-                    src="#heroModel"
-                    position="0 0 0"
-                    rotation="0 0 0"
-                    scale="1 1 1"
-                ></a-gltf-model>
-
-            </a-entity>
+            ></a-entity>
 
 
             <!-- LUZES -->
@@ -185,7 +168,6 @@
                 type="ambient"
                 intensity="2"
             ></a-light>
-
 
             <a-light
                 type="directional"
@@ -199,7 +181,6 @@
     </a-scene>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -218,7 +199,7 @@
 
 
     <!-- =================================================
-         O QUE ESTAMOS EDITANDO
+         ELEMENTO
     ================================================== -->
 
     <div class="grupo-titulo">
@@ -245,9 +226,8 @@
     </div>
 
 
-
     <!-- =================================================
-         O QUE FAZER
+         CONTROLE
     ================================================== -->
 
     <div class="grupo-titulo">
@@ -272,7 +252,6 @@
         </button>
 
     </div>
-
 
 
     <!-- =================================================
@@ -306,7 +285,6 @@
     </div>
 
 
-
     <!-- =================================================
          Y
     ================================================== -->
@@ -338,7 +316,6 @@
     </div>
 
 
-
     <!-- =================================================
          Z
     ================================================== -->
@@ -368,7 +345,6 @@
         >
 
     </div>
-
 
 
     <!-- =================================================
@@ -407,7 +383,6 @@
     </div>
 
 
-
     <!-- =================================================
          BOTÕES
     ================================================== -->
@@ -418,13 +393,13 @@
             ↺ Resetar
         </button>
 
-
-        <button id="salvar">
-            💾 Salvar config.json
-        </button>
-
     </div>
 
+
+    <!--
+        O JSON continua aparecendo na tela,
+        mas NÃO é salvo automaticamente.
+    -->
 
     <pre id="configuracao"></pre>
 
