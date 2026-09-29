@@ -1,5 +1,4 @@
 const target = document.getElementById("targetZelda");
-const pivot = document.getElementById("pivotEntity");
 const objeto = document.getElementById("objectEntity");
 const modelo = document.getElementById("heroModelObject");
 const audio = document.getElementById("arAudio");
@@ -15,9 +14,11 @@ const VELOCIDADE_ROTACAO = 0.01;
 
 let config = null;
 let marcadorVisivel = false;
+let arrastando = false;
+let ultimoX = 0;
 
 // ============================================================
-// CONFIG
+// CONFIGURAÇÃO
 // ============================================================
 
 async function carregarConfig() {
@@ -28,7 +29,7 @@ try {
         await fetch(`${CONFIG_URL}?${Date.now()}`);
 
     if (!resposta.ok) {
-        throw new Error("Erro ao carregar config.json");
+        throw new Error("Não foi possível carregar config.json");
     }
 
     config = await resposta.json();
@@ -38,7 +39,7 @@ try {
 } catch (erro) {
 
     console.error(
-        "Erro na configuração:",
+        "Erro ao carregar config.json:",
         erro
     );
 
@@ -47,7 +48,7 @@ try {
 }
 
 // ============================================================
-// APLICAR CONFIG
+// APLICAR CONFIGURAÇÃO
 // ============================================================
 
 function aplicarConfiguracao() {
@@ -58,118 +59,32 @@ if (!config) {
 
 
 // --------------------------------------------------------
-// PIVOT
+// POSIÇÃO DO OBJETO
+// EXATAMENTE COMO NA CALIBRAÇÃO
 // --------------------------------------------------------
 
-const posicaoPivot =
-    new THREE.Vector3(
-        Number(config.pivot?.x ?? 0),
-        Number(config.pivot?.y ?? 0),
-        Number(config.pivot?.z ?? 0)
-    );
-
-
-const rotacaoPivot =
-    new THREE.Euler(
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation?.x ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation?.y ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation?.z ?? 0)
-        ),
-        "XYZ"
-    );
-
-
-const quaternionPivot =
-    new THREE.Quaternion()
-        .setFromEuler(rotacaoPivot);
-
-
-// --------------------------------------------------------
-// OBJETO
-// --------------------------------------------------------
-
-const posicaoObjeto =
-    new THREE.Vector3(
-        Number(config.position?.x ?? 0),
-        Number(config.position?.y ?? 0),
-        Number(config.position?.z ?? 0)
-    );
-
-
-const rotacaoObjeto =
-    new THREE.Euler(
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.x ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.y ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.z ?? 0)
-        ),
-        "XYZ"
-    );
-
-
-const quaternionObjeto =
-    new THREE.Quaternion()
-        .setFromEuler(rotacaoObjeto);
-
-
-// --------------------------------------------------------
-// CONVERTER OBJETO PARA O SISTEMA DO PIVOT
-// --------------------------------------------------------
-
-const inversaPivot =
-    quaternionPivot.clone().invert();
-
-
-const posicaoLocal =
-    posicaoObjeto
-        .clone()
-        .sub(posicaoPivot)
-        .applyQuaternion(inversaPivot);
-
-
-const quaternionLocal =
-    inversaPivot
-        .clone()
-        .multiply(quaternionObjeto);
-
-
-// --------------------------------------------------------
-// APLICAR PIVOT
-// --------------------------------------------------------
-
-pivot.object3D.position.copy(
-    posicaoPivot
-);
-
-pivot.object3D.quaternion.copy(
-    quaternionPivot
+objeto.object3D.position.set(
+    Number(config.position?.x ?? 0),
+    Number(config.position?.y ?? 0),
+    Number(config.position?.z ?? 0)
 );
 
 
 // --------------------------------------------------------
-// OBJETO VIRA FILHO DO PIVOT
+// ROTAÇÃO DO OBJETO
+// EXATAMENTE COMO NA CALIBRAÇÃO
 // --------------------------------------------------------
 
-pivot.object3D.add(
-    objeto.object3D
-);
-
-
-objeto.object3D.position.copy(
-    posicaoLocal
-);
-
-objeto.object3D.quaternion.copy(
-    quaternionLocal
+objeto.object3D.rotation.set(
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.x ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.y ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.z ?? 0)
+    )
 );
 
 
@@ -196,6 +111,8 @@ if (config.audio) {
     audio.src =
         `./marcadores/${pasta}/${config.audio}`;
 
+    audio.preload = "auto";
+
     audio.load();
 
 }
@@ -212,9 +129,11 @@ target.addEventListener(
 
     marcadorVisivel = true;
 
-    console.log("Marcador encontrado");
+    console.log("AR: marcador encontrado");
 
-    tentarTocarAudio();
+    // Tentativa automática.
+    // Pode ser bloqueada pelo navegador.
+    tocarAudio();
 
 }
 
@@ -230,7 +149,7 @@ target.addEventListener(
 
     marcadorVisivel = false;
 
-    console.log("Marcador perdido");
+    console.log("AR: marcador perdido");
 
 }
 
@@ -240,30 +159,37 @@ target.addEventListener(
 // ÁUDIO
 // ============================================================
 
-function tentarTocarAudio() {
+function tocarAudio() {
 
 if (!audio.src) {
+    console.log("AR: nenhum áudio configurado");
     return;
 }
 
-audio.currentTime = 0;
 
-audio.play().catch(
+audio.play().then(
     () => {
+
         console.log(
-            "Áudio aguardando interação do usuário."
+            "AR: áudio reproduzindo"
         );
+
+    }
+).catch(
+    erro => {
+
+        console.log(
+            "AR: áudio bloqueado até interação do usuário"
+        );
+
     }
 );
 
 }
 
 // ============================================================
-// TOQUE / ROTAÇÃO
+// TOQUE
 // ============================================================
-
-let tocando = false;
-let ultimoX = 0;
 
 document.addEventListener(
 "touchstart",
@@ -273,30 +199,39 @@ evento => {
         return;
     }
 
-    tocando = true;
+
+    arrastando = true;
 
     ultimoX =
         evento.touches[0].clientX;
 
 
-    // O primeiro toque também libera o áudio
+    // ----------------------------------------------------
+    // O toque do usuário libera o áudio no celular
+    // ----------------------------------------------------
+
     if (marcadorVisivel) {
-        tentarTocarAudio();
+        tocarAudio();
     }
 
 },
 {
-    passive: true
+    passive: true,
+    capture: true
 }
 
 );
+
+// ============================================================
+// MOVIMENTO DO DEDO
+// ============================================================
 
 document.addEventListener(
 "touchmove",
 evento => {
 
     if (
-        !tocando ||
+        !arrastando ||
         evento.touches.length !== 1
     ) {
         return;
@@ -315,25 +250,52 @@ evento => {
         atualX;
 
 
-    pivot.object3D.rotation.x -=
+    // ----------------------------------------------------
+    // GIRA A PRÓPRIA PEÇA
+    //
+    // Não mexemos na posição.
+    // Não mexemos no config.json.
+    // ----------------------------------------------------
+
+    objeto.object3D.rotation.x -=
         deltaX * VELOCIDADE_ROTACAO;
 
 },
 {
-    passive: true
+    passive: true,
+    capture: true
 }
 
 );
+
+// ============================================================
+// FIM DO TOQUE
+// ============================================================
 
 document.addEventListener(
 "touchend",
 () => {
 
-    tocando = false;
+    arrastando = false;
 
 },
 {
-    passive: true
+    passive: true,
+    capture: true
+}
+
+);
+
+document.addEventListener(
+"touchcancel",
+() => {
+
+    arrastando = false;
+
+},
+{
+    passive: true,
+    capture: true
 }
 
 );
@@ -342,34 +304,39 @@ document.addEventListener(
 // FULLSCREEN
 // ============================================================
 
+if (fullscreenButton) {
+
 fullscreenButton.addEventListener(
-"click",
-async () => {
+    "click",
+    async evento => {
 
-    try {
+        evento.stopPropagation();
 
-        if (!document.fullscreenElement) {
+        try {
 
-            await document.documentElement.requestFullscreen();
+            if (!document.fullscreenElement) {
 
-        } else {
+                await document.documentElement.requestFullscreen();
 
-            await document.exitFullscreen();
+            } else {
+
+                await document.exitFullscreen();
+
+            }
+
+        } catch (erro) {
+
+            console.error(
+                "Erro no fullscreen:",
+                erro
+            );
 
         }
 
-    } catch (erro) {
-
-        console.error(
-            "Erro no fullscreen:",
-            erro
-        );
-
     }
+);
 
 }
-
-);
 
 // ============================================================
 // INICIAR
