@@ -1,113 +1,433 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+const target = document.getElementById("targetZelda");
+const pivot = document.getElementById("pivotEntity");
+const objeto = document.getElementById("objectEntity");
+const modelo = document.getElementById("heroModelObject");
+const audio = document.getElementById("arAudio");
+const fullscreenButton = document.getElementById("fullscreenButton");
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
->
+const parametros = new URLSearchParams(window.location.search);
+const pasta = parametros.get("pasta") || "zelda";
 
-<title>AR</title>
+const CONFIG_URL =
+"./marcadores/${pasta}/config.json";
 
-<link rel="stylesheet" href="style.css">
+const VELOCIDADE_ROTACAO = 0.01;
 
-<script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+let config = null;
+let marcadorVisivel = false;
 
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+let arrastando = false;
+let ultimoX = 0;
 
-</head><body><div class="example-container"><a-scene
-    id="scene"
+// ============================================================
+// CARREGAR CONFIG
+// ============================================================
 
-    mindar-image="
-        imageTargetSrc: ./marcadores/zelda/targets.mind;
-        autoStart: true;
-        missTolerance: 20;
-        filterMinCF: 0.0001;
-        filterBeta: 1000;
-        uiLoading: no;
-        uiError: no;
-        uiScanning: no;
-    "
+async function carregarConfig() {
 
-    embedded
+try {
 
-    color-space="sRGB"
+    const resposta =
+        await fetch(`${CONFIG_URL}?${Date.now()}`);
 
-    renderer="
-        alpha: true;
-        colorManagement: true;
-        physicallyCorrectLights: true;
-    "
+    if (!resposta.ok) {
+        throw new Error("Erro ao carregar config.json");
+    }
 
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
->
+    config = await resposta.json();
 
-    <a-camera
-        position="0 0 0"
-        look-controls="enabled: false"
-    ></a-camera>
+    aplicarConfiguracao();
 
+} catch (erro) {
 
-    <a-assets>
+    console.error(
+        "Erro ao carregar configuração:",
+        erro
+    );
 
-        <a-asset-item
-            id="heroModel"
-            src="./marcadores/zelda/Hero%20of%20Time.glb"
-        ></a-asset-item>
+}
 
-    </a-assets>
+}
 
+// ============================================================
+// APLICAR CONFIGURAÇÃO
+// ============================================================
 
-    <a-entity
-        id="targetZelda"
-        mindar-image-target="targetIndex: 0"
-    >
+function aplicarConfiguracao() {
 
-        <a-entity
-            id="pivotEntity"
-            position="0 0 0"
-            rotation="0 0 0"
-        ></a-entity>
+if (!config) {
+    return;
+}
 
 
-        <a-entity
-            id="objectEntity"
-            position="0 0 0"
-            rotation="0 0 0"
-        >
+// ========================================================
+// PIVOT
+// ========================================================
 
-            <a-gltf-model
-                id="heroModelObject"
-                src="#heroModel"
-                position="0 0 0"
-                rotation="0 0 0"
-                scale="1 1 1"
-            ></a-gltf-model>
+pivot.object3D.position.set(
+    Number(config.pivot?.x ?? 0),
+    Number(config.pivot?.y ?? 0),
+    Number(config.pivot?.z ?? 0)
+);
 
-        </a-entity>
+pivot.object3D.rotation.set(
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.x ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.y ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.z ?? 0)
+    )
+);
 
 
-        <a-light
-            type="ambient"
-            intensity="2"
-        ></a-light>
+// ========================================================
+// OBJETO
+//
+// IMPORTANTE:
+// Exatamente igual à calibração.
+// NÃO colocamos o objeto dentro do pivot.
+// ========================================================
 
-        <a-light
-            type="directional"
-            intensity="3"
-            position="1 3 2"
-        ></a-light>
+objeto.object3D.position.set(
+    Number(config.position?.x ?? 0),
+    Number(config.position?.y ?? 0),
+    Number(config.position?.z ?? 0)
+);
 
-    </a-entity>
+objeto.object3D.rotation.set(
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.x ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.y ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.rotation?.z ?? 0)
+    )
+);
 
-</a-scene>
 
-</div><button id="fullscreenButton">
-    ⛶
-</button><audio
-id="arAudio"
-preload="auto"
-playsinline
+// ========================================================
+// ESCALA
+// ========================================================
 
-«</audio>»
+const escala =
+    Number(config.scale ?? 1);
 
-<script src="script.js"></script></body></html>
+modelo.object3D.scale.set(
+    escala,
+    escala,
+    escala
+);
+
+
+// ========================================================
+// ÁUDIO
+// ========================================================
+
+if (config.audio) {
+
+    audio.src =
+        `./marcadores/${pasta}/${config.audio}`;
+
+    audio.load();
+
+}
+
+}
+
+// ============================================================
+// MARCADOR ENCONTRADO
+// ============================================================
+
+target.addEventListener(
+"targetFound",
+() => {
+
+    marcadorVisivel = true;
+
+    console.log("Marcador encontrado");
+
+    tocarAudio();
+
+}
+
+);
+
+// ============================================================
+// MARCADOR PERDIDO
+// ============================================================
+
+target.addEventListener(
+"targetLost",
+() => {
+
+    marcadorVisivel = false;
+
+    console.log("Marcador perdido");
+
+}
+
+);
+
+// ============================================================
+// ÁUDIO
+// ============================================================
+
+function tocarAudio() {
+
+if (!audio.src) {
+    return;
+}
+
+audio.currentTime = 0;
+
+audio.play().catch(
+    erro => {
+
+        console.log(
+            "Áudio aguardando interação:",
+            erro
+        );
+
+    }
+);
+
+}
+
+// ============================================================
+// PEGAR O CANVAS DO A-FRAME
+// ============================================================
+
+function configurarToque() {
+
+const canvas =
+    document.querySelector(
+        ".a-canvas"
+    );
+
+if (!canvas) {
+
+    setTimeout(
+        configurarToque,
+        500
+    );
+
+    return;
+
+}
+
+
+// ========================================================
+// TOUCH START
+// ========================================================
+
+canvas.addEventListener(
+    "touchstart",
+    evento => {
+
+        if (
+            evento.touches.length !== 1
+        ) {
+            return;
+        }
+
+        arrastando = true;
+
+        ultimoX =
+            evento.touches[0].clientX;
+
+
+        // Primeiro toque libera o áudio
+
+        if (marcadorVisivel) {
+            tocarAudio();
+        }
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+// ========================================================
+// TOUCH MOVE
+// ========================================================
+
+canvas.addEventListener(
+    "touchmove",
+    evento => {
+
+        if (
+            !arrastando ||
+            evento.touches.length !== 1
+        ) {
+            return;
+        }
+
+
+        const atualX =
+            evento.touches[0].clientX;
+
+
+        const deltaX =
+            atualX - ultimoX;
+
+
+        ultimoX =
+            atualX;
+
+
+        girarObjeto(
+            deltaX
+        );
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+// ========================================================
+// TOUCH END
+// ========================================================
+
+canvas.addEventListener(
+    "touchend",
+    () => {
+
+        arrastando = false;
+
+    },
+    {
+        passive: true
+    }
+);
+
+
+canvas.addEventListener(
+    "touchcancel",
+    () => {
+
+        arrastando = false;
+
+    },
+    {
+        passive: true
+    }
+);
+
+}
+
+// ============================================================
+// GIRAR OBJETO AO REDOR DO PIVOT
+// ============================================================
+
+function girarObjeto(deltaX) {
+
+const quantidade =
+    deltaX * VELOCIDADE_ROTACAO;
+
+
+// --------------------------------------------------------
+// Posição atual do objeto em relação ao pivot
+// --------------------------------------------------------
+
+const posicaoObjeto =
+    objeto.object3D.position.clone();
+
+
+const posicaoPivot =
+    pivot.object3D.position.clone();
+
+
+const distancia =
+    posicaoObjeto
+        .clone()
+        .sub(posicaoPivot);
+
+
+// --------------------------------------------------------
+// Rotação em torno do eixo X do pivot
+// --------------------------------------------------------
+
+const rotacao =
+    new THREE.Quaternion();
+
+rotacao.setFromAxisAngle(
+    new THREE.Vector3(1, 0, 0),
+    -quantidade
+);
+
+
+// --------------------------------------------------------
+// Nova posição
+// --------------------------------------------------------
+
+distancia.applyQuaternion(
+    rotacao
+);
+
+
+objeto.object3D.position.copy(
+    posicaoPivot
+        .clone()
+        .add(distancia)
+);
+
+
+// --------------------------------------------------------
+// Nova orientação
+// --------------------------------------------------------
+
+objeto.object3D.quaternion.premultiply(
+    rotacao
+);
+
+}
+
+// ============================================================
+// FULLSCREEN
+// ============================================================
+
+fullscreenButton.addEventListener(
+"click",
+async () => {
+
+    try {
+
+        if (!document.fullscreenElement) {
+
+            await document.documentElement.requestFullscreen();
+
+        } else {
+
+            await document.exitFullscreen();
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro no fullscreen:",
+            erro
+        );
+
+    }
+
+}
+
+);
+
+// ============================================================
+// INICIAR
+// ============================================================
+
+carregarConfig();
+
+configurarToque();
