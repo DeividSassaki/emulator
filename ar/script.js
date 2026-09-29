@@ -1,15 +1,13 @@
 const target = document.getElementById("targetZelda");
-
 const pivot = document.getElementById("pivotEntity");
-
 const objeto = document.getElementById("objectEntity");
-
 const modelo = document.getElementById("heroModelObject");
-
 const audio = document.getElementById("arAudio");
+const fullscreenButton = document.getElementById("fullscreenButton");
 
-const fullscreenButton =
-document.getElementById("fullscreenButton");
+// ============================================================
+// PASTA
+// ============================================================
 
 const parametros =
 new URLSearchParams(window.location.search);
@@ -17,10 +15,18 @@ new URLSearchParams(window.location.search);
 const pasta =
 parametros.get("pasta") || "zelda";
 
+// ============================================================
+// CONFIG
+// ============================================================
+
 const CONFIG_URL =
 "./marcadores/${pasta}/config.json";
 
 const VELOCIDADE_ROTACAO = 0.01;
+
+// ============================================================
+// ESTADO
+// ============================================================
 
 let config = null;
 
@@ -60,10 +66,16 @@ try {
     aplicarConfiguracao();
 
 
+    console.log(
+        "AR: configuração carregada",
+        config
+    );
+
+
 } catch (erro) {
 
     console.error(
-        "Erro ao carregar config.json:",
+        "AR: erro ao carregar config.json",
         erro
     );
 
@@ -73,7 +85,8 @@ try {
 
 // ============================================================
 // APLICAR CONFIGURAÇÃO
-// MESMA LÓGICA DA CALIBRAÇÃO
+//
+// EXATAMENTE COMO NA CALIBRAÇÃO
 // ============================================================
 
 function aplicarConfiguracao() {
@@ -254,29 +267,7 @@ audio.play()
 }
 
 // ============================================================
-// LIBERAR ÁUDIO COM PRIMEIRO TOQUE
-// ============================================================
-
-document.addEventListener(
-"touchstart",
-() => {
-
-    if (marcadorVisivel) {
-
-        tocarAudio();
-
-    }
-
-},
-{
-    passive: true,
-    once: false
-}
-
-);
-
-// ============================================================
-// INÍCIO DO ARRASTO
+// TOQUE
 // ============================================================
 
 document.addEventListener(
@@ -298,6 +289,16 @@ evento => {
     ultimoX =
         evento.touches[0].clientX;
 
+
+    // Tenta liberar o áudio através
+    // da interação do usuário.
+
+    if (marcadorVisivel) {
+
+        tocarAudio();
+
+    }
+
 },
 {
     passive: true,
@@ -309,11 +310,10 @@ evento => {
 // ============================================================
 // MOVIMENTO
 //
-// O pivot é usado como ponto de rotação.
-// O objeto continua independente.
+// PIVOT E OBJETO CONTINUAM INDEPENDENTES.
 //
-// Isso permite manter o GLB na posição calibrada
-// e fazê-lo girar ao redor do pivot.
+// O pivot é usado somente como ponto
+// de referência para calcular a órbita.
 // ============================================================
 
 document.addEventListener(
@@ -346,9 +346,9 @@ evento => {
         deltaX * VELOCIDADE_ROTACAO;
 
 
-    // ----------------------------------------------------
-    // POSIÇÃO ATUAL DO OBJETO
-    // ----------------------------------------------------
+    // ====================================================
+    // POSIÇÃO ATUAL
+    // ====================================================
 
     const pos =
         objeto.object3D.position;
@@ -358,9 +358,9 @@ evento => {
         pivot.object3D.position;
 
 
-    // ----------------------------------------------------
-    // DISTÂNCIA DO OBJETO ATÉ O PIVOT
-    // ----------------------------------------------------
+    // ====================================================
+    // DISTÂNCIA ENTRE OBJETO E PIVOT
+    // ====================================================
 
     const dx =
         pos.x - posPivot.x;
@@ -370,13 +370,12 @@ evento => {
         pos.z - posPivot.z;
 
 
-    // ----------------------------------------------------
-    // ROTACIONAR A POSIÇÃO AO REDOR DO PIVOT
-    // ----------------------------------------------------
+    // ====================================================
+    // ROTAÇÃO DA POSIÇÃO AO REDOR DO PIVOT
+    // ====================================================
 
     const cos =
         Math.cos(angulo);
-
 
     const sin =
         Math.sin(angulo);
@@ -398,9 +397,9 @@ evento => {
         posPivot.z + novoZ;
 
 
-    // ----------------------------------------------------
-    // GIRAR O OBJETO JUNTO
-    // ----------------------------------------------------
+    // ====================================================
+    // ROTAÇÃO DO PRÓPRIO OBJETO
+    // ====================================================
 
     objeto.object3D.rotation.y +=
         angulo;
@@ -414,7 +413,7 @@ evento => {
 );
 
 // ============================================================
-// FIM DO ARRASTO
+// FIM DO TOQUE
 // ============================================================
 
 document.addEventListener(
@@ -470,15 +469,14 @@ fullscreenButton.addEventListener(
 
             } else {
 
-                await document
-                    .exitFullscreen();
+                await document.exitFullscreen();
 
             }
 
         } catch (erro) {
 
             console.error(
-                "Erro no fullscreen:",
+                "AR: erro no fullscreen",
                 erro
             );
 
