@@ -1,303 +1,1190 @@
-* {
-    box-sizing: border-box;
-}
-
-html,
-body {
-    margin: 0;
-    padding: 0;
-
-    width: 100%;
-    min-height: 100%;
-
-    background: #000;
-
-    color: #fff;
-
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-    overflow-x: hidden;
-}
+// ============================================================
+// CALIBRAÇÃO AR
+//
+// MARCADOR
+//    ↓
+// PIVOT AVÔ
+//    ↓
+// PIVOT PAI
+//    ↓
+// GLB
+//
+// Cada transformação é local ao seu próprio pai.
+// ============================================================
 
 
-/* =========================
-   CENA
-========================= */
+const target =
+    document.getElementById("targetZelda");
 
-.example-container {
-    position: fixed;
+const pivotAvo =
+    document.getElementById("pivotAvo");
 
-    inset: 0;
+const pivotPai =
+    document.getElementById("pivotPai");
 
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-}
-
-a-scene {
-    width: 100%;
-    height: 100%;
-}
+const objeto =
+    document.getElementById("objectEntity");
 
 
-/* =========================
-   PAINEL
-========================= */
+// ============================================================
+// INTERFACE
+// ============================================================
 
-.painel {
-    position: fixed;
+const status =
+    document.getElementById("status");
 
-    left: 50%;
-    bottom: 10px;
+const botaoPivotAvo =
+    document.getElementById("botaoPivotAvo");
 
-    transform: translateX(-50%);
+const botaoPivotPai =
+    document.getElementById("botaoPivotPai");
 
-    width: min(96%, 600px);
+const botaoObjeto =
+    document.getElementById("botaoObjeto");
 
-    max-height: 48vh;
+const botaoRotacao =
+    document.getElementById("botaoRotacao");
 
-    overflow-y: auto;
+const botaoMovimento =
+    document.getElementById("botaoMovimento");
 
-    padding: 14px;
+const sliderX =
+    document.getElementById("sliderX");
 
-    background: rgba(0, 0, 0, 0.88);
+const sliderY =
+    document.getElementById("sliderY");
 
-    border: 1px solid rgba(255, 255, 255, 0.25);
+const sliderZ =
+    document.getElementById("sliderZ");
 
-    border-radius: 14px;
+const valorX =
+    document.getElementById("valorX");
 
-    backdrop-filter: blur(8px);
+const valorY =
+    document.getElementById("valorY");
 
-    z-index: 1000;
-}
+const valorZ =
+    document.getElementById("valorZ");
 
-h1 {
-    margin: 0 0 8px 0;
+const labelX =
+    document.getElementById("labelX");
 
-    text-align: center;
+const labelY =
+    document.getElementById("labelY");
 
-    font-size: 20px;
-}
+const labelZ =
+    document.getElementById("labelZ");
 
-#status {
-    text-align: center;
+const sliderEscala =
+    document.getElementById("sliderEscala");
 
-    font-size: 13px;
+const valorEscala =
+    document.getElementById("valorEscala");
 
-    color: #aaa;
+const controleEscala =
+    document.getElementById("controleEscala");
 
-    margin-bottom: 12px;
-}
+const grupoEscala =
+    document.getElementById("grupoEscala");
 
+const resetar =
+    document.getElementById("resetar");
 
-/* =========================
-   TÍTULOS
-========================= */
+const copiarJSON =
+    document.getElementById("copiarJSON");
 
-.grupo-titulo {
-    margin-top: 12px;
-    margin-bottom: 6px;
-
-    font-size: 11px;
-
-    font-weight: bold;
-
-    color: #aaa;
-
-    letter-spacing: 1px;
-
-    text-align: center;
-}
+const configuracao =
+    document.getElementById("configuracao");
 
 
-/* =========================
-   SELETORES
-========================= */
+// ============================================================
+// ESTADO
+// ============================================================
 
-.seletor {
-    display: flex;
+let configuracaoBase = null;
 
-    gap: 6px;
+let elementoSelecionado =
+    "pivotAvo";
 
-    width: 100%;
-}
+let modoControle =
+    "rotacao";
 
-.seletor button {
-    flex: 1;
 
-    min-height: 40px;
+// ============================================================
+// FUNÇÕES
+// ============================================================
 
-    border: 1px solid #555;
+function numero(valor) {
 
-    border-radius: 8px;
+    const n = Number(valor);
 
-    background: #1a1a1a;
-
-    color: #ccc;
-
-    font-weight: bold;
-
-    font-size: 11px;
-
-    cursor: pointer;
-}
-
-.seletor button.ativo {
-    background: #fff;
-
-    color: #000;
-
-    border-color: #fff;
+    return Number.isFinite(n)
+        ? n
+        : 0;
 }
 
 
-/* =========================
-   CONTROLES
-========================= */
+function arredondar(
+    valor,
+    casas = 2
+) {
 
-.controle {
-    margin-top: 9px;
-}
+    return Number(
+        Number(valor).toFixed(casas)
+    );
 
-.controle label {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-bottom: 3px;
-
-    font-size: 13px;
-}
-
-.controle label span:last-child {
-    color: #00ff88;
-
-    font-family: monospace;
 }
 
 
-/* =========================
-   SLIDERS
-========================= */
+function vetorZero() {
 
-input[type="range"] {
-    width: 100%;
+    return {
+        x: 0,
+        y: 0,
+        z: 0
+    };
 
-    height: 28px;
-
-    margin: 0;
-
-    accent-color: #fff;
 }
 
 
-/* =========================
-   BOTÕES
-========================= */
+// ============================================================
+// ELEMENTO SELECIONADO
+// ============================================================
 
-.botoes {
-    display: flex;
+function obterElementoSelecionado() {
 
-    gap: 8px;
+    if (
+        elementoSelecionado ===
+        "pivotAvo"
+    ) {
 
-    margin-top: 14px;
-}
+        return pivotAvo.object3D;
 
-.botoes button {
-    flex: 1;
-
-    min-height: 42px;
-
-    border: 1px solid #555;
-
-    border-radius: 8px;
-
-    background: #1a1a1a;
-
-    color: #fff;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.botoes button:active {
-    background: #333;
-}
-
-
-/* =========================
-   JSON
-========================= */
-
-#configuracao {
-    margin: 8px 0 0 0;
-
-    padding: 10px;
-
-    background: #080808;
-
-    border: 1px solid #222;
-
-    border-radius: 8px;
-
-    color: #00ff88;
-
-    font-family: monospace;
-
-    font-size: 11px;
-
-    line-height: 1.4;
-
-    white-space: pre-wrap;
-
-    word-break: break-word;
-
-    max-height: 220px;
-
-    overflow-y: auto;
-}
-
-
-/* =========================
-   CELULAR
-========================= */
-
-@media (max-width: 600px) {
-
-    .painel {
-        width: 96%;
-
-        bottom: 6px;
-
-        padding: 10px;
-
-        max-height: 52vh;
     }
 
-    h1 {
-        font-size: 18px;
+    if (
+        elementoSelecionado ===
+        "pivotPai"
+    ) {
+
+        return pivotPai.object3D;
+
     }
 
-    .seletor button {
-        min-height: 38px;
+    return objeto.object3D;
 
-        font-size: 10px;
+}
+
+
+// ============================================================
+// SELEÇÃO DO ELEMENTO
+// ============================================================
+
+function selecionarElemento(
+    elemento
+) {
+
+    elementoSelecionado =
+        elemento;
+
+
+    botaoPivotAvo.classList.toggle(
+        "ativo",
+        elemento === "pivotAvo"
+    );
+
+
+    botaoPivotPai.classList.toggle(
+        "ativo",
+        elemento === "pivotPai"
+    );
+
+
+    botaoObjeto.classList.toggle(
+        "ativo",
+        elemento === "objeto"
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// SELEÇÃO DO MODO
+// ============================================================
+
+function selecionarModo(
+    modo
+) {
+
+    modoControle =
+        modo;
+
+
+    botaoRotacao.classList.toggle(
+        "ativo",
+        modo === "rotacao"
+    );
+
+
+    botaoMovimento.classList.toggle(
+        "ativo",
+        modo === "movimento"
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// INTERFACE
+// ============================================================
+
+function atualizarInterface() {
+
+    const elemento =
+        obterElementoSelecionado();
+
+
+    if (!elemento) {
+        return;
     }
 
-    .controle {
-        margin-top: 5px;
+
+    if (
+        modoControle ===
+        "rotacao"
+    ) {
+
+        labelX.textContent =
+            "Rotação X";
+
+        labelY.textContent =
+            "Rotação Y";
+
+        labelZ.textContent =
+            "Rotação Z";
+
+
+        sliderX.min = -360;
+        sliderX.max = 360;
+        sliderX.step = 0.1;
+
+        sliderY.min = -360;
+        sliderY.max = 360;
+        sliderY.step = 0.1;
+
+        sliderZ.min = -360;
+        sliderZ.max = 360;
+        sliderZ.step = 0.1;
+
+
+        sliderX.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.x
+                ),
+                1
+            );
+
+
+        sliderY.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.y
+                ),
+                1
+            );
+
+
+        sliderZ.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.z
+                ),
+                1
+            );
+
+
+        valorX.textContent =
+            Number(
+                sliderX.value
+            ).toFixed(2);
+
+
+        valorY.textContent =
+            Number(
+                sliderY.value
+            ).toFixed(2);
+
+
+        valorZ.textContent =
+            Number(
+                sliderZ.value
+            ).toFixed(2);
+
+    } else {
+
+        labelX.textContent =
+            "Posição X";
+
+        labelY.textContent =
+            "Posição Y";
+
+        labelZ.textContent =
+            "Posição Z";
+
+
+        sliderX.min = -5;
+        sliderX.max = 5;
+        sliderX.step = 0.001;
+
+        sliderY.min = -5;
+        sliderY.max = 5;
+        sliderY.step = 0.001;
+
+        sliderZ.min = -5;
+        sliderZ.max = 5;
+        sliderZ.step = 0.001;
+
+
+        sliderX.value =
+            arredondar(
+                elemento.position.x,
+                3
+            );
+
+
+        sliderY.value =
+            arredondar(
+                elemento.position.y,
+                3
+            );
+
+
+        sliderZ.value =
+            arredondar(
+                elemento.position.z,
+                3
+            );
+
+
+        valorX.textContent =
+            Number(
+                sliderX.value
+            ).toFixed(3);
+
+
+        valorY.textContent =
+            Number(
+                sliderY.value
+            ).toFixed(3);
+
+
+        valorZ.textContent =
+            Number(
+                sliderZ.value
+            ).toFixed(3);
+
     }
 
-    .grupo-titulo {
-        margin-top: 8px;
+
+    const mostrarEscala =
+        elementoSelecionado ===
+        "objeto";
+
+
+    controleEscala.style.display =
+        mostrarEscala
+            ? "block"
+            : "none";
+
+
+    grupoEscala.style.display =
+        mostrarEscala
+            ? "block"
+            : "none";
+
+
+    if (mostrarEscala) {
+
+        const escala =
+            objeto.object3D.scale.x;
+
+
+        sliderEscala.value =
+            arredondar(
+                escala,
+                2
+            );
+
+
+        valorEscala.textContent =
+            Number(
+                sliderEscala.value
+            ).toFixed(2);
+
+    }
+
+
+    atualizarJSON();
+
+}
+
+
+// ============================================================
+// ALTERAR EIXO
+// ============================================================
+
+function alterarEixo(
+    eixo,
+    valor
+) {
+
+    const elemento =
+        obterElementoSelecionado();
+
+
+    if (!elemento) {
+        return;
+    }
+
+
+    const numeroValor =
+        Number(valor);
+
+
+    if (
+        modoControle ===
+        "rotacao"
+    ) {
+
+        elemento.rotation[eixo] =
+            THREE.MathUtils.degToRad(
+                numeroValor
+            );
+
+    } else {
+
+        elemento.position[eixo] =
+            numeroValor;
+
+    }
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// SLIDERS
+// ============================================================
+
+sliderX.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "x",
+            this.value
+        );
+
+    }
+);
+
+
+sliderY.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "y",
+            this.value
+        );
+
+    }
+);
+
+
+sliderZ.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "z",
+            this.value
+        );
+
+    }
+);
+
+
+// ============================================================
+// ESCALA
+// ============================================================
+
+sliderEscala.addEventListener(
+    "input",
+    function () {
+
+        const escala =
+            Number(this.value);
+
+
+        objeto.object3D.scale.set(
+            escala,
+            escala,
+            escala
+        );
+
+
+        valorEscala.textContent =
+            escala.toFixed(2);
+
+
+        atualizarJSON();
+
+    }
+);
+
+
+// ============================================================
+// RESET
+// ============================================================
+
+function resetarTudo() {
+
+    pivotAvo.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    pivotAvo.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+
+    pivotPai.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    pivotPai.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+
+    objeto.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    objeto.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+    objeto.object3D.scale.set(
+        1,
+        1,
+        1
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+resetar.addEventListener(
+    "click",
+    resetarTudo
+);
+
+
+// ============================================================
+// COPIAR JSON
+// ============================================================
+
+copiarJSON.addEventListener(
+    "click",
+    async function () {
+
+        const texto =
+            configuracao.textContent;
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                texto
+            );
+
+
+            const original =
+                copiarJSON.textContent;
+
+
+            copiarJSON.textContent =
+                "✓ JSON Copiado";
+
+
+            setTimeout(
+                function () {
+
+                    copiarJSON.textContent =
+                        original;
+
+                },
+                1500
+            );
+
+        } catch (erro) {
+
+            console.error(erro);
+
+            alert(
+                "Não foi possível copiar o JSON."
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// GERAR JSON
+// ============================================================
+
+function gerarConfiguracao() {
+
+    const avo =
+        pivotAvo.object3D;
+
+    const pai =
+        pivotPai.object3D;
+
+    const obj =
+        objeto.object3D;
+
+
+    const resultado = {
+
+        nome:
+            configuracaoBase?.nome ||
+            "AR",
+
+
+        modelo:
+            configuracaoBase?.modelo ??
+            null,
+
+
+        marcador:
+            configuracaoBase?.marcador ??
+            "targets.mind",
+
+
+        pivotAvo: {
+
+            position: {
+
+                x: arredondar(
+                    avo.position.x,
+                    4
+                ),
+
+                y: arredondar(
+                    avo.position.y,
+                    4
+                ),
+
+                z: arredondar(
+                    avo.position.z,
+                    4
+                )
+
+            },
+
+
+            rotation: {
+
+                x: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.x
+                    ),
+                    2
+                ),
+
+                y: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.y
+                    ),
+                    2
+                ),
+
+                z: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.z
+                    ),
+                    2
+                )
+
+            }
+
+        },
+
+
+        pivotPai: {
+
+            position: {
+
+                x: arredondar(
+                    pai.position.x,
+                    4
+                ),
+
+                y: arredondar(
+                    pai.position.y,
+                    4
+                ),
+
+                z: arredondar(
+                    pai.position.z,
+                    4
+                )
+
+            },
+
+
+            rotation: {
+
+                x: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.x
+                    ),
+                    2
+                ),
+
+                y: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.y
+                    ),
+                    2
+                ),
+
+                z: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.z
+                    ),
+                    2
+                )
+
+            }
+
+        },
+
+
+        position: {
+
+            x: arredondar(
+                obj.position.x,
+                4
+            ),
+
+            y: arredondar(
+                obj.position.y,
+                4
+            ),
+
+            z: arredondar(
+                obj.position.z,
+                4
+            )
+
+        },
+
+
+        rotation: {
+
+            x: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.x
+                ),
+                2
+            ),
+
+            y: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.y
+                ),
+                2
+            ),
+
+            z: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.z
+                ),
+                2
+            )
+
+        },
+
+
+        scale:
+            arredondar(
+                obj.scale.x,
+                4
+            )
+
+    };
+
+
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "audio"
+        )
+    ) {
+
+        resultado.audio =
+            configuracaoBase.audio;
+
+    }
+
+
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "imagem"
+        )
+    ) {
+
+        resultado.imagem =
+            configuracaoBase.imagem;
+
+    }
+
+
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "video"
+        )
+    ) {
+
+        resultado.video =
+            configuracaoBase.video;
+
+    }
+
+
+    return resultado;
+
+}
+
+
+// ============================================================
+// MOSTRAR JSON
+// ============================================================
+
+function atualizarJSON() {
+
+    configuracao.textContent =
+        JSON.stringify(
+            gerarConfiguracao(),
+            null,
+            2
+        );
+
+}
+
+
+// ============================================================
+// CARREGAR CONFIG.JSON
+// ============================================================
+
+async function carregarConfiguracao() {
+
+    try {
+
+        const resposta =
+            await fetch(
+                "../marcadores/zelda/config.json?" +
+                Date.now()
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Erro HTTP " +
+                resposta.status
+            );
+
+        }
+
+
+        const config =
+            await resposta.json();
+
+
+        configuracaoBase =
+            config;
+
+
+        aplicarConfiguracao(
+            config
+        );
+
+
+        status.textContent =
+            "Configuração carregada.";
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar configuração:",
+            erro
+        );
+
+
+        status.textContent =
+            "Erro ao carregar config.json.";
+
+
+        configuracaoBase = {
+
+            nome: "Zelda AR",
+
+            modelo:
+                "Hero of Time.glb",
+
+            marcador:
+                "targets.mind"
+
+        };
+
+
+        resetarTudo();
+
     }
 
 }
+
+
+// ============================================================
+// APLICA CONFIGURAÇÃO
+// ============================================================
+
+function aplicarConfiguracao(
+    config
+) {
+
+    // --------------------------------------------------------
+    // PIVOT AVÔ
+    // --------------------------------------------------------
+
+    const avoPosition =
+        config.pivotAvo?.position ||
+        vetorZero();
+
+    const avoRotation =
+        config.pivotAvo?.rotation ||
+        vetorZero();
+
+
+    pivotAvo.object3D.position.set(
+        numero(avoPosition.x),
+        numero(avoPosition.y),
+        numero(avoPosition.z)
+    );
+
+
+    pivotAvo.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.z)
+        )
+    );
+
+
+    // --------------------------------------------------------
+    // PIVOT PAI
+    // --------------------------------------------------------
+
+    const paiPosition =
+        config.pivotPai?.position ||
+        vetorZero();
+
+    const paiRotation =
+        config.pivotPai?.rotation ||
+        vetorZero();
+
+
+    pivotPai.object3D.position.set(
+        numero(paiPosition.x),
+        numero(paiPosition.y),
+        numero(paiPosition.z)
+    );
+
+
+    pivotPai.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.z)
+        )
+    );
+
+
+    // --------------------------------------------------------
+    // OBJETO
+    // --------------------------------------------------------
+
+    const objectPosition =
+        config.position ||
+        vetorZero();
+
+    const objectRotation =
+        config.rotation ||
+        vetorZero();
+
+
+    objeto.object3D.position.set(
+        numero(objectPosition.x),
+        numero(objectPosition.y),
+        numero(objectPosition.z)
+    );
+
+
+    objeto.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.z)
+        )
+    );
+
+
+    const escala =
+        numero(config.scale) || 1;
+
+
+    objeto.object3D.scale.set(
+        escala,
+        escala,
+        escala
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// BOTÕES
+// ============================================================
+
+botaoPivotAvo.addEventListener(
+    "click",
+    function () {
+
+        selecionarElemento(
+            "pivotAvo"
+        );
+
+    }
+);
+
+
+botaoPivotPai.addEventListener(
+    "click",
+    function () {
+
+        selecionarElemento(
+            "pivotPai"
+        );
+
+    }
+);
+
+
+botaoObjeto.addEventListener(
+    "click",
+    function () {
+
+        selecionarElemento(
+            "objeto"
+        );
+
+    }
+);
+
+
+botaoRotacao.addEventListener(
+    "click",
+    function () {
+
+        selecionarModo(
+            "rotacao"
+        );
+
+    }
+);
+
+
+botaoMovimento.addEventListener(
+    "click",
+    function () {
+
+        selecionarModo(
+            "movimento"
+        );
+
+    }
+);
+
+
+// ============================================================
+// INÍCIO
+// ============================================================
+
+carregarConfiguracao();
