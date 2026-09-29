@@ -62,14 +62,7 @@
         ></a-camera>
 
 
-        <a-assets>
-
-            <!--
-                Os recursos são criados pelo script
-                de acordo com o config.json.
-            -->
-
-        </a-assets>
+        <a-assets></a-assets>
 
 
         <a-entity
@@ -80,7 +73,7 @@
 
             <!-- =================================================
                  PIVOT
-                 TOTALMENTE INDEPENDENTE DO OBJETO
+                 USA O MARCADOR COMO REFERÊNCIA
             ================================================== -->
 
             <a-entity
@@ -89,9 +82,11 @@
                 rotation="0 0 0"
             >
 
+                <!-- Visualização do pivot -->
+
                 <a-entity id="pivotVisual">
 
-                    <!-- frente -->
+                    <!-- Frente -->
                     <a-box
                         position="0 0 0.041"
                         width="0.08"
@@ -100,7 +95,7 @@
                         color="red"
                     ></a-box>
 
-                    <!-- trás -->
+                    <!-- Trás -->
                     <a-box
                         position="0 0 -0.041"
                         width="0.08"
@@ -109,7 +104,7 @@
                         color="orange"
                     ></a-box>
 
-                    <!-- direita -->
+                    <!-- Direita -->
                     <a-box
                         position="0.041 0 0"
                         width="0.002"
@@ -118,7 +113,7 @@
                         color="green"
                     ></a-box>
 
-                    <!-- esquerda -->
+                    <!-- Esquerda -->
                     <a-box
                         position="-0.041 0 0"
                         width="0.002"
@@ -127,7 +122,7 @@
                         color="yellow"
                     ></a-box>
 
-                    <!-- cima -->
+                    <!-- Cima -->
                     <a-box
                         position="0 0.041 0"
                         width="0.08"
@@ -136,7 +131,7 @@
                         color="blue"
                     ></a-box>
 
-                    <!-- baixo -->
+                    <!-- Baixo -->
                     <a-box
                         position="0 -0.041 0"
                         width="0.08"
@@ -147,22 +142,28 @@
 
                 </a-entity>
 
+
+                <!-- =================================================
+                     OBJETO
+
+                     IMPORTANTE:
+                     AGORA O OBJETO É FILHO DO PIVOT.
+
+                     Portanto:
+                     position/rotation do objeto são LOCAIS
+                     em relação ao pivot.
+                ================================================== -->
+
+                <a-entity
+                    id="objectEntity"
+                    position="0 0 0"
+                    rotation="0 0 0"
+                ></a-entity>
+
             </a-entity>
 
 
-            <!-- =================================================
-                 OBJETO
-                 TOTALMENTE INDEPENDENTE DO PIVOT
-            ================================================== -->
-
-            <a-entity
-                id="objectEntity"
-                position="0 0 0"
-                rotation="0 0 0"
-            ></a-entity>
-
-
-            <!-- LUZES -->
+            <!-- Luzes -->
 
             <a-light
                 type="ambient"
@@ -198,9 +199,7 @@
     </div>
 
 
-    <!-- =================================================
-         ELEMENTO
-    ================================================== -->
+    <!-- ELEMENTO -->
 
     <div class="grupo-titulo">
         ELEMENTO
@@ -226,9 +225,7 @@
     </div>
 
 
-    <!-- =================================================
-         CONTROLE
-    ================================================== -->
+    <!-- CONTROLE -->
 
     <div class="grupo-titulo">
         CONTROLE
@@ -254,9 +251,7 @@
     </div>
 
 
-    <!-- =================================================
-         X
-    ================================================== -->
+    <!-- X -->
 
     <div class="controle">
 
@@ -285,9 +280,7 @@
     </div>
 
 
-    <!-- =================================================
-         Y
-    ================================================== -->
+    <!-- Y -->
 
     <div class="controle">
 
@@ -316,9 +309,7 @@
     </div>
 
 
-    <!-- =================================================
-         Z
-    ================================================== -->
+    <!-- Z -->
 
     <div class="controle">
 
@@ -347,9 +338,7 @@
     </div>
 
 
-    <!-- =================================================
-         TAMANHO
-    ================================================== -->
+    <!-- ESCALA -->
 
     <div class="grupo-titulo">
         TAMANHO DO OBJETO
@@ -383,9 +372,7 @@
     </div>
 
 
-    <!-- =================================================
-         BOTÕES
-    ================================================== -->
+    <!-- BOTÕES -->
 
     <div class="botoes">
 
@@ -393,13 +380,12 @@
             ↺ Resetar
         </button>
 
+        <button id="copiarJSON">
+            📋 Copiar JSON
+        </button>
+
     </div>
 
-
-    <!--
-        O JSON continua aparecendo na tela,
-        mas NÃO é salvo automaticamente.
-    -->
 
     <pre id="configuracao"></pre>
 
