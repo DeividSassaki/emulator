@@ -1,4 +1,5 @@
 const target = document.getElementById("targetZelda");
+const pivot = document.getElementById("pivotEntity");
 const objeto = document.getElementById("objectEntity");
 const modelo = document.getElementById("heroModelObject");
 const audio = document.getElementById("arAudio");
@@ -7,8 +8,7 @@ const fullscreenButton = document.getElementById("fullscreenButton");
 const parametros = new URLSearchParams(window.location.search);
 const pasta = parametros.get("pasta") || "zelda";
 
-const CONFIG_URL =
-"./marcadores/${pasta}/config.json";
+const CONFIG_URL = "./marcadores/${pasta}/config.json";
 
 const VELOCIDADE_ROTACAO = 0.01;
 
@@ -25,8 +25,7 @@ async function carregarConfig() {
 
 try {
 
-    const resposta =
-        await fetch(`${CONFIG_URL}?${Date.now()}`);
+    const resposta = await fetch(`${CONFIG_URL}?${Date.now()}`);
 
     if (!resposta.ok) {
         throw new Error("Não foi possível carregar config.json");
@@ -58,10 +57,9 @@ if (!config) {
 }
 
 
-// --------------------------------------------------------
-// POSIÇÃO DO OBJETO
-// EXATAMENTE COMO NA CALIBRAÇÃO
-// --------------------------------------------------------
+// ========================================================
+// OBJETO
+// ========================================================
 
 objeto.object3D.position.set(
     Number(config.position?.x ?? 0),
@@ -69,11 +67,6 @@ objeto.object3D.position.set(
     Number(config.position?.z ?? 0)
 );
 
-
-// --------------------------------------------------------
-// ROTAÇÃO DO OBJETO
-// EXATAMENTE COMO NA CALIBRAÇÃO
-// --------------------------------------------------------
 
 objeto.object3D.rotation.set(
     THREE.MathUtils.degToRad(
@@ -88,12 +81,11 @@ objeto.object3D.rotation.set(
 );
 
 
-// --------------------------------------------------------
+// ========================================================
 // ESCALA
-// --------------------------------------------------------
+// ========================================================
 
-const escala =
-    Number(config.scale ?? 1);
+const escala = Number(config.scale ?? 1);
 
 modelo.object3D.scale.set(
     escala,
@@ -102,9 +94,34 @@ modelo.object3D.scale.set(
 );
 
 
-// --------------------------------------------------------
+// ========================================================
+// PIVOT
+// EXATAMENTE COMO NA CALIBRAÇÃO
+// ========================================================
+
+pivot.object3D.position.set(
+    Number(config.pivot?.x ?? 0),
+    Number(config.pivot?.y ?? 0),
+    Number(config.pivot?.z ?? 0)
+);
+
+
+pivot.object3D.rotation.set(
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.x ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.y ?? 0)
+    ),
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.z ?? 0)
+    )
+);
+
+
+// ========================================================
 // ÁUDIO
-// --------------------------------------------------------
+// ========================================================
 
 if (config.audio) {
 
@@ -131,8 +148,6 @@ target.addEventListener(
 
     console.log("AR: marcador encontrado");
 
-    // Tentativa automática.
-    // Pode ser bloqueada pelo navegador.
     tocarAudio();
 
 }
@@ -166,7 +181,6 @@ if (!audio.src) {
     return;
 }
 
-
 audio.play().then(
     () => {
 
@@ -179,7 +193,8 @@ audio.play().then(
     erro => {
 
         console.log(
-            "AR: áudio bloqueado até interação do usuário"
+            "AR: navegador bloqueou o áudio",
+            erro
         );
 
     }
@@ -188,7 +203,7 @@ audio.play().then(
 }
 
 // ============================================================
-// TOQUE
+// TOQUE INICIAL
 // ============================================================
 
 document.addEventListener(
@@ -199,17 +214,13 @@ evento => {
         return;
     }
 
-
     arrastando = true;
 
     ultimoX =
         evento.touches[0].clientX;
 
-
-    // ----------------------------------------------------
-    // O toque do usuário libera o áudio no celular
-    // ----------------------------------------------------
-
+    // Se o navegador bloqueou o áudio no targetFound,
+    // a interação do usuário tenta liberar novamente.
     if (marcadorVisivel) {
         tocarAudio();
     }
@@ -237,25 +248,19 @@ evento => {
         return;
     }
 
-
     const atualX =
         evento.touches[0].clientX;
 
-
     const deltaX =
         atualX - ultimoX;
-
 
     ultimoX =
         atualX;
 
 
-    // ----------------------------------------------------
-    // GIRA A PRÓPRIA PEÇA
-    //
-    // Não mexemos na posição.
-    // Não mexemos no config.json.
-    // ----------------------------------------------------
+    // ====================================================
+    // GIRA A PEÇA
+    // ====================================================
 
     objeto.object3D.rotation.x -=
         deltaX * VELOCIDADE_ROTACAO;
