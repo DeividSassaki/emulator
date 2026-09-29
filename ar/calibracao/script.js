@@ -6,8 +6,6 @@ const pivot = document.getElementById("pivotEntity");
 
 const objeto = document.getElementById("objectEntity");
 
-const modelo = document.getElementById("heroModelObject");
-
 const status = document.getElementById("status");
 
 const configuracao = document.getElementById("configuracao");
@@ -17,40 +15,63 @@ const configuracao = document.getElementById("configuracao");
 // BOTÕES
 // ============================================================
 
-const botaoPivot = document.getElementById("botaoPivot");
-const botaoObjeto = document.getElementById("botaoObjeto");
+const botaoPivot =
+    document.getElementById("botaoPivot");
 
-const botaoRotacao = document.getElementById("botaoRotacao");
-const botaoMovimento = document.getElementById("botaoMovimento");
+const botaoObjeto =
+    document.getElementById("botaoObjeto");
 
-const botaoResetar = document.getElementById("resetar");
-const botaoSalvar = document.getElementById("salvar");
+const botaoRotacao =
+    document.getElementById("botaoRotacao");
+
+const botaoMovimento =
+    document.getElementById("botaoMovimento");
+
+const botaoResetar =
+    document.getElementById("resetar");
 
 
 // ============================================================
 // SLIDERS
 // ============================================================
 
-const sliderX = document.getElementById("sliderX");
-const sliderY = document.getElementById("sliderY");
-const sliderZ = document.getElementById("sliderZ");
+const sliderX =
+    document.getElementById("sliderX");
 
-const sliderEscala = document.getElementById("sliderEscala");
+const sliderY =
+    document.getElementById("sliderY");
+
+const sliderZ =
+    document.getElementById("sliderZ");
+
+const sliderEscala =
+    document.getElementById("sliderEscala");
 
 
 // ============================================================
 // VALORES
 // ============================================================
 
-const valorX = document.getElementById("valorX");
-const valorY = document.getElementById("valorY");
-const valorZ = document.getElementById("valorZ");
+const valorX =
+    document.getElementById("valorX");
 
-const valorEscala = document.getElementById("valorEscala");
+const valorY =
+    document.getElementById("valorY");
 
-const labelX = document.getElementById("labelX");
-const labelY = document.getElementById("labelY");
-const labelZ = document.getElementById("labelZ");
+const valorZ =
+    document.getElementById("valorZ");
+
+const valorEscala =
+    document.getElementById("valorEscala");
+
+const labelX =
+    document.getElementById("labelX");
+
+const labelY =
+    document.getElementById("labelY");
+
+const labelZ =
+    document.getElementById("labelZ");
 
 
 // ============================================================
@@ -70,9 +91,13 @@ let config = null;
 // PASTA
 // ============================================================
 
-const parametros = new URLSearchParams(window.location.search);
+const parametros =
+    new URLSearchParams(
+        window.location.search
+    );
 
-const pasta = parametros.get("pasta") || "zelda";
+const pasta =
+    parametros.get("pasta") || "zelda";
 
 
 // ============================================================
@@ -82,6 +107,10 @@ const pasta = parametros.get("pasta") || "zelda";
 const configPadrao = {
 
     modelo: "Hero of Time.glb",
+
+    imagem: null,
+
+    video: null,
 
     position: {
         x: 0,
@@ -115,12 +144,466 @@ const configPadrao = {
 
 
 // ============================================================
-// COPIAR CONFIG
+// COPIAR OBJETO
 // ============================================================
 
 function copiar(obj) {
 
-    return JSON.parse(JSON.stringify(obj));
+    return JSON.parse(
+        JSON.stringify(obj)
+    );
+
+}
+
+
+// ============================================================
+// GARANTIR CONFIGURAÇÃO
+// ============================================================
+
+function garantirConfiguracao() {
+
+    if (!config.position) {
+
+        config.position = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+    }
+
+
+    if (!config.rotation) {
+
+        config.rotation = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+    }
+
+
+    if (!config.pivot) {
+
+        config.pivot = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+    }
+
+
+    if (!config.pivotRotation) {
+
+        config.pivotRotation = {
+            x: 0,
+            y: 0,
+            z: 0
+        };
+
+    }
+
+
+    if (config.scale === undefined) {
+
+        config.scale = 1;
+
+    }
+
+
+    if (config.modelo === undefined) {
+
+        config.modelo = null;
+
+    }
+
+
+    if (config.imagem === undefined) {
+
+        config.imagem = null;
+
+    }
+
+
+    if (config.video === undefined) {
+
+        config.video = null;
+
+    }
+
+
+    if (config.audio === undefined) {
+
+        config.audio = null;
+
+    }
+
+}
+
+
+// ============================================================
+// CAMINHO DOS RECURSOS
+// ============================================================
+
+function caminhoRecurso(nome) {
+
+    if (!nome) {
+
+        return null;
+
+    }
+
+    return (
+        `../marcadores/${pasta}/${nome}`
+    );
+
+}
+
+
+// ============================================================
+// CRIAR GLB
+// ============================================================
+
+function criarModeloGLB(nome) {
+
+    if (!nome) {
+
+        return null;
+
+    }
+
+
+    const entidade =
+        document.createElement(
+            "a-gltf-model"
+        );
+
+
+    entidade.id =
+        "recursoModelo";
+
+
+    entidade.setAttribute(
+        "src",
+        caminhoRecurso(nome)
+    );
+
+
+    entidade.setAttribute(
+        "position",
+        "0 0 0"
+    );
+
+
+    entidade.setAttribute(
+        "rotation",
+        "0 0 0"
+    );
+
+
+    objeto.appendChild(entidade);
+
+
+    entidade.addEventListener(
+        "model-loaded",
+        () => {
+
+            console.log(
+                "Modelo GLB carregado."
+            );
+
+            status.textContent =
+                `GLB carregado: ${nome}`;
+
+        }
+    );
+
+
+    entidade.addEventListener(
+        "model-error",
+        evento => {
+
+            console.error(
+                "Erro no GLB:",
+                evento
+            );
+
+            status.textContent =
+                `Erro ao carregar GLB: ${nome}`;
+
+        }
+    );
+
+
+    return entidade;
+
+}
+
+
+// ============================================================
+// CRIAR IMAGEM
+// ============================================================
+
+function criarImagem(nome) {
+
+    if (!nome) {
+
+        return null;
+
+    }
+
+
+    const imagem =
+        document.createElement(
+            "a-image"
+        );
+
+
+    imagem.id =
+        "recursoImagem";
+
+
+    imagem.setAttribute(
+        "src",
+        caminhoRecurso(nome)
+    );
+
+
+    imagem.setAttribute(
+        "position",
+        "0 0 0"
+    );
+
+
+    imagem.setAttribute(
+        "rotation",
+        "0 0 0"
+    );
+
+
+    imagem.setAttribute(
+        "width",
+        "1"
+    );
+
+
+    imagem.setAttribute(
+        "height",
+        "1"
+    );
+
+
+    objeto.appendChild(imagem);
+
+
+    imagem.addEventListener(
+        "materialtextureloaded",
+        () => {
+
+            console.log(
+                "Imagem carregada."
+            );
+
+            status.textContent =
+                `Imagem carregada: ${nome}`;
+
+        }
+    );
+
+
+    return imagem;
+
+}
+
+
+// ============================================================
+// CRIAR VÍDEO
+// ============================================================
+
+function criarVideo(nome) {
+
+    if (!nome) {
+
+        return null;
+
+    }
+
+
+    const video =
+        document.createElement(
+            "video"
+        );
+
+
+    video.id =
+        "recursoVideo";
+
+    video.src =
+        caminhoRecurso(nome);
+
+    video.loop = true;
+
+    video.muted = true;
+
+    video.playsInline = true;
+
+    video.setAttribute(
+        "playsinline",
+        ""
+    );
+
+
+    video.preload =
+        "auto";
+
+
+    document
+        .querySelector("a-assets")
+        .appendChild(video);
+
+
+    const entidade =
+        document.createElement(
+            "a-video"
+        );
+
+
+    entidade.id =
+        "videoAR";
+
+
+    entidade.setAttribute(
+        "src",
+        "#recursoVideo"
+    );
+
+
+    entidade.setAttribute(
+        "position",
+        "0 0 0"
+    );
+
+
+    entidade.setAttribute(
+        "rotation",
+        "0 0 0"
+    );
+
+
+    entidade.setAttribute(
+        "width",
+        "1"
+    );
+
+
+    entidade.setAttribute(
+        "height",
+        "1"
+    );
+
+
+    objeto.appendChild(entidade);
+
+
+    video.addEventListener(
+        "loadeddata",
+        () => {
+
+            console.log(
+                "Vídeo carregado."
+            );
+
+            status.textContent =
+                `Vídeo carregado: ${nome}`;
+
+        }
+    );
+
+
+    video.addEventListener(
+        "error",
+        evento => {
+
+            console.error(
+                "Erro no vídeo:",
+                evento
+            );
+
+            status.textContent =
+                `Erro ao carregar vídeo: ${nome}`;
+
+        }
+    );
+
+
+    return entidade;
+
+}
+
+
+// ============================================================
+// CARREGAR RECURSOS
+// ============================================================
+
+function carregarRecursos() {
+
+    objeto.innerHTML = "";
+
+
+    let quantidade = 0;
+
+
+    if (config.modelo) {
+
+        criarModeloGLB(
+            config.modelo
+        );
+
+        quantidade++;
+
+    }
+
+
+    if (config.imagem) {
+
+        criarImagem(
+            config.imagem
+        );
+
+        quantidade++;
+
+    }
+
+
+    if (config.video) {
+
+        criarVideo(
+            config.video
+        );
+
+        quantidade++;
+
+    }
+
+
+    if (quantidade === 0) {
+
+        status.textContent =
+            "Nenhum recurso visual configurado.";
+
+    }
+
+
+    if (config.audio) {
+
+        console.log(
+            "Áudio configurado:",
+            config.audio
+        );
+
+    }
 
 }
 
@@ -133,53 +616,33 @@ async function carregarConfig() {
 
     try {
 
-        const resposta = await fetch(
-            `../marcadores/${pasta}/config.json?${Date.now()}`
-        );
+        const resposta =
+            await fetch(
+                `../marcadores/${pasta}/config.json?${Date.now()}`
+            );
 
 
         if (!resposta.ok) {
 
-            throw new Error("config.json não encontrado");
+            throw new Error(
+                "config.json não encontrado"
+            );
 
         }
 
 
-        config = await resposta.json();
+        config =
+            await resposta.json();
 
 
-        configOriginal = copiar(config);
+        garantirConfiguracao();
 
 
-        // Garantir campos novos
-
-        if (!config.pivot) {
-
-            config.pivot = {
-                x: 0,
-                y: 0,
-                z: 0
-            };
-
-        }
+        configOriginal =
+            copiar(config);
 
 
-        if (!config.pivotRotation) {
-
-            config.pivotRotation = {
-                x: 0,
-                y: 0,
-                z: 0
-            };
-
-        }
-
-
-        if (config.scale === undefined) {
-
-            config.scale = 1;
-
-        }
+        carregarRecursos();
 
 
         aplicarConfiguracao();
@@ -188,15 +651,24 @@ async function carregarConfig() {
         status.textContent =
             `Configuração carregada: ${pasta}`;
 
+    }
 
-    } catch (erro) {
+    catch (erro) {
 
-        console.error(erro);
+        console.error(
+            erro
+        );
 
 
-        config = copiar(configPadrao);
+        config =
+            copiar(configPadrao);
 
-        configOriginal = copiar(config);
+
+        configOriginal =
+            copiar(config);
+
+
+        carregarRecursos();
 
 
         aplicarConfiguracao();
@@ -204,7 +676,6 @@ async function carregarConfig() {
 
         status.textContent =
             "Usando configuração padrão";
-
 
     }
 
@@ -223,16 +694,30 @@ function aplicarConfiguracao() {
     // --------------------------------------------------------
 
     pivot.object3D.position.set(
+
         config.pivot.x,
+
         config.pivot.y,
+
         config.pivot.z
+
     );
 
 
     pivot.object3D.rotation.set(
-        THREE.MathUtils.degToRad(config.pivotRotation.x),
-        THREE.MathUtils.degToRad(config.pivotRotation.y),
-        THREE.MathUtils.degToRad(config.pivotRotation.z)
+
+        THREE.MathUtils.degToRad(
+            config.pivotRotation.x
+        ),
+
+        THREE.MathUtils.degToRad(
+            config.pivotRotation.y
+        ),
+
+        THREE.MathUtils.degToRad(
+            config.pivotRotation.z
+        )
+
     );
 
 
@@ -241,23 +726,41 @@ function aplicarConfiguracao() {
     // --------------------------------------------------------
 
     objeto.object3D.position.set(
+
         config.position.x,
+
         config.position.y,
+
         config.position.z
+
     );
 
 
     objeto.object3D.rotation.set(
-        THREE.MathUtils.degToRad(config.rotation.x),
-        THREE.MathUtils.degToRad(config.rotation.y),
-        THREE.MathUtils.degToRad(config.rotation.z)
+
+        THREE.MathUtils.degToRad(
+            config.rotation.x
+        ),
+
+        THREE.MathUtils.degToRad(
+            config.rotation.y
+        ),
+
+        THREE.MathUtils.degToRad(
+            config.rotation.z
+        )
+
     );
 
 
-    modelo.object3D.scale.set(
+    objeto.object3D.scale.set(
+
         config.scale,
+
         config.scale,
+
         config.scale
+
     );
 
 
@@ -269,7 +772,7 @@ function aplicarConfiguracao() {
 
 
 // ============================================================
-// ATUALIZAR INTERFACE
+// INTERFACE
 // ============================================================
 
 function atualizarInterface() {
@@ -277,50 +780,84 @@ function atualizarInterface() {
     let dados;
 
 
-    if (elementoSelecionado === "pivot") {
+    if (
+        elementoSelecionado ===
+        "pivot"
+    ) {
 
-        if (controleSelecionado === "rotacao") {
+        if (
+            controleSelecionado ===
+            "rotacao"
+        ) {
 
-            dados = config.pivotRotation;
-
-        } else {
-
-            dados = config.pivot;
+            dados =
+                config.pivotRotation;
 
         }
 
-    } else {
+        else {
 
-        if (controleSelecionado === "rotacao") {
+            dados =
+                config.pivot;
 
-            dados = config.rotation;
+        }
 
-        } else {
+    }
 
-            dados = config.position;
+    else {
+
+        if (
+            controleSelecionado ===
+            "rotacao"
+        ) {
+
+            dados =
+                config.rotation;
+
+        }
+
+        else {
+
+            dados =
+                config.position;
 
         }
 
     }
 
 
-    sliderX.value = dados.x;
-    sliderY.value = dados.y;
-    sliderZ.value = dados.z;
+    sliderX.value =
+        dados.x;
+
+    sliderY.value =
+        dados.y;
+
+    sliderZ.value =
+        dados.z;
 
 
     valorX.textContent =
-        Number(dados.x).toFixed(2);
+        Number(
+            dados.x
+        ).toFixed(2);
+
 
     valorY.textContent =
-        Number(dados.y).toFixed(2);
+        Number(
+            dados.y
+        ).toFixed(2);
+
 
     valorZ.textContent =
-        Number(dados.z).toFixed(2);
+        Number(
+            dados.z
+        ).toFixed(2);
 
 
     valorEscala.textContent =
-        Number(config.scale).toFixed(2);
+        Number(
+            config.scale
+        ).toFixed(2);
 
 
     atualizarLabels();
@@ -335,12 +872,16 @@ function atualizarInterface() {
 function atualizarLabels() {
 
     const nome =
-        elementoSelecionado === "pivot"
+        elementoSelecionado ===
+        "pivot"
             ? "Pivot"
             : "Objeto";
 
 
-    if (controleSelecionado === "rotacao") {
+    if (
+        controleSelecionado ===
+        "rotacao"
+    ) {
 
         labelX.textContent =
             `${nome} Rotação X`;
@@ -361,8 +902,9 @@ function atualizarLabels() {
         sliderZ.min = -360;
         sliderZ.max = 360;
 
+    }
 
-    } else {
+    else {
 
         labelX.textContent =
             `${nome} Movimento X`;
@@ -392,9 +934,12 @@ function atualizarLabels() {
 // SELECIONAR ELEMENTO
 // ============================================================
 
-function selecionarElemento(elemento) {
+function selecionarElemento(
+    elemento
+) {
 
-    elementoSelecionado = elemento;
+    elementoSelecionado =
+        elemento;
 
 
     botaoPivot.classList.toggle(
@@ -418,9 +963,12 @@ function selecionarElemento(elemento) {
 // SELECIONAR CONTROLE
 // ============================================================
 
-function selecionarControle(controle) {
+function selecionarControle(
+    controle
+) {
 
-    controleSelecionado = controle;
+    controleSelecionado =
+        controle;
 
 
     botaoRotacao.classList.toggle(
@@ -441,63 +989,59 @@ function selecionarControle(controle) {
 
 
 // ============================================================
-// BOTÃO PIVOT
+// BOTÕES
 // ============================================================
 
 botaoPivot.addEventListener(
     "click",
     () => {
 
-        selecionarElemento("pivot");
+        selecionarElemento(
+            "pivot"
+        );
 
     }
 );
 
-
-// ============================================================
-// BOTÃO OBJETO
-// ============================================================
 
 botaoObjeto.addEventListener(
     "click",
     () => {
 
-        selecionarElemento("objeto");
+        selecionarElemento(
+            "objeto"
+        );
 
     }
 );
 
-
-// ============================================================
-// BOTÃO ROTAÇÃO
-// ============================================================
 
 botaoRotacao.addEventListener(
     "click",
     () => {
 
-        selecionarControle("rotacao");
+        selecionarControle(
+            "rotacao"
+        );
 
     }
 );
 
-
-// ============================================================
-// BOTÃO MOVIMENTO
-// ============================================================
 
 botaoMovimento.addEventListener(
     "click",
     () => {
 
-        selecionarControle("movimento");
+        selecionarControle(
+            "movimento"
+        );
 
     }
 );
 
 
 // ============================================================
-// SLIDER X
+// SLIDERS
 // ============================================================
 
 sliderX.addEventListener(
@@ -506,16 +1050,14 @@ sliderX.addEventListener(
 
         alterarValor(
             "x",
-            Number(sliderX.value)
+            Number(
+                sliderX.value
+            )
         );
 
     }
 );
 
-
-// ============================================================
-// SLIDER Y
-// ============================================================
 
 sliderY.addEventListener(
     "input",
@@ -523,16 +1065,14 @@ sliderY.addEventListener(
 
         alterarValor(
             "y",
-            Number(sliderY.value)
+            Number(
+                sliderY.value
+            )
         );
 
     }
 );
 
-
-// ============================================================
-// SLIDER Z
-// ============================================================
 
 sliderZ.addEventListener(
     "input",
@@ -540,7 +1080,9 @@ sliderZ.addEventListener(
 
         alterarValor(
             "z",
-            Number(sliderZ.value)
+            Number(
+                sliderZ.value
+            )
         );
 
     }
@@ -551,49 +1093,72 @@ sliderZ.addEventListener(
 // ALTERAR X/Y/Z
 // ============================================================
 
-function alterarValor(eixo, valor) {
+function alterarValor(
+    eixo,
+    valor
+) {
 
 
-    if (elementoSelecionado === "pivot") {
+    if (
+        elementoSelecionado ===
+        "pivot"
+    ) {
 
+        if (
+            controleSelecionado ===
+            "rotacao"
+        ) {
 
-        if (controleSelecionado === "rotacao") {
-
-            config.pivotRotation[eixo] = valor;
+            config.pivotRotation[eixo] =
+                valor;
 
 
             pivot.object3D.rotation[eixo] =
-                THREE.MathUtils.degToRad(valor);
-
-
-        } else {
-
-            config.pivot[eixo] = valor;
-
-
-            pivot.object3D.position[eixo] = valor;
+                THREE.MathUtils.degToRad(
+                    valor
+                );
 
         }
 
+        else {
 
-    } else {
+            config.pivot[eixo] =
+                valor;
 
 
-        if (controleSelecionado === "rotacao") {
+            pivot.object3D.position[eixo] =
+                valor;
 
-            config.rotation[eixo] = valor;
+        }
+
+    }
+
+    else {
+
+        if (
+            controleSelecionado ===
+            "rotacao"
+        ) {
+
+            config.rotation[eixo] =
+                valor;
 
 
             objeto.object3D.rotation[eixo] =
-                THREE.MathUtils.degToRad(valor);
+                THREE.MathUtils.degToRad(
+                    valor
+                );
+
+        }
+
+        else {
+
+            config.position[eixo] =
+                valor;
 
 
-        } else {
-
-            config.position[eixo] = valor;
-
-
-            objeto.object3D.position[eixo] = valor;
+            objeto.object3D.position[eixo] =
+                valor;
 
         }
 
@@ -616,13 +1181,19 @@ sliderEscala.addEventListener(
     () => {
 
         config.scale =
-            Number(sliderEscala.value);
+            Number(
+                sliderEscala.value
+            );
 
 
-        modelo.object3D.scale.set(
+        objeto.object3D.scale.set(
+
             config.scale,
+
             config.scale,
+
             config.scale
+
         );
 
 
@@ -644,9 +1215,14 @@ botaoResetar.addEventListener(
     "click",
     () => {
 
-        config = copiar(configOriginal);
+        config =
+            copiar(
+                configOriginal
+            );
+
 
         aplicarConfiguracao();
+
 
         status.textContent =
             "Configuração restaurada.";
@@ -658,6 +1234,11 @@ botaoResetar.addEventListener(
 // ============================================================
 // MOSTRAR JSON
 // ============================================================
+//
+// IMPORTANTE:
+// Isto apenas mostra o JSON.
+// NÃO salva e NÃO baixa nenhum arquivo.
+//
 
 function atualizarJSON() {
 
@@ -669,60 +1250,6 @@ function atualizarJSON() {
         );
 
 }
-
-
-// ============================================================
-// SALVAR CONFIG
-// ============================================================
-
-botaoSalvar.addEventListener(
-    "click",
-    () => {
-
-        const arquivo =
-            new Blob(
-                [
-                    JSON.stringify(
-                        config,
-                        null,
-                        2
-                    )
-                ],
-                {
-                    type: "application/json"
-                }
-            );
-
-
-        const url =
-            URL.createObjectURL(arquivo);
-
-
-        const link =
-            document.createElement("a");
-
-
-        link.href = url;
-
-        link.download =
-            "config.json";
-
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-
-        URL.revokeObjectURL(url);
-
-
-        status.textContent =
-            "config.json salvo.";
-
-    }
-);
 
 
 // ============================================================
@@ -746,38 +1273,6 @@ target.addEventListener(
 
         status.textContent =
             "Marcador perdido";
-
-    }
-);
-
-
-// ============================================================
-// MODELO CARREGADO
-// ============================================================
-
-modelo.addEventListener(
-    "model-loaded",
-    () => {
-
-        console.log(
-            "Modelo carregado."
-        );
-
-    }
-);
-
-
-modelo.addEventListener(
-    "model-error",
-    (evento) => {
-
-        console.error(
-            "Erro ao carregar modelo:",
-            evento
-        );
-
-        status.textContent =
-            "Erro ao carregar o modelo.";
 
     }
 );
