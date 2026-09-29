@@ -20,7 +20,7 @@ parametros.get("pasta") || "zelda";
 // ============================================================
 
 const CONFIG_URL =
-"./marcadores/${pasta}/config.json";
+./marcadores/${pasta}/config.json;
 
 const VELOCIDADE_ROTACAO = 0.01;
 
