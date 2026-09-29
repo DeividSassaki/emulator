@@ -3,49 +3,38 @@
 ========================================================= */
 
 const parametros =
-    new URLSearchParams(
-        window.location.search
-    );
-
+    new URLSearchParams(window.location.search);
 
 const pasta =
     parametros.get("pasta") || "zelda";
 
 
 const CONFIG_URL =
-    `./marcadores/${pasta}/config.json`;
+    `./marcadores/${encodeURIComponent(pasta)}/config.json`;
 
 
 /* =========================================================
-   ELEMENTOS
+   CONTAINER
 ========================================================= */
 
 const container =
-    document.getElementById(
-        "ar-container"
-    );
+    document.getElementById("ar-container");
 
 
 const botaoFullscreen =
-    document.getElementById(
-        "fullscreen"
-    );
+    document.getElementById("fullscreen");
 
 
 /* =========================================================
-   VARIÁVEIS AR
+   VARIÁVEIS
 ========================================================= */
 
 let scene = null;
-
 let target = null;
-
 let pivot = null;
-
+let objeto = null;
 let modelo = null;
-
 let audio = null;
-
 let config = null;
 
 
@@ -53,21 +42,9 @@ let config = null;
    ESTADO
 ========================================================= */
 
-let marcadorEncontrado =
-    false;
+let marcadorEncontrado = false;
 
-
-/* =========================================================
-   COPIAR CONFIG
-========================================================= */
-
-function copiar(obj) {
-
-    return JSON.parse(
-        JSON.stringify(obj)
-    );
-
-}
+let audioDesbloqueado = false;
 
 
 /* =========================================================
@@ -81,8 +58,10 @@ function caminhoArquivo(nome) {
     }
 
 
-    return `./marcadores/${pasta}/${encodeURIComponent(nome)}`;
-
+    return `./marcadores/${encodeURIComponent(pasta)}/${nome
+        .split("/")
+        .map(parte => encodeURIComponent(parte))
+        .join("/")}`;
 }
 
 
@@ -125,8 +104,12 @@ async function carregarConfig() {
         );
 
 
-        document.title =
-            config.nome || "AR";
+        /*
+         * Não mostramos o nome na página.
+         * O título fica simplesmente AR.
+         */
+
+        document.title = "AR";
 
 
         criarCena();
@@ -156,13 +139,11 @@ function criarCena() {
 
 
     /* =====================================================
-       A-SCENE
+       CENA
     ===================================================== */
 
     scene =
-        document.createElement(
-            "a-scene"
-        );
+        document.createElement("a-scene");
 
 
     scene.setAttribute(
@@ -170,6 +151,11 @@ function criarCena() {
         "scene"
     );
 
+
+    /*
+     * Muito importante:
+     * mesma configuração estrutural da calibração.
+     */
 
     scene.setAttribute(
         "embedded",
@@ -207,17 +193,14 @@ function criarCena() {
 
     /* =====================================================
        MINDAR
-
-       Igual à calibração.
     ===================================================== */
 
     const marcador =
-        config.marcador ||
-        "targets.mind";
+        config.marcador || "targets.mind";
 
 
     const caminhoMarcador =
-        `./marcadores/${pasta}/${marcador}`;
+        caminhoArquivo(marcador);
 
 
     scene.setAttribute(
@@ -236,53 +219,11 @@ function criarCena() {
 
 
     /* =====================================================
-       ASSETS
-    ===================================================== */
-
-    const assets =
-        document.createElement(
-            "a-assets"
-        );
-
-
-    const assetModelo =
-        document.createElement(
-            "a-asset-item"
-        );
-
-
-    assetModelo.setAttribute(
-        "id",
-        "arModel"
-    );
-
-
-    assetModelo.setAttribute(
-        "src",
-        caminhoArquivo(
-            config.modelo
-        )
-    );
-
-
-    assets.appendChild(
-        assetModelo
-    );
-
-
-    scene.appendChild(
-        assets
-    );
-
-
-    /* =====================================================
        CÂMERA
     ===================================================== */
 
     const camera =
-        document.createElement(
-            "a-camera"
-        );
+        document.createElement("a-camera");
 
 
     camera.setAttribute(
@@ -303,13 +244,45 @@ function criarCena() {
 
 
     /* =====================================================
+       ASSETS
+    ===================================================== */
+
+    const assets =
+        document.createElement("a-assets");
+
+
+    const assetModelo =
+        document.createElement("a-asset-item");
+
+
+    assetModelo.setAttribute(
+        "id",
+        "arModel"
+    );
+
+
+    assetModelo.setAttribute(
+        "src",
+        caminhoArquivo(config.modelo)
+    );
+
+
+    assets.appendChild(
+        assetModelo
+    );
+
+
+    scene.appendChild(
+        assets
+    );
+
+
+    /* =====================================================
        TARGET
     ===================================================== */
 
     target =
-        document.createElement(
-            "a-entity"
-        );
+        document.createElement("a-entity");
 
 
     target.setAttribute(
@@ -325,18 +298,11 @@ function criarCena() {
 
 
     /* =====================================================
-       PIVÔ
-
-       NÃO POSSUI NENHUM OBJETO VISUAL.
-
-       Ele existe somente para controlar
-       a rotação do modelo.
+       PIVÔ INVISÍVEL
     ===================================================== */
 
     pivot =
-        document.createElement(
-            "a-entity"
-        );
+        document.createElement("a-entity");
 
 
     pivot.setAttribute(
@@ -345,14 +311,35 @@ function criarCena() {
     );
 
 
+    /*
+     * O pivô não possui absolutamente
+     * nenhum objeto visual.
+     *
+     * Ele serve apenas como centro
+     * de transformação.
+     */
+
+
     /* =====================================================
-       GLB
+       OBJETO
+    ===================================================== */
+
+    objeto =
+        document.createElement("a-entity");
+
+
+    objeto.setAttribute(
+        "id",
+        "arObject"
+    );
+
+
+    /* =====================================================
+       MODELO
     ===================================================== */
 
     modelo =
-        document.createElement(
-            "a-gltf-model"
-        );
+        document.createElement("a-gltf-model");
 
 
     modelo.setAttribute(
@@ -374,11 +361,21 @@ function criarCena() {
 
 
     /* =====================================================
-       PIVÔ → MODELO
+       HIERARQUIA
+
+       TARGET
+          └── PIVÔ
+                └── OBJETO
+                      └── GLB
     ===================================================== */
 
-    pivot.appendChild(
+    objeto.appendChild(
         modelo
+    );
+
+
+    pivot.appendChild(
+        objeto
     );
 
 
@@ -387,19 +384,12 @@ function criarCena() {
     );
 
 
-    scene.appendChild(
-        target
-    );
-
-
     /* =====================================================
-       LUZ AMBIENTE
+       LUZES
     ===================================================== */
 
     const luzAmbiente =
-        document.createElement(
-            "a-light"
-        );
+        document.createElement("a-light");
 
 
     luzAmbiente.setAttribute(
@@ -414,19 +404,13 @@ function criarCena() {
     );
 
 
-    scene.appendChild(
+    target.appendChild(
         luzAmbiente
     );
 
 
-    /* =====================================================
-       LUZ DIRECIONAL
-    ===================================================== */
-
     const luzDirecional =
-        document.createElement(
-            "a-light"
-        );
+        document.createElement("a-light");
 
 
     luzDirecional.setAttribute(
@@ -447,27 +431,28 @@ function criarCena() {
     );
 
 
-    scene.appendChild(
+    target.appendChild(
         luzDirecional
     );
 
 
     /* =====================================================
-       COLOCAR CENA
-    ===================================================== */
-
-    container.appendChild(
-        scene
-    );
-
-
-    /* =====================================================
-       CENA PRONTA
+       CONFIGURAR EVENTOS
     ===================================================== */
 
     scene.addEventListener(
         "loaded",
-        cenaPronta
+        cenaPronta,
+        { once: true }
+    );
+
+
+    /* =====================================================
+       COLOCAR CENA NO DOM
+    ===================================================== */
+
+    container.appendChild(
+        scene
     );
 
 }
@@ -484,127 +469,14 @@ function cenaPronta() {
     );
 
 
-    /* =====================================================
-       CONFIGURAR PIVÔ
-    ===================================================== */
+    aplicarConfiguracao();
 
-    if (config.pivot) {
 
-        pivot.object3D.position.set(
-
-            Number(config.pivot.x) || 0,
-
-            Number(config.pivot.y) || 0,
-
-            Number(config.pivot.z) || 0
-
-        );
-
-    }
+    prepararAudio();
 
 
     /* =====================================================
-       ROTAÇÃO INICIAL DO PIVÔ
-    ===================================================== */
-
-    if (config.pivotRotation) {
-
-        pivot.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.x
-                ) || 0
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.y
-                ) || 0
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.z
-                ) || 0
-            )
-
-        );
-
-    }
-
-
-    /* =====================================================
-       CONFIGURAR MODELO
-    ===================================================== */
-
-    if (config.position) {
-
-        modelo.object3D.position.set(
-
-            Number(
-                config.position.x
-            ) || 0,
-
-            Number(
-                config.position.y
-            ) || 0,
-
-            Number(
-                config.position.z
-            ) || 0
-
-        );
-
-    }
-
-
-    if (config.rotation) {
-
-        modelo.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.rotation.x
-                ) || 0
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.rotation.y
-                ) || 0
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.rotation.z
-                ) || 0
-            )
-
-        );
-
-    }
-
-
-    /* =====================================================
-       ESCALA
-    ===================================================== */
-
-    const escala =
-        Number(
-            config.scale
-        ) || 1;
-
-
-    modelo.object3D.scale.set(
-        escala,
-        escala,
-        escala
-    );
-
-
-    /* =====================================================
-       MODELO CARREGADO
+       GLB CARREGADO
     ===================================================== */
 
     modelo.addEventListener(
@@ -617,22 +489,22 @@ function cenaPronta() {
             );
 
 
-            /*
-             * O modelo fica invisível até
-             * o marcador ser encontrado.
-             */
+            if (marcadorEncontrado) {
 
-            modelo.setAttribute(
-                "visible",
-                marcadorEncontrado
-            );
+                modelo.setAttribute(
+                    "visible",
+                    "true"
+                );
 
-        }
+            }
+
+        },
+        { once: true }
     );
 
 
     /* =====================================================
-       ERRO NO GLB
+       ERRO GLB
     ===================================================== */
 
     modelo.addEventListener(
@@ -640,7 +512,7 @@ function cenaPronta() {
         evento => {
 
             console.error(
-                "Erro ao carregar GLB:",
+                "ERRO AO CARREGAR GLB:",
                 evento
             );
 
@@ -657,7 +529,15 @@ function cenaPronta() {
         () => {
 
             console.log(
+                "================================"
+            );
+
+            console.log(
                 "MARCADOR ENCONTRADO"
+            );
+
+            console.log(
+                "================================"
             );
 
 
@@ -705,12 +585,202 @@ function cenaPronta() {
         }
     );
 
+}
+
+
+/* =========================================================
+   CONFIGURAÇÃO
+========================================================= */
+
+function aplicarConfiguracao() {
+
+    if (!config) {
+        return;
+    }
+
 
     /* =====================================================
-       ÁUDIO
+       PIVÔ
+
+       Esses valores são os valores salvos
+       diretamente pela calibração.
     ===================================================== */
 
-    prepararAudio();
+    const pivotPosition =
+        new THREE.Vector3(
+
+            Number(config.pivot?.x) || 0,
+
+            Number(config.pivot?.y) || 0,
+
+            Number(config.pivot?.z) || 0
+
+        );
+
+
+    const pivotEuler =
+        new THREE.Euler(
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation?.x
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation?.y
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation?.z
+                ) || 0
+            ),
+
+            "XYZ"
+
+        );
+
+
+    const pivotQuaternion =
+        new THREE.Quaternion();
+
+
+    pivotQuaternion.setFromEuler(
+        pivotEuler
+    );
+
+
+    pivot.object3D.position.copy(
+        pivotPosition
+    );
+
+
+    pivot.object3D.quaternion.copy(
+        pivotQuaternion
+    );
+
+
+    /* =====================================================
+       POSIÇÃO DO OBJETO
+
+       A calibração salva a posição do objeto
+       no espaço do marcador.
+
+       Como agora o objeto está DENTRO
+       do pivô, precisamos converter essa
+       posição para o espaço local do pivô.
+    ===================================================== */
+
+    const objetoWorldPosition =
+        new THREE.Vector3(
+
+            Number(config.position?.x) || 0,
+
+            Number(config.position?.y) || 0,
+
+            Number(config.position?.z) || 0
+
+        );
+
+
+    const posicaoLocal =
+        objetoWorldPosition
+            .sub(pivotPosition)
+            .applyQuaternion(
+                pivotQuaternion.clone().invert()
+            );
+
+
+    objeto.object3D.position.copy(
+        posicaoLocal
+    );
+
+
+    /* =====================================================
+       ROTAÇÃO DO OBJETO
+
+       Mesma conversão:
+       rotação salva pela calibração
+       → rotação local do objeto dentro do pivô.
+    ===================================================== */
+
+    const objetoEuler =
+        new THREE.Euler(
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation?.x
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation?.y
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation?.z
+                ) || 0
+            ),
+
+            "XYZ"
+
+        );
+
+
+    const objetoWorldQuaternion =
+        new THREE.Quaternion();
+
+
+    objetoWorldQuaternion.setFromEuler(
+        objetoEuler
+    );
+
+
+    const objetoLocalQuaternion =
+        pivotQuaternion
+            .clone()
+            .invert()
+            .multiply(
+                objetoWorldQuaternion
+            );
+
+
+    objeto.object3D.quaternion.copy(
+        objetoLocalQuaternion
+    );
+
+
+    /* =====================================================
+       ESCALA
+    ===================================================== */
+
+    const escala =
+        Number(config.scale) || 1;
+
+
+    modelo.object3D.scale.set(
+        escala,
+        escala,
+        escala
+    );
+
+
+    console.log(
+        "Pivô:",
+        pivotPosition
+    );
+
+
+    console.log(
+        "Objeto local:",
+        posicaoLocal
+    );
 
 }
 
@@ -728,7 +798,6 @@ function prepararAudio() {
         );
 
         return;
-
     }
 
 
@@ -770,6 +839,78 @@ function prepararAudio() {
 }
 
 
+/* =========================================================
+   DESBLOQUEAR ÁUDIO
+========================================================= */
+
+function desbloquearAudio() {
+
+    if (!audio) {
+        return;
+    }
+
+
+    if (audioDesbloqueado) {
+        return;
+    }
+
+
+    const volumeOriginal =
+        audio.volume;
+
+
+    audio.volume = 0;
+
+
+    audio.play()
+        .then(
+            () => {
+
+                audio.pause();
+
+                audio.currentTime = 0;
+
+                audio.volume =
+                    volumeOriginal;
+
+                audioDesbloqueado =
+                    true;
+
+                console.log(
+                    "Áudio desbloqueado."
+                );
+
+
+                /*
+                 * Caso o marcador já tenha sido
+                 * encontrado antes do toque,
+                 * começamos a música agora.
+                 */
+
+                if (marcadorEncontrado) {
+
+                    tocarMusica();
+
+                }
+
+            }
+        )
+        .catch(
+            () => {
+
+                audio.volume =
+                    volumeOriginal;
+
+            }
+        );
+
+}
+
+
+/* =========================================================
+   TOCAR MÚSICA
+========================================================= */
+
 function tocarMusica() {
 
     if (!audio) {
@@ -791,7 +932,7 @@ function tocarMusica() {
             erro => {
 
                 console.warn(
-                    "Áudio bloqueado pelo navegador:",
+                    "Áudio aguardando interação:",
                     erro
                 );
 
@@ -800,6 +941,10 @@ function tocarMusica() {
 
 }
 
+
+/* =========================================================
+   PARAR MÚSICA
+========================================================= */
 
 function pararMusica() {
 
@@ -814,7 +959,20 @@ function pararMusica() {
 
 
 /* =========================================================
-   TOQUE → ROTAÇÃO DO PIVÔ
+   PRIMEIRA INTERAÇÃO
+========================================================= */
+
+window.addEventListener(
+    "pointerdown",
+    desbloquearAudio,
+    {
+        passive: true
+    }
+);
+
+
+/* =========================================================
+   ROTAÇÃO POR TOQUE
 ========================================================= */
 
 let tocando =
@@ -836,6 +994,24 @@ window.addEventListener(
         if (
             evento.touches.length !== 1
         ) {
+            return;
+        }
+
+
+        /*
+         * Também aproveitamos qualquer
+         * toque para liberar o áudio.
+         */
+
+        desbloquearAudio();
+
+
+        /*
+         * Só gira quando o marcador
+         * está sendo reconhecido.
+         */
+
+        if (!marcadorEncontrado) {
             return;
         }
 
@@ -863,6 +1039,11 @@ window.addEventListener(
         }
 
 
+        if (!marcadorEncontrado) {
+            return;
+        }
+
+
         if (
             evento.touches.length !== 1
         ) {
@@ -883,10 +1064,10 @@ window.addEventListener(
 
 
         /*
-         * O PIVÔ gira.
+         * O pivô gira.
          *
-         * Como o GLB está dentro dele,
-         * o GLB acompanha a rotação.
+         * O GLB está dentro dele,
+         * portanto acompanha o movimento.
          */
 
         pivot.object3D.rotation.x -=
@@ -937,6 +1118,30 @@ botaoFullscreen.addEventListener(
 
             }
 
+
+            /*
+             * Depois de mudar para fullscreen,
+             * força uma atualização do tamanho
+             * da cena.
+             */
+
+            setTimeout(
+                () => {
+
+                    if (
+                        scene &&
+                        scene.resize
+                    ) {
+
+                        scene.resize();
+
+                    }
+
+                },
+                200
+            );
+
+
         } catch (erro) {
 
             console.error(
@@ -951,7 +1156,7 @@ botaoFullscreen.addEventListener(
 
 
 /* =========================================================
-   INICIAR
+   INÍCIO
 ========================================================= */
 
 carregarConfig();
