@@ -1,39 +1,64 @@
 const target = document.getElementById("targetZelda");
+
 const pivot = document.getElementById("pivotEntity");
+
 const objeto = document.getElementById("objectEntity");
+
 const modelo = document.getElementById("heroModelObject");
+
 const audio = document.getElementById("arAudio");
-const fullscreenButton = document.getElementById("fullscreenButton");
 
-const parametros = new URLSearchParams(window.location.search);
-const pasta = parametros.get("pasta") || "zelda";
+const fullscreenButton =
+document.getElementById("fullscreenButton");
 
-const CONFIG_URL = "./marcadores/${pasta}/config.json";
+const parametros =
+new URLSearchParams(window.location.search);
+
+const pasta =
+parametros.get("pasta") || "zelda";
+
+const CONFIG_URL =
+"./marcadores/${pasta}/config.json";
 
 const VELOCIDADE_ROTACAO = 0.01;
 
 let config = null;
+
 let marcadorVisivel = false;
+
 let arrastando = false;
+
 let ultimoX = 0;
 
 // ============================================================
-// CONFIGURAÇÃO
+// CARREGAR CONFIGURAÇÃO
 // ============================================================
 
 async function carregarConfig() {
 
 try {
 
-    const resposta = await fetch(`${CONFIG_URL}?${Date.now()}`);
+    const resposta =
+        await fetch(
+            `${CONFIG_URL}?${Date.now()}`
+        );
+
 
     if (!resposta.ok) {
-        throw new Error("Não foi possível carregar config.json");
+
+        throw new Error(
+            "config.json não encontrado"
+        );
+
     }
 
-    config = await resposta.json();
+
+    config =
+        await resposta.json();
+
 
     aplicarConfiguracao();
+
 
 } catch (erro) {
 
@@ -48,6 +73,7 @@ try {
 
 // ============================================================
 // APLICAR CONFIGURAÇÃO
+// MESMA LÓGICA DA CALIBRAÇÃO
 // ============================================================
 
 function aplicarConfiguracao() {
@@ -58,26 +84,66 @@ if (!config) {
 
 
 // ========================================================
+// PIVOT
+// ========================================================
+
+pivot.object3D.position.set(
+
+    Number(config.pivot?.x ?? 0),
+
+    Number(config.pivot?.y ?? 0),
+
+    Number(config.pivot?.z ?? 0)
+
+);
+
+
+pivot.object3D.rotation.set(
+
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.x ?? 0)
+    ),
+
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.y ?? 0)
+    ),
+
+    THREE.MathUtils.degToRad(
+        Number(config.pivotRotation?.z ?? 0)
+    )
+
+);
+
+
+// ========================================================
 // OBJETO
 // ========================================================
 
 objeto.object3D.position.set(
+
     Number(config.position?.x ?? 0),
+
     Number(config.position?.y ?? 0),
+
     Number(config.position?.z ?? 0)
+
 );
 
 
 objeto.object3D.rotation.set(
+
     THREE.MathUtils.degToRad(
         Number(config.rotation?.x ?? 0)
     ),
+
     THREE.MathUtils.degToRad(
         Number(config.rotation?.y ?? 0)
     ),
+
     THREE.MathUtils.degToRad(
         Number(config.rotation?.z ?? 0)
     )
+
 );
 
 
@@ -85,37 +151,14 @@ objeto.object3D.rotation.set(
 // ESCALA
 // ========================================================
 
-const escala = Number(config.scale ?? 1);
+const escala =
+    Number(config.scale ?? 1);
+
 
 modelo.object3D.scale.set(
     escala,
     escala,
     escala
-);
-
-
-// ========================================================
-// PIVOT
-// EXATAMENTE COMO NA CALIBRAÇÃO
-// ========================================================
-
-pivot.object3D.position.set(
-    Number(config.pivot?.x ?? 0),
-    Number(config.pivot?.y ?? 0),
-    Number(config.pivot?.z ?? 0)
-);
-
-
-pivot.object3D.rotation.set(
-    THREE.MathUtils.degToRad(
-        Number(config.pivotRotation?.x ?? 0)
-    ),
-    THREE.MathUtils.degToRad(
-        Number(config.pivotRotation?.y ?? 0)
-    ),
-    THREE.MathUtils.degToRad(
-        Number(config.pivotRotation?.z ?? 0)
-    )
 );
 
 
@@ -146,7 +189,10 @@ target.addEventListener(
 
     marcadorVisivel = true;
 
-    console.log("AR: marcador encontrado");
+    console.log(
+        "AR: marcador encontrado"
+    );
+
 
     tocarAudio();
 
@@ -164,7 +210,9 @@ target.addEventListener(
 
     marcadorVisivel = false;
 
-    console.log("AR: marcador perdido");
+    console.log(
+        "AR: marcador perdido"
+    );
 
 }
 
@@ -177,53 +225,78 @@ target.addEventListener(
 function tocarAudio() {
 
 if (!audio.src) {
-    console.log("AR: nenhum áudio configurado");
+
+    console.log(
+        "AR: nenhum áudio configurado"
+    );
+
     return;
+
 }
 
-audio.play().then(
-    () => {
+
+audio.play()
+    .then(() => {
 
         console.log(
             "AR: áudio reproduzindo"
         );
 
-    }
-).catch(
-    erro => {
+    })
+    .catch(() => {
 
         console.log(
-            "AR: navegador bloqueou o áudio",
-            erro
+            "AR: áudio aguardando interação"
         );
 
-    }
-);
+    });
 
 }
 
 // ============================================================
-// TOQUE INICIAL
+// LIBERAR ÁUDIO COM PRIMEIRO TOQUE
+// ============================================================
+
+document.addEventListener(
+"touchstart",
+() => {
+
+    if (marcadorVisivel) {
+
+        tocarAudio();
+
+    }
+
+},
+{
+    passive: true,
+    once: false
+}
+
+);
+
+// ============================================================
+// INÍCIO DO ARRASTO
 // ============================================================
 
 document.addEventListener(
 "touchstart",
 evento => {
 
-    if (evento.touches.length !== 1) {
+    if (
+        evento.touches.length !== 1
+    ) {
+
         return;
+
     }
+
 
     arrastando = true;
 
+
     ultimoX =
         evento.touches[0].clientX;
-
-    // Se o navegador bloqueou o áudio no targetFound,
-    // a interação do usuário tenta liberar novamente.
-    if (marcadorVisivel) {
-        tocarAudio();
-    }
 
 },
 {
@@ -234,7 +307,13 @@ evento => {
 );
 
 // ============================================================
-// MOVIMENTO DO DEDO
+// MOVIMENTO
+//
+// O pivot é usado como ponto de rotação.
+// O objeto continua independente.
+//
+// Isso permite manter o GLB na posição calibrada
+// e fazê-lo girar ao redor do pivot.
 // ============================================================
 
 document.addEventListener(
@@ -245,25 +324,86 @@ evento => {
         !arrastando ||
         evento.touches.length !== 1
     ) {
+
         return;
+
     }
+
 
     const atualX =
         evento.touches[0].clientX;
 
+
     const deltaX =
         atualX - ultimoX;
+
 
     ultimoX =
         atualX;
 
 
-    // ====================================================
-    // GIRA A PEÇA
-    // ====================================================
-
-    objeto.object3D.rotation.x -=
+    const angulo =
         deltaX * VELOCIDADE_ROTACAO;
+
+
+    // ----------------------------------------------------
+    // POSIÇÃO ATUAL DO OBJETO
+    // ----------------------------------------------------
+
+    const pos =
+        objeto.object3D.position;
+
+
+    const posPivot =
+        pivot.object3D.position;
+
+
+    // ----------------------------------------------------
+    // DISTÂNCIA DO OBJETO ATÉ O PIVOT
+    // ----------------------------------------------------
+
+    const dx =
+        pos.x - posPivot.x;
+
+
+    const dz =
+        pos.z - posPivot.z;
+
+
+    // ----------------------------------------------------
+    // ROTACIONAR A POSIÇÃO AO REDOR DO PIVOT
+    // ----------------------------------------------------
+
+    const cos =
+        Math.cos(angulo);
+
+
+    const sin =
+        Math.sin(angulo);
+
+
+    const novoX =
+        dx * cos - dz * sin;
+
+
+    const novoZ =
+        dx * sin + dz * cos;
+
+
+    objeto.object3D.position.x =
+        posPivot.x + novoX;
+
+
+    objeto.object3D.position.z =
+        posPivot.z + novoZ;
+
+
+    // ----------------------------------------------------
+    // GIRAR O OBJETO JUNTO
+    // ----------------------------------------------------
+
+    objeto.object3D.rotation.y +=
+        angulo;
 
 },
 {
@@ -274,7 +414,7 @@ evento => {
 );
 
 // ============================================================
-// FIM DO TOQUE
+// FIM DO ARRASTO
 // ============================================================
 
 document.addEventListener(
@@ -317,15 +457,21 @@ fullscreenButton.addEventListener(
 
         evento.stopPropagation();
 
+
         try {
 
-            if (!document.fullscreenElement) {
+            if (
+                !document.fullscreenElement
+            ) {
 
-                await document.documentElement.requestFullscreen();
+                await document
+                    .documentElement
+                    .requestFullscreen();
 
             } else {
 
-                await document.exitFullscreen();
+                await document
+                    .exitFullscreen();
 
             }
 
