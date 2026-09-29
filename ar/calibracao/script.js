@@ -1,21 +1,42 @@
+// ============================================================
+// CALIBRAÇÃO AR
+//
+// Estrutura:
+//
+// MARCADOR
+//    ↓
+// PIVOT AVÔ
+//    ↓
+// PIVOT PAI
+//    ↓
+// OBJETO
+//
+// Cada transformação é LOCAL à sua referência.
+// ============================================================
+
+
 const target = document.getElementById("targetZelda");
 
-const pivot = document.getElementById("pivotEntity");
+const pivotAvo = document.getElementById("pivotAvo");
+
+const pivotPai = document.getElementById("pivotPai");
 
 const objeto = document.getElementById("objectEntity");
 
+const assets = document.getElementById("assets");
+
+
+// ============================================================
+// INTERFACE
+// ============================================================
+
 const status = document.getElementById("status");
 
-const configuracao =
-    document.getElementById("configuracao");
+const botaoPivotAvo =
+    document.getElementById("botaoPivotAvo");
 
-
-// ============================================================
-// BOTÕES
-// ============================================================
-
-const botaoPivot =
-    document.getElementById("botaoPivot");
+const botaoPivotPai =
+    document.getElementById("botaoPivotPai");
 
 const botaoObjeto =
     document.getElementById("botaoObjeto");
@@ -26,17 +47,6 @@ const botaoRotacao =
 const botaoMovimento =
     document.getElementById("botaoMovimento");
 
-const botaoResetar =
-    document.getElementById("resetar");
-
-const botaoCopiar =
-    document.getElementById("copiarJSON");
-
-
-// ============================================================
-// SLIDERS
-// ============================================================
-
 const sliderX =
     document.getElementById("sliderX");
 
@@ -45,14 +55,6 @@ const sliderY =
 
 const sliderZ =
     document.getElementById("sliderZ");
-
-const sliderEscala =
-    document.getElementById("sliderEscala");
-
-
-// ============================================================
-// VALORES
-// ============================================================
 
 const valorX =
     document.getElementById("valorX");
@@ -63,9 +65,6 @@ const valorY =
 const valorZ =
     document.getElementById("valorZ");
 
-const valorEscala =
-    document.getElementById("valorEscala");
-
 const labelX =
     document.getElementById("labelX");
 
@@ -75,805 +74,111 @@ const labelY =
 const labelZ =
     document.getElementById("labelZ");
 
+const sliderEscala =
+    document.getElementById("sliderEscala");
+
+const valorEscala =
+    document.getElementById("valorEscala");
+
+const controleEscala =
+    document.getElementById("controleEscala");
+
+const grupoEscala =
+    document.getElementById("grupoEscala");
+
+const resetar =
+    document.getElementById("resetar");
+
+const copiarJSON =
+    document.getElementById("copiarJSON");
+
+const configuracao =
+    document.getElementById("configuracao");
+
 
 // ============================================================
 // ESTADO
 // ============================================================
 
-let elementoSelecionado = "pivot";
+let configuracaoBase = null;
 
-let controleSelecionado = "rotacao";
+let elementoSelecionado = "pivotAvo";
 
-let config = null;
+let modoControle = "rotacao";
 
 
 // ============================================================
-// PASTA
+// FUNÇÕES AUXILIARES
 // ============================================================
 
-const parametros =
-    new URLSearchParams(
-        window.location.search
+function numero(valor) {
+
+    const n = Number(valor);
+
+    if (!Number.isFinite(n)) {
+        return 0;
+    }
+
+    return n;
+}
+
+
+function arredondar(valor, casas = 2) {
+
+    return Number(
+        Number(valor).toFixed(casas)
     );
 
-const pasta =
-    parametros.get("pasta") || "zelda";
+}
 
 
-// ============================================================
-// CONFIGURAÇÃO PADRÃO
-// ============================================================
+function vetorZero() {
 
-const configPadrao = {
-
-    modelo: "Hero of Time.glb",
-
-    imagem: null,
-
-    video: null,
-
-    position: {
+    return {
         x: 0,
         y: 0,
         z: 0
-    },
-
-    rotation: {
-        x: 0,
-        y: 0,
-        z: 0
-    },
-
-    scale: 1,
-
-    pivot: {
-        x: 0,
-        y: 0,
-        z: 0
-    },
-
-    pivotRotation: {
-        x: 0,
-        y: 0,
-        z: 0
-    },
-
-    audio: "musica.mp3"
-
-};
-
-
-// ============================================================
-// COPIAR OBJETO
-// ============================================================
-
-function copiar(obj) {
-
-    return JSON.parse(
-        JSON.stringify(obj)
-    );
+    };
 
 }
 
 
 // ============================================================
-// GARANTIR CAMPOS
+// OBTÉM O OBJETO 3D SELECIONADO
 // ============================================================
 
-function garantirConfiguracao() {
+function obterElementoSelecionado() {
 
-    if (!config.position) {
-
-        config.position = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
+    if (elementoSelecionado === "pivotAvo") {
+        return pivotAvo.object3D;
     }
 
-
-    if (!config.rotation) {
-
-        config.rotation = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
+    if (elementoSelecionado === "pivotPai") {
+        return pivotPai.object3D;
     }
 
-
-    if (!config.pivot) {
-
-        config.pivot = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-    }
-
-
-    if (!config.pivotRotation) {
-
-        config.pivotRotation = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-    }
-
-
-    if (config.scale === undefined) {
-
-        config.scale = 1;
-
-    }
-
-
-    if (config.modelo === undefined) {
-
-        config.modelo = null;
-
-    }
-
-
-    if (config.imagem === undefined) {
-
-        config.imagem = null;
-
-    }
-
-
-    if (config.video === undefined) {
-
-        config.video = null;
-
-    }
-
-
-    if (config.audio === undefined) {
-
-        config.audio = null;
-
-    }
+    return objeto.object3D;
 
 }
 
 
 // ============================================================
-// CAMINHO DO RECURSO
+// SELEÇÃO DO ELEMENTO
 // ============================================================
 
-function caminhoRecurso(nome) {
+function selecionarElemento(elemento) {
 
-    if (!nome) {
+    elementoSelecionado = elemento;
 
-        return null;
-
-    }
-
-    return (
-        `../marcadores/${pasta}/${nome}`
-    );
-
-}
-
-
-// ============================================================
-// CRIAR GLB
-// ============================================================
-
-function criarModeloGLB(nome) {
-
-    if (!nome) {
-
-        return;
-
-    }
-
-
-    const modelo =
-        document.createElement(
-            "a-gltf-model"
-        );
-
-
-    modelo.id =
-        "heroModelObject";
-
-
-    modelo.setAttribute(
-        "src",
-        caminhoRecurso(nome)
-    );
-
-
-    modelo.setAttribute(
-        "position",
-        "0 0 0"
-    );
-
-
-    modelo.setAttribute(
-        "rotation",
-        "0 0 0"
-    );
-
-
-    modelo.setAttribute(
-        "scale",
-        "1 1 1"
-    );
-
-
-    objeto.appendChild(modelo);
-
-
-    modelo.addEventListener(
-        "model-loaded",
-        () => {
-
-            status.textContent =
-                `GLB carregado: ${nome}`;
-
-        }
-    );
-
-
-    modelo.addEventListener(
-        "model-error",
-        () => {
-
-            status.textContent =
-                `Erro ao carregar GLB: ${nome}`;
-
-        }
-    );
-
-}
-
-
-// ============================================================
-// CRIAR IMAGEM
-// ============================================================
-
-function criarImagem(nome) {
-
-    if (!nome) {
-
-        return;
-
-    }
-
-
-    const imagem =
-        document.createElement(
-            "a-image"
-        );
-
-
-    imagem.id =
-        "recursoImagem";
-
-
-    imagem.setAttribute(
-        "src",
-        caminhoRecurso(nome)
-    );
-
-
-    imagem.setAttribute(
-        "position",
-        "0 0 0"
-    );
-
-
-    imagem.setAttribute(
-        "rotation",
-        "0 0 0"
-    );
-
-
-    imagem.setAttribute(
-        "width",
-        "1"
-    );
-
-
-    imagem.setAttribute(
-        "height",
-        "1"
-    );
-
-
-    objeto.appendChild(imagem);
-
-}
-
-
-// ============================================================
-// CRIAR VÍDEO
-// ============================================================
-
-function criarVideo(nome) {
-
-    if (!nome) {
-
-        return;
-
-    }
-
-
-    const video =
-        document.createElement(
-            "video"
-        );
-
-
-    video.id =
-        "recursoVideo";
-
-
-    video.src =
-        caminhoRecurso(nome);
-
-
-    video.loop = true;
-
-    video.muted = true;
-
-    video.playsInline = true;
-
-    video.setAttribute(
-        "playsinline",
-        ""
-    );
-
-
-    video.preload =
-        "auto";
-
-
-    document
-        .querySelector("a-assets")
-        .appendChild(video);
-
-
-    const entidade =
-        document.createElement(
-            "a-video"
-        );
-
-
-    entidade.id =
-        "videoAR";
-
-
-    entidade.setAttribute(
-        "src",
-        "#recursoVideo"
-    );
-
-
-    entidade.setAttribute(
-        "position",
-        "0 0 0"
-    );
-
-
-    entidade.setAttribute(
-        "rotation",
-        "0 0 0"
-    );
-
-
-    entidade.setAttribute(
-        "width",
-        "1"
-    );
-
-
-    entidade.setAttribute(
-        "height",
-        "1"
-    );
-
-
-    objeto.appendChild(entidade);
-
-}
-
-
-// ============================================================
-// CARREGAR RECURSOS
-// ============================================================
-
-function carregarRecursos() {
-
-    objeto.innerHTML = "";
-
-
-    if (config.modelo) {
-
-        criarModeloGLB(
-            config.modelo
-        );
-
-    }
-
-
-    if (config.imagem) {
-
-        criarImagem(
-            config.imagem
-        );
-
-    }
-
-
-    if (config.video) {
-
-        criarVideo(
-            config.video
-        );
-
-    }
-
-
-    if (
-        !config.modelo &&
-        !config.imagem &&
-        !config.video
-    ) {
-
-        status.textContent =
-            "Nenhum recurso visual configurado.";
-
-    }
-
-}
-
-
-// ============================================================
-// CARREGAR CONFIG
-// ============================================================
-
-async function carregarConfig() {
-
-    try {
-
-        const resposta =
-            await fetch(
-                `../marcadores/${pasta}/config.json?${Date.now()}`
-            );
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                "config.json não encontrado"
-            );
-
-        }
-
-
-        config =
-            await resposta.json();
-
-
-        garantirConfiguracao();
-
-
-        carregarRecursos();
-
-
-        aplicarConfiguracao();
-
-
-        status.textContent =
-            `Configuração carregada: ${pasta}`;
-
-    }
-
-    catch (erro) {
-
-        console.error(erro);
-
-
-        config =
-            copiar(configPadrao);
-
-
-        carregarRecursos();
-
-
-        aplicarConfiguracao();
-
-
-        status.textContent =
-            "Usando configuração padrão";
-
-    }
-
-}
-
-
-// ============================================================
-// APLICAR CONFIGURAÇÃO
-// ============================================================
-
-function aplicarConfiguracao() {
-
-
-    // ========================================================
-    // PIVOT
-    //
-    // REFERÊNCIA:
-    // MARCADOR
-    // ========================================================
-
-    pivot.object3D.position.set(
-
-        Number(config.pivot.x),
-
-        Number(config.pivot.y),
-
-        Number(config.pivot.z)
-
-    );
-
-
-    pivot.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation.x)
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation.y)
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(config.pivotRotation.z)
-        )
-
-    );
-
-
-    // ========================================================
-    // OBJETO
-    //
-    // REFERÊNCIA:
-    // PIVOT
-    //
-    // Estes valores agora são LOCAIS ao pivot.
-    // ========================================================
-
-    objeto.object3D.position.set(
-
-        Number(config.position.x),
-
-        Number(config.position.y),
-
-        Number(config.position.z)
-
-    );
-
-
-    objeto.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(config.rotation.x)
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(config.rotation.y)
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(config.rotation.z)
-        )
-
-    );
-
-
-    objeto.object3D.scale.set(
-
-        Number(config.scale),
-
-        Number(config.scale),
-
-        Number(config.scale)
-
-    );
-
-
-    atualizarInterface();
-
-    atualizarJSON();
-
-}
-
-
-// ============================================================
-// ATUALIZAR INTERFACE
-// ============================================================
-
-function atualizarInterface() {
-
-    let dados;
-
-
-    if (
-        elementoSelecionado ===
-        "pivot"
-    ) {
-
-        if (
-            controleSelecionado ===
-            "rotacao"
-        ) {
-
-            dados =
-                config.pivotRotation;
-
-        }
-
-        else {
-
-            dados =
-                config.pivot;
-
-        }
-
-    }
-
-    else {
-
-        if (
-            controleSelecionado ===
-            "rotacao"
-        ) {
-
-            dados =
-                config.rotation;
-
-        }
-
-        else {
-
-            dados =
-                config.position;
-
-        }
-
-    }
-
-
-    sliderX.value =
-        dados.x;
-
-    sliderY.value =
-        dados.y;
-
-    sliderZ.value =
-        dados.z;
-
-
-    valorX.textContent =
-        Number(
-            dados.x
-        ).toFixed(2);
-
-
-    valorY.textContent =
-        Number(
-            dados.y
-        ).toFixed(2);
-
-
-    valorZ.textContent =
-        Number(
-            dados.z
-        ).toFixed(2);
-
-
-    valorEscala.textContent =
-        Number(
-            config.scale
-        ).toFixed(2);
-
-
-    atualizarLabels();
-
-}
-
-
-// ============================================================
-// LABELS
-// ============================================================
-
-function atualizarLabels() {
-
-    const nome =
-        elementoSelecionado ===
-        "pivot"
-            ? "Pivot"
-            : "Objeto";
-
-
-    if (
-        controleSelecionado ===
-        "rotacao"
-    ) {
-
-        labelX.textContent =
-            `${nome} Rotação X`;
-
-        labelY.textContent =
-            `${nome} Rotação Y`;
-
-        labelZ.textContent =
-            `${nome} Rotação Z`;
-
-
-        sliderX.min = -360;
-        sliderX.max = 360;
-
-        sliderY.min = -360;
-        sliderY.max = 360;
-
-        sliderZ.min = -360;
-        sliderZ.max = 360;
-
-    }
-
-    else {
-
-        labelX.textContent =
-            `${nome} Movimento X`;
-
-        labelY.textContent =
-            `${nome} Movimento Y`;
-
-        labelZ.textContent =
-            `${nome} Movimento Z`;
-
-
-        sliderX.min = -5;
-        sliderX.max = 5;
-
-        sliderY.min = -5;
-        sliderY.max = 5;
-
-        sliderZ.min = -5;
-        sliderZ.max = 5;
-
-    }
-
-}
-
-
-// ============================================================
-// SELECIONAR ELEMENTO
-// ============================================================
-
-function selecionarElemento(
-    elemento
-) {
-
-    elementoSelecionado =
-        elemento;
-
-
-    botaoPivot.classList.toggle(
+    botaoPivotAvo.classList.toggle(
         "ativo",
-        elemento === "pivot"
+        elemento === "pivotAvo"
     );
 
+    botaoPivotPai.classList.toggle(
+        "ativo",
+        elemento === "pivotPai"
+    );
 
     botaoObjeto.classList.toggle(
         "ativo",
@@ -887,26 +192,21 @@ function selecionarElemento(
 
 
 // ============================================================
-// SELECIONAR CONTROLE
+// SELEÇÃO DO MODO
 // ============================================================
 
-function selecionarControle(
-    controle
-) {
+function selecionarModo(modo) {
 
-    controleSelecionado =
-        controle;
-
+    modoControle = modo;
 
     botaoRotacao.classList.toggle(
         "ativo",
-        controle === "rotacao"
+        modo === "rotacao"
     );
-
 
     botaoMovimento.classList.toggle(
         "ativo",
-        controle === "movimento"
+        modo === "movimento"
     );
 
 
@@ -916,15 +216,1068 @@ function selecionarControle(
 
 
 // ============================================================
-// BOTÕES
+// ATUALIZA OS NOMES DOS EIXOS
 // ============================================================
 
-botaoPivot.addEventListener(
+function atualizarInterface() {
+
+    const elemento = obterElementoSelecionado();
+
+    if (!elemento) {
+        return;
+    }
+
+
+    if (modoControle === "rotacao") {
+
+        labelX.textContent = "Rotação X";
+
+        labelY.textContent = "Rotação Y";
+
+        labelZ.textContent = "Rotação Z";
+
+
+        sliderX.min = -360;
+        sliderX.max = 360;
+        sliderX.step = 0.1;
+
+        sliderY.min = -360;
+        sliderY.max = 360;
+        sliderY.step = 0.1;
+
+        sliderZ.min = -360;
+        sliderZ.max = 360;
+        sliderZ.step = 0.1;
+
+
+        sliderX.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.x
+                ),
+                1
+            );
+
+        sliderY.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.y
+                ),
+                1
+            );
+
+        sliderZ.value =
+            arredondar(
+                THREE.MathUtils.radToDeg(
+                    elemento.rotation.z
+                ),
+                1
+            );
+
+
+        valorX.textContent =
+            Number(sliderX.value).toFixed(2);
+
+        valorY.textContent =
+            Number(sliderY.value).toFixed(2);
+
+        valorZ.textContent =
+            Number(sliderZ.value).toFixed(2);
+
+    } else {
+
+        labelX.textContent = "Posição X";
+
+        labelY.textContent = "Posição Y";
+
+        labelZ.textContent = "Posição Z";
+
+
+        sliderX.min = -5;
+        sliderX.max = 5;
+        sliderX.step = 0.001;
+
+        sliderY.min = -5;
+        sliderY.max = 5;
+        sliderY.step = 0.001;
+
+        sliderZ.min = -5;
+        sliderZ.max = 5;
+        sliderZ.step = 0.001;
+
+
+        sliderX.value =
+            arredondar(
+                elemento.position.x,
+                3
+            );
+
+        sliderY.value =
+            arredondar(
+                elemento.position.y,
+                3
+            );
+
+        sliderZ.value =
+            arredondar(
+                elemento.position.z,
+                3
+            );
+
+
+        valorX.textContent =
+            Number(sliderX.value).toFixed(3);
+
+        valorY.textContent =
+            Number(sliderY.value).toFixed(3);
+
+        valorZ.textContent =
+            Number(sliderZ.value).toFixed(3);
+
+    }
+
+
+    // ========================================================
+    // ESCALA
+    // ========================================================
+
+    const mostrarEscala =
+        elementoSelecionado === "objeto";
+
+    controleEscala.style.display =
+        mostrarEscala ? "block" : "none";
+
+    grupoEscala.style.display =
+        mostrarEscala ? "block" : "none";
+
+
+    if (mostrarEscala) {
+
+        const escala =
+            objeto.object3D.scale.x;
+
+        sliderEscala.value =
+            arredondar(escala, 2);
+
+        valorEscala.textContent =
+            Number(sliderEscala.value).toFixed(2);
+
+    }
+
+
+    atualizarJSON();
+
+}
+
+
+// ============================================================
+// CONTROLE DE ROTAÇÃO / POSIÇÃO
+// ============================================================
+
+function alterarEixo(eixo, valor) {
+
+    const elemento =
+        obterElementoSelecionado();
+
+    if (!elemento) {
+        return;
+    }
+
+
+    const numeroValor =
+        Number(valor);
+
+
+    if (modoControle === "rotacao") {
+
+        elemento.rotation[eixo] =
+            THREE.MathUtils.degToRad(
+                numeroValor
+            );
+
+    } else {
+
+        elemento.position[eixo] =
+            numeroValor;
+
+    }
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// SLIDERS
+// ============================================================
+
+sliderX.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "x",
+            this.value
+        );
+
+    }
+);
+
+
+sliderY.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "y",
+            this.value
+        );
+
+    }
+);
+
+
+sliderZ.addEventListener(
+    "input",
+    function () {
+
+        alterarEixo(
+            "z",
+            this.value
+        );
+
+    }
+);
+
+
+// ============================================================
+// ESCALA
+// ============================================================
+
+sliderEscala.addEventListener(
+    "input",
+    function () {
+
+        const escala =
+            Number(this.value);
+
+        objeto.object3D.scale.set(
+            escala,
+            escala,
+            escala
+        );
+
+        valorEscala.textContent =
+            escala.toFixed(2);
+
+        atualizarJSON();
+
+    }
+);
+
+
+// ============================================================
+// RESET
+//
+// Tudo volta para a referência do seu próprio pai.
+//
+// Pivot Avô:
+//   posição 0
+//   rotação 0
+//
+// Pivot Pai:
+//   posição 0
+//   rotação 0
+//
+// Objeto:
+//   posição 0
+//   rotação 0
+//   escala 1
+// ============================================================
+
+function resetarTudo() {
+
+    pivotAvo.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    pivotAvo.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+
+    pivotPai.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    pivotPai.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+
+    objeto.object3D.position.set(
+        0,
+        0,
+        0
+    );
+
+    objeto.object3D.rotation.set(
+        0,
+        0,
+        0
+    );
+
+    objeto.object3D.scale.set(
+        1,
+        1,
+        1
+    );
+
+
+    atualizarInterface();
+
+}
+
+
+resetar.addEventListener(
     "click",
-    () => {
+    resetarTudo
+);
+
+
+// ============================================================
+// COPIAR JSON
+// ============================================================
+
+copiarJSON.addEventListener(
+    "click",
+    async function () {
+
+        const texto =
+            configuracao.textContent;
+
+
+        try {
+
+            await navigator.clipboard.writeText(
+                texto
+            );
+
+            const textoOriginal =
+                copiarJSON.textContent;
+
+            copiarJSON.textContent =
+                "✓ JSON Copiado";
+
+            setTimeout(
+                function () {
+
+                    copiarJSON.textContent =
+                        textoOriginal;
+
+                },
+                1500
+            );
+
+        } catch (erro) {
+
+            alert(
+                "Não foi possível copiar o JSON."
+            );
+
+        }
+
+    }
+);
+
+
+// ============================================================
+// MONTA O JSON ATUAL
+// ============================================================
+
+function gerarConfiguracao() {
+
+    const avo =
+        pivotAvo.object3D;
+
+    const pai =
+        pivotPai.object3D;
+
+    const obj =
+        objeto.object3D;
+
+
+    const resultado = {
+
+        nome:
+            configuracaoBase?.nome ||
+            "AR",
+
+        modelo:
+            configuracaoBase?.modelo ??
+            null,
+
+        marcador:
+            configuracaoBase?.marcador ??
+            "targets.mind",
+
+
+        pivotAvo: {
+
+            position: {
+
+                x: arredondar(
+                    avo.position.x,
+                    4
+                ),
+
+                y: arredondar(
+                    avo.position.y,
+                    4
+                ),
+
+                z: arredondar(
+                    avo.position.z,
+                    4
+                )
+
+            },
+
+            rotation: {
+
+                x: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.x
+                    ),
+                    2
+                ),
+
+                y: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.y
+                    ),
+                    2
+                ),
+
+                z: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        avo.rotation.z
+                    ),
+                    2
+                )
+
+            }
+
+        },
+
+
+        pivotPai: {
+
+            position: {
+
+                x: arredondar(
+                    pai.position.x,
+                    4
+                ),
+
+                y: arredondar(
+                    pai.position.y,
+                    4
+                ),
+
+                z: arredondar(
+                    pai.position.z,
+                    4
+                )
+
+            },
+
+            rotation: {
+
+                x: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.x
+                    ),
+                    2
+                ),
+
+                y: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.y
+                    ),
+                    2
+                ),
+
+                z: arredondar(
+                    THREE.MathUtils.radToDeg(
+                        pai.rotation.z
+                    ),
+                    2
+                )
+
+            }
+
+        },
+
+
+        position: {
+
+            x: arredondar(
+                obj.position.x,
+                4
+            ),
+
+            y: arredondar(
+                obj.position.y,
+                4
+            ),
+
+            z: arredondar(
+                obj.position.z,
+                4
+            )
+
+        },
+
+
+        rotation: {
+
+            x: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.x
+                ),
+                2
+            ),
+
+            y: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.y
+                ),
+                2
+            ),
+
+            z: arredondar(
+                THREE.MathUtils.radToDeg(
+                    obj.rotation.z
+                ),
+                2
+            )
+
+        },
+
+
+        scale:
+            arredondar(
+                obj.scale.x,
+                4
+            )
+
+    };
+
+
+    // Mantém o áudio se já existir
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "audio"
+        )
+    ) {
+
+        resultado.audio =
+            configuracaoBase.audio;
+
+    }
+
+
+    // Mantém imagem se existir
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "imagem"
+        )
+    ) {
+
+        resultado.imagem =
+            configuracaoBase.imagem;
+
+    }
+
+
+    // Mantém vídeo se existir
+    if (
+        configuracaoBase &&
+        Object.prototype.hasOwnProperty.call(
+            configuracaoBase,
+            "video"
+        )
+    ) {
+
+        resultado.video =
+            configuracaoBase.video;
+
+    }
+
+
+    return resultado;
+
+}
+
+
+// ============================================================
+// ATUALIZA JSON NA TELA
+// ============================================================
+
+function atualizarJSON() {
+
+    const resultado =
+        gerarConfiguracao();
+
+
+    configuracao.textContent =
+        JSON.stringify(
+            resultado,
+            null,
+            2
+        );
+
+}
+
+
+// ============================================================
+// CARREGAMENTO DE RECURSO
+// ============================================================
+
+function carregarModelo(caminho) {
+
+    if (!caminho) {
+        return;
+    }
+
+
+    const item =
+        document.createElement(
+            "a-asset-item"
+        );
+
+
+    item.id =
+        "modeloCalibracao";
+
+
+    item.src =
+        caminho;
+
+
+    assets.appendChild(item);
+
+
+    objeto.setAttribute(
+        "gltf-model",
+        "#modeloCalibracao"
+    );
+
+}
+
+
+// ============================================================
+// CARREGAMENTO DE IMAGEM
+// ============================================================
+
+function carregarImagem(caminho) {
+
+    if (!caminho) {
+        return;
+    }
+
+
+    const imagem =
+        document.createElement("a-image");
+
+
+    imagem.setAttribute(
+        "src",
+        caminho
+    );
+
+
+    imagem.setAttribute(
+        "position",
+        "0 0 0"
+    );
+
+
+    imagem.setAttribute(
+        "rotation",
+        "0 0 0"
+    );
+
+
+    imagem.setAttribute(
+        "width",
+        "1"
+    );
+
+
+    imagem.setAttribute(
+        "height",
+        "1"
+    );
+
+
+    objeto.appendChild(
+        imagem
+    );
+
+}
+
+
+// ============================================================
+// CARREGAMENTO DE VÍDEO
+// ============================================================
+
+function carregarVideo(caminho) {
+
+    if (!caminho) {
+        return;
+    }
+
+
+    const video =
+        document.createElement(
+            "video"
+        );
+
+
+    video.id =
+        "videoCalibracao";
+
+
+    video.src =
+        caminho;
+
+
+    video.loop =
+        true;
+
+
+    video.muted =
+        true;
+
+
+    video.playsInline =
+        true;
+
+
+    video.crossOrigin =
+        "anonymous";
+
+
+    assets.appendChild(
+        video
+    );
+
+
+    const entidade =
+        document.createElement(
+            "a-video"
+        );
+
+
+    entidade.setAttribute(
+        "src",
+        "#videoCalibracao"
+    );
+
+
+    entidade.setAttribute(
+        "position",
+        "0 0 0"
+    );
+
+
+    entidade.setAttribute(
+        "width",
+        "1"
+    );
+
+
+    entidade.setAttribute(
+        "height",
+        "1"
+    );
+
+
+    objeto.appendChild(
+        entidade
+    );
+
+
+    video.play().catch(
+        () => {}
+    );
+
+}
+
+
+// ============================================================
+// APLICA CONFIGURAÇÃO
+// ============================================================
+
+function aplicarConfiguracao(config) {
+
+    configuracaoBase =
+        config;
+
+
+    // ========================================================
+    // PIVOT AVÔ
+    // ========================================================
+
+    const avoPosition =
+        config.pivotAvo?.position ||
+        vetorZero();
+
+    const avoRotation =
+        config.pivotAvo?.rotation ||
+        vetorZero();
+
+
+    pivotAvo.object3D.position.set(
+        numero(avoPosition.x),
+        numero(avoPosition.y),
+        numero(avoPosition.z)
+    );
+
+
+    pivotAvo.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.z)
+        )
+    );
+
+
+    // ========================================================
+    // PIVOT PAI
+    // ========================================================
+
+    const paiPosition =
+        config.pivotPai?.position ||
+        vetorZero();
+
+    const paiRotation =
+        config.pivotPai?.rotation ||
+        vetorZero();
+
+
+    pivotPai.object3D.position.set(
+        numero(paiPosition.x),
+        numero(paiPosition.y),
+        numero(paiPosition.z)
+    );
+
+
+    pivotPai.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.z)
+        )
+    );
+
+
+    // ========================================================
+    // OBJETO
+    // ========================================================
+
+    const objectPosition =
+        config.position ||
+        vetorZero();
+
+    const objectRotation =
+        config.rotation ||
+        vetorZero();
+
+
+    objeto.object3D.position.set(
+        numero(objectPosition.x),
+        numero(objectPosition.y),
+        numero(objectPosition.z)
+    );
+
+
+    objeto.object3D.rotation.set(
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.z)
+        )
+    );
+
+
+    const escala =
+        numero(config.scale) || 1;
+
+
+    objeto.object3D.scale.set(
+        escala,
+        escala,
+        escala
+    );
+
+
+    // ========================================================
+    // RECURSOS
+    // ========================================================
+
+    if (config.modelo) {
+
+        carregarModelo(
+            `../marcadores/zelda/${config.modelo}`
+        );
+
+    }
+
+
+    if (config.imagem) {
+
+        carregarImagem(
+            `../marcadores/zelda/${config.imagem}`
+        );
+
+    }
+
+
+    if (config.video) {
+
+        carregarVideo(
+            `../marcadores/zelda/${config.video}`
+        );
+
+    }
+
+
+    atualizarInterface();
+
+}
+
+
+// ============================================================
+// CARREGA CONFIG.JSON
+// ============================================================
+
+async function carregarConfiguracao() {
+
+    try {
+
+        const resposta =
+            await fetch(
+                "../marcadores/zelda/config.json?" +
+                Date.now()
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "Não foi possível carregar config.json"
+            );
+
+        }
+
+
+        const config =
+            await resposta.json();
+
+
+        aplicarConfiguracao(
+            config
+        );
+
+
+        status.textContent =
+            "Configuração carregada.";
+
+    } catch (erro) {
+
+        console.error(erro);
+
+
+        status.textContent =
+            "Erro ao carregar configuração.";
+
+        configuracaoBase = {
+
+            nome: "AR",
+
+            modelo:
+                "Hero of Time.glb",
+
+            marcador:
+                "targets.mind"
+
+        };
+
+
+        resetarTudo();
+
+    }
+
+}
+
+
+// ============================================================
+// EVENTOS
+// ============================================================
+
+botaoPivotAvo.addEventListener(
+    "click",
+    function () {
 
         selecionarElemento(
-            "pivot"
+            "pivotAvo"
+        );
+
+    }
+);
+
+
+botaoPivotPai.addEventListener(
+    "click",
+    function () {
+
+        selecionarElemento(
+            "pivotPai"
         );
 
     }
@@ -933,7 +1286,7 @@ botaoPivot.addEventListener(
 
 botaoObjeto.addEventListener(
     "click",
-    () => {
+    function () {
 
         selecionarElemento(
             "objeto"
@@ -945,9 +1298,9 @@ botaoObjeto.addEventListener(
 
 botaoRotacao.addEventListener(
     "click",
-    () => {
+    function () {
 
-        selecionarControle(
+        selecionarModo(
             "rotacao"
         );
 
@@ -957,9 +1310,9 @@ botaoRotacao.addEventListener(
 
 botaoMovimento.addEventListener(
     "click",
-    () => {
+    function () {
 
-        selecionarControle(
+        selecionarModo(
             "movimento"
         );
 
@@ -968,321 +1321,7 @@ botaoMovimento.addEventListener(
 
 
 // ============================================================
-// SLIDERS
+// INICIALIZAÇÃO
 // ============================================================
 
-sliderX.addEventListener(
-    "input",
-    () => {
-
-        alterarValor(
-            "x",
-            Number(sliderX.value)
-        );
-
-    }
-);
-
-
-sliderY.addEventListener(
-    "input",
-    () => {
-
-        alterarValor(
-            "y",
-            Number(sliderY.value)
-        );
-
-    }
-);
-
-
-sliderZ.addEventListener(
-    "input",
-    () => {
-
-        alterarValor(
-            "z",
-            Number(sliderZ.value)
-        );
-
-    }
-);
-
-
-// ============================================================
-// ALTERAR VALOR
-// ============================================================
-
-function alterarValor(
-    eixo,
-    valor
-) {
-
-
-    if (
-        elementoSelecionado ===
-        "pivot"
-    ) {
-
-        if (
-            controleSelecionado ===
-            "rotacao"
-        ) {
-
-            config.pivotRotation[eixo] =
-                valor;
-
-
-            pivot.object3D.rotation[eixo] =
-                THREE.MathUtils.degToRad(
-                    valor
-                );
-
-        }
-
-        else {
-
-            config.pivot[eixo] =
-                valor;
-
-
-            pivot.object3D.position[eixo] =
-                valor;
-
-        }
-
-    }
-
-    else {
-
-        if (
-            controleSelecionado ===
-            "rotacao"
-        ) {
-
-            config.rotation[eixo] =
-                valor;
-
-
-            objeto.object3D.rotation[eixo] =
-                THREE.MathUtils.degToRad(
-                    valor
-                );
-
-        }
-
-        else {
-
-            config.position[eixo] =
-                valor;
-
-
-            objeto.object3D.position[eixo] =
-                valor;
-
-        }
-
-    }
-
-
-    atualizarInterface();
-
-    atualizarJSON();
-
-}
-
-
-// ============================================================
-// ESCALA
-// ============================================================
-
-sliderEscala.addEventListener(
-    "input",
-    () => {
-
-        config.scale =
-            Number(
-                sliderEscala.value
-            );
-
-
-        objeto.object3D.scale.set(
-
-            config.scale,
-
-            config.scale,
-
-            config.scale
-
-        );
-
-
-        valorEscala.textContent =
-            config.scale.toFixed(2);
-
-
-        atualizarJSON();
-
-    }
-);
-
-
-// ============================================================
-// RESET
-// ============================================================
-//
-// IMPORTANTE:
-//
-// NÃO volta ao config.json.
-//
-// Coloca tudo em ZERO:
-//
-// Pivot:
-// posição = 0,0,0
-// rotação = 0,0,0
-//
-// Objeto:
-// posição = 0,0,0
-// rotação = 0,0,0
-//
-// Escala = 1
-// ============================================================
-
-botaoResetar.addEventListener(
-    "click",
-    () => {
-
-
-        config.pivot = {
-
-            x: 0,
-            y: 0,
-            z: 0
-
-        };
-
-
-        config.pivotRotation = {
-
-            x: 0,
-            y: 0,
-            z: 0
-
-        };
-
-
-        config.position = {
-
-            x: 0,
-            y: 0,
-            z: 0
-
-        };
-
-
-        config.rotation = {
-
-            x: 0,
-            y: 0,
-            z: 0
-
-        };
-
-
-        config.scale = 1;
-
-
-        aplicarConfiguracao();
-
-
-        status.textContent =
-            "Tudo foi zerado.";
-
-    }
-);
-
-
-// ============================================================
-// MOSTRAR JSON
-// ============================================================
-
-function atualizarJSON() {
-
-    configuracao.textContent =
-        JSON.stringify(
-            config,
-            null,
-            2
-        );
-
-}
-
-
-// ============================================================
-// COPIAR JSON
-// ============================================================
-
-botaoCopiar.addEventListener(
-    "click",
-    async () => {
-
-        try {
-
-            await navigator.clipboard.writeText(
-                configuracao.textContent
-            );
-
-
-            status.textContent =
-                "JSON copiado para a área de transferência.";
-
-        }
-
-        catch (erro) {
-
-            console.error(
-                erro
-            );
-
-
-            status.textContent =
-                "Não foi possível copiar o JSON.";
-
-        }
-
-    }
-);
-
-
-// ============================================================
-// MARCADOR
-// ============================================================
-
-target.addEventListener(
-    "targetFound",
-    () => {
-
-        status.textContent =
-            `Marcador encontrado — ${pasta}`;
-
-    }
-);
-
-
-target.addEventListener(
-    "targetLost",
-    () => {
-
-        status.textContent =
-            "Marcador perdido";
-
-    }
-);
-
-
-// ============================================================
-// INICIAR
-// ============================================================
-
-carregarConfig();
+carregarConfiguracao();
