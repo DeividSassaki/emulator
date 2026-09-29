@@ -1,107 +1,79 @@
 * {
-    box-sizing: border-box;
-}
+  box-sizing: border-box;
+  }
 
 html,
 body {
-
-    margin: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    background: #000;
-
-    font-family: Arial, sans-serif;
+margin: 0;
+width: 100%;
+height: 100%;
+overflow: hidden;
+background: #000;
+font-family: Arial, sans-serif;
 }
-
-
-/* =========================================================
-   ÁREA DA CÂMERA
-========================================================= */
 
 .example-container {
-
-    position: fixed;
-
-    inset: 0;
-
-    width: 100%;
-    height: 100%;
-
-    overflow: hidden;
-
-    background: #000;
+position: fixed;
+inset: 0;
+width: 100%;
+height: 100%;
+overflow: hidden;
+background: #000;
 }
-
-
-/* =========================================================
-   CENA AR
-========================================================= */
 
 a-scene {
-
-    position: absolute !important;
-
-    top: 0;
-    left: 0;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    margin: 0 !important;
-
-    background: transparent !important;
+position: absolute !important;
+top: 0;
+left: 0;
+width: 100% !important;
+height: 100% !important;
+margin: 0 !important;
+background: transparent !important;
 }
 
-
 /* =========================================================
-   BOTÃO TELA CHEIA
+BOTÃO TELA CHEIA
 ========================================================= */
 
-#fullscreen {
+#fullscreenButton {
+position: fixed;
 
-    position: fixed;
+top: 15px;
+right: 15px;
 
-    top: 15px;
-    right: 15px;
+z-index: 99999;
 
-    z-index: 100;
+width: 48px;
+height: 48px;
 
-    border: 0;
+border: 0;
+border-radius: 10px;
 
-    border-radius: 25px;
+background: rgba(0, 0, 0, .70);
 
-    padding: 10px 15px;
+color: #fff;
 
-    background: rgba(0, 0, 0, .65);
+font-size: 25px;
 
-    color: #fff;
+display: flex;
+align-items: center;
+justify-content: center;
 
-    font-size: 14px;
+cursor: pointer;
 
-    font-weight: bold;
-
-    backdrop-filter: blur(5px);
-
-    cursor: pointer;
-
-    touch-action: manipulation;
-}
-
-
-#fullscreen:active {
-
-    transform: scale(.96);
+touch-action: manipulation;
 
 }
+
+#fullscreenButton:active {
+transform: scale(.94);
+}
+
 /* =========================================================
-   ESCONDE BOTÃO VR DO A-FRAME
+ESCONDE BOTÕES DO A-FRAME
 ========================================================= */
 
 .a-enter-vr,
 .a-enter-ar {
-    display: none !important;
+display: none !important;
 }
