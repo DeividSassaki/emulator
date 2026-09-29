@@ -19,15 +19,10 @@
 
 <body>
 
-    <!-- =========================
-         CENA AR
-    ========================== -->
-
     <div class="example-container">
 
         <a-scene
             id="scene"
-
             mindar-image="
                 imageTargetSrc: ../marcadores/zelda/targets.mind;
                 autoStart: true;
@@ -38,66 +33,155 @@
                 uiError: no;
                 uiScanning: no;
             "
-
             embedded
-
             color-space="sRGB"
-
             renderer="
                 alpha: true;
                 colorManagement: true;
                 physicallyCorrectLights: true;
             "
-
             vr-mode-ui="enabled: false"
-
             device-orientation-permission-ui="enabled: false"
         >
 
             <a-camera
                 position="0 0 0"
-                look-controls="enabled: false"
+                look-controls="enabled:false"
             ></a-camera>
 
+            <a-assets id="assets">
 
-            <a-assets id="assets"></a-assets>
+                <a-asset-item
+                    id="heroModel"
+                    src="../marcadores/zelda/Hero%20of%20Time.glb"
+                ></a-asset-item>
+
+            </a-assets>
 
 
-            <!-- =========================
-                 MARCADOR
-                 ↓
-                 PIVOT AVÔ
-                 ↓
-                 PIVOT PAI
-                 ↓
-                 OBJETO
-            ========================== -->
+            <!--
+                MARCADOR
+                    ↓
+                PIVOT AVÔ
+                    ↓
+                PIVOT PAI
+                    ↓
+                GLB
+            -->
 
             <a-entity
                 id="targetZelda"
                 mindar-image-target="targetIndex: 0"
             >
 
-                <!-- PIVOT AVÔ
-                     Referência direta do marcador -->
+                <!-- =========================
+                     PIVOT AVÔ
+                     Referência do marcador
+                ========================== -->
+
                 <a-entity
                     id="pivotAvo"
                     position="0 0 0"
                     rotation="0 0 0"
                 >
 
-                    <!-- PIVOT PAI
-                         Referência do Pivot Avô -->
+                    <!-- Indicador visual do PIVOT AVÔ -->
+                    <a-entity id="visualPivotAvo">
+
+                        <!-- eixo X -->
+                        <a-box
+                            position="0.075 0 0"
+                            width="0.15"
+                            height="0.008"
+                            depth="0.008"
+                            color="red"
+                        ></a-box>
+
+                        <!-- eixo Y -->
+                        <a-box
+                            position="0 0.075 0"
+                            width="0.008"
+                            height="0.15"
+                            depth="0.008"
+                            color="green"
+                        ></a-box>
+
+                        <!-- eixo Z -->
+                        <a-box
+                            position="0 0 0.075"
+                            width="0.008"
+                            height="0.008"
+                            depth="0.15"
+                            color="blue"
+                        ></a-box>
+
+                        <!-- centro -->
+                        <a-sphere
+                            radius="0.025"
+                            color="yellow"
+                        ></a-sphere>
+
+                    </a-entity>
+
+
+                    <!-- =========================
+                         PIVOT PAI
+                         Referência do PIVOT AVÔ
+                    ========================== -->
+
                     <a-entity
                         id="pivotPai"
                         position="0 0 0"
                         rotation="0 0 0"
                     >
 
-                        <!-- OBJETO
-                             Referência do Pivot Pai -->
+                        <!-- Indicador visual do PIVOT PAI -->
+                        <a-entity id="visualPivotPai">
+
+                            <!-- eixo X -->
+                            <a-box
+                                position="0.055 0 0"
+                                width="0.11"
+                                height="0.005"
+                                depth="0.005"
+                                color="orange"
+                            ></a-box>
+
+                            <!-- eixo Y -->
+                            <a-box
+                                position="0 0.055 0"
+                                width="0.005"
+                                height="0.11"
+                                depth="0.005"
+                                color="cyan"
+                            ></a-box>
+
+                            <!-- eixo Z -->
+                            <a-box
+                                position="0 0 0.055"
+                                width="0.005"
+                                height="0.005"
+                                depth="0.11"
+                                color="magenta"
+                            ></a-box>
+
+                            <!-- centro -->
+                            <a-sphere
+                                radius="0.018"
+                                color="white"
+                            ></a-sphere>
+
+                        </a-entity>
+
+
+                        <!-- =========================
+                             GLB
+                             Referência do PIVOT PAI
+                        ========================== -->
+
                         <a-entity
                             id="objectEntity"
+                            gltf-model="#heroModel"
                             position="0 0 0"
                             rotation="0 0 0"
                             scale="1 1 1"
@@ -108,7 +192,8 @@
                 </a-entity>
 
 
-                <!-- Iluminação -->
+                <!-- Luzes -->
+
                 <a-light
                     type="ambient"
                     intensity="2"
@@ -140,10 +225,6 @@
         </div>
 
 
-        <!-- =========================
-             ELEMENTO
-        ========================== -->
-
         <div class="grupo-titulo">
             ELEMENTO
         </div>
@@ -172,10 +253,6 @@
         </div>
 
 
-        <!-- =========================
-             CONTROLE
-        ========================== -->
-
         <div class="grupo-titulo">
             CONTROLE
         </div>
@@ -198,22 +275,11 @@
         </div>
 
 
-        <!-- =========================
-             EIXO X
-        ========================== -->
-
         <div class="controle">
 
             <label>
-
-                <span id="labelX">
-                    Rotação X
-                </span>
-
-                <span id="valorX">
-                    0.00
-                </span>
-
+                <span id="labelX">Rotação X</span>
+                <span id="valorX">0.00</span>
             </label>
 
             <input
@@ -228,22 +294,11 @@
         </div>
 
 
-        <!-- =========================
-             EIXO Y
-        ========================== -->
-
         <div class="controle">
 
             <label>
-
-                <span id="labelY">
-                    Rotação Y
-                </span>
-
-                <span id="valorY">
-                    0.00
-                </span>
-
+                <span id="labelY">Rotação Y</span>
+                <span id="valorY">0.00</span>
             </label>
 
             <input
@@ -258,22 +313,11 @@
         </div>
 
 
-        <!-- =========================
-             EIXO Z
-        ========================== -->
-
         <div class="controle">
 
             <label>
-
-                <span id="labelZ">
-                    Rotação Z
-                </span>
-
-                <span id="valorZ">
-                    0.00
-                </span>
-
+                <span id="labelZ">Rotação Z</span>
+                <span id="valorZ">0.00</span>
             </label>
 
             <input
@@ -288,10 +332,6 @@
         </div>
 
 
-        <!-- =========================
-             ESCALA
-        ========================== -->
-
         <div
             class="grupo-titulo"
             id="grupoEscala"
@@ -305,15 +345,8 @@
         >
 
             <label>
-
-                <span>
-                    Escala
-                </span>
-
-                <span id="valorEscala">
-                    1.00
-                </span>
-
+                <span>Escala</span>
+                <span id="valorEscala">1.00</span>
             </label>
 
             <input
@@ -328,10 +361,6 @@
         </div>
 
 
-        <!-- =========================
-             BOTÕES
-        ========================== -->
-
         <div class="botoes">
 
             <button id="resetar">
@@ -344,10 +373,6 @@
 
         </div>
 
-
-        <!-- =========================
-             JSON
-        ========================== -->
 
         <div class="grupo-titulo">
             JSON
