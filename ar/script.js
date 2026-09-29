@@ -1,64 +1,30 @@
-// ============================================================
-// AR PRINCIPAL
-//
-// HIERARQUIA:
-//
-// MARCADOR
-//    ↓
-// PIVOT AVÔ
-//    ↓
-// PIVOT PAI
-//    ↓
-// OBJETO
-//    ↓
-// GLB
-//
-// O GLB usa o Pivot Pai como referência.
-// ============================================================
-
-
 const target =
     document.getElementById("targetZelda");
-
 
 const pivotAvo =
     document.getElementById("pivotAvo");
 
-
 const pivotPai =
     document.getElementById("pivotPai");
-
 
 const objeto =
     document.getElementById("objectEntity");
 
-
 const modelo =
     document.getElementById("heroModelObject");
 
-
 const audio =
     document.getElementById("arAudio");
-
 
 const fullscreenButton =
     document.getElementById("fullscreenButton");
 
 
-// ============================================================
-// CONFIGURAÇÃO
-// ============================================================
-
 const parametros =
-    new URLSearchParams(
-        window.location.search
-    );
-
+    new URLSearchParams(window.location.search);
 
 const pasta =
-    parametros.get("pasta") ||
-    "zelda";
-
+    parametros.get("pasta") || "zelda";
 
 const CONFIG_URL =
     `./marcadores/${pasta}/config.json`;
@@ -68,22 +34,231 @@ const VELOCIDADE_ROTACAO =
     0.01;
 
 
-// ============================================================
-// ESTADO
-// ============================================================
-
 let config = null;
 
-let marcadorVisivel = false;
+let marcadorVisivel =
+    false;
 
-let arrastando = false;
+let arrastando =
+    false;
 
-let ultimoX = 0;
+let ultimoX =
+    0;
 
 
-// ============================================================
-// CARREGAR CONFIGURAÇÃO
-// ============================================================
+/* ============================================================
+   FUNÇÕES
+============================================================ */
+
+
+function numero(valor) {
+
+    const n =
+        Number(valor);
+
+    return Number.isFinite(n)
+        ? n
+        : 0;
+
+}
+
+
+function vetorZero() {
+
+    return {
+        x: 0,
+        y: 0,
+        z: 0
+    };
+
+}
+
+
+/* ============================================================
+   APLICAR CONFIGURAÇÃO
+============================================================ */
+
+
+function aplicarConfiguracao() {
+
+    if (!config) {
+        return;
+    }
+
+
+    /* --------------------------------------------------------
+       PIVOT AVÔ
+    -------------------------------------------------------- */
+
+    const avoPosition =
+        config.pivotAvo?.position ||
+        vetorZero();
+
+    const avoRotation =
+        config.pivotAvo?.rotation ||
+        vetorZero();
+
+
+    pivotAvo.object3D.position.set(
+
+        numero(avoPosition.x),
+
+        numero(avoPosition.y),
+
+        numero(avoPosition.z)
+
+    );
+
+
+    pivotAvo.object3D.rotation.set(
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(avoRotation.z)
+        )
+
+    );
+
+
+    /* --------------------------------------------------------
+       PIVOT PAI
+    -------------------------------------------------------- */
+
+    const paiPosition =
+        config.pivotPai?.position ||
+        vetorZero();
+
+    const paiRotation =
+        config.pivotPai?.rotation ||
+        vetorZero();
+
+
+    pivotPai.object3D.position.set(
+
+        numero(paiPosition.x),
+
+        numero(paiPosition.y),
+
+        numero(paiPosition.z)
+
+    );
+
+
+    pivotPai.object3D.rotation.set(
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(paiRotation.z)
+        )
+
+    );
+
+
+    /* --------------------------------------------------------
+       OBJETO
+    -------------------------------------------------------- */
+
+    const objectPosition =
+        config.position ||
+        vetorZero();
+
+    const objectRotation =
+        config.rotation ||
+        vetorZero();
+
+
+    objeto.object3D.position.set(
+
+        numero(objectPosition.x),
+
+        numero(objectPosition.y),
+
+        numero(objectPosition.z)
+
+    );
+
+
+    objeto.object3D.rotation.set(
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.x)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.y)
+        ),
+
+        THREE.MathUtils.degToRad(
+            numero(objectRotation.z)
+        )
+
+    );
+
+
+    /* --------------------------------------------------------
+       ESCALA
+    -------------------------------------------------------- */
+
+    const escala =
+        Number(config.scale);
+
+    const escalaFinal =
+        Number.isFinite(escala)
+            ? escala
+            : 1;
+
+
+    objeto.object3D.scale.set(
+
+        escalaFinal,
+        escalaFinal,
+        escalaFinal
+
+    );
+
+
+    /* --------------------------------------------------------
+       ÁUDIO
+    -------------------------------------------------------- */
+
+    if (config.audio) {
+
+        audio.src =
+            `./marcadores/${pasta}/${config.audio}`;
+
+        audio.preload =
+            "auto";
+
+        audio.load();
+
+    }
+
+
+    console.log(
+        "AR: configuração aplicada ao marcador"
+    );
+
+}
+
+
+/* ============================================================
+   CARREGAR CONFIGURAÇÃO
+============================================================ */
+
 
 async function carregarConfig() {
 
@@ -108,7 +283,9 @@ async function carregarConfig() {
             await resposta.json();
 
 
-        aplicarConfiguracao();
+        console.log(
+            "AR: config.json carregado"
+        );
 
 
     } catch (erro) {
@@ -123,284 +300,10 @@ async function carregarConfig() {
 }
 
 
-// ============================================================
-// APLICAR CONFIGURAÇÃO
-// ============================================================
+/* ============================================================
+   MARCADOR ENCONTRADO
+============================================================ */
 
-function aplicarConfiguracao() {
-
-    if (!config) {
-        return;
-    }
-
-
-    // ========================================================
-    // PIVOT AVÔ
-    //
-    // Referência direta do marcador.
-    // ========================================================
-
-    const pivotAvoPosition =
-        config.pivotAvo?.position;
-
-
-    const pivotAvoRotation =
-        config.pivotAvo?.rotation;
-
-
-    if (pivotAvoPosition) {
-
-        pivotAvo.object3D.position.set(
-
-            Number(
-                pivotAvoPosition.x ?? 0
-            ),
-
-            Number(
-                pivotAvoPosition.y ?? 0
-            ),
-
-            Number(
-                pivotAvoPosition.z ?? 0
-            )
-
-        );
-
-    } else if (config.pivot) {
-
-        // Compatibilidade com o
-        // formato antigo.
-
-        pivotAvo.object3D.position.set(
-
-            Number(
-                config.pivot.x ?? 0
-            ),
-
-            Number(
-                config.pivot.y ?? 0
-            ),
-
-            Number(
-                config.pivot.z ?? 0
-            )
-
-        );
-
-    } else {
-
-        pivotAvo.object3D.position.set(
-            0,
-            0,
-            0
-        );
-
-    }
-
-
-    if (pivotAvoRotation) {
-
-        pivotAvo.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    pivotAvoRotation.x ?? 0
-                )
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    pivotAvoRotation.y ?? 0
-                )
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    pivotAvoRotation.z ?? 0
-                )
-            )
-
-        );
-
-    } else if (config.pivotRotation) {
-
-        // Compatibilidade com o
-        // formato antigo.
-
-        pivotAvo.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.x ?? 0
-                )
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.y ?? 0
-                )
-            ),
-
-            THREE.MathUtils.degToRad(
-                Number(
-                    config.pivotRotation.z ?? 0
-                )
-            )
-
-        );
-
-    } else {
-
-        pivotAvo.object3D.rotation.set(
-            0,
-            0,
-            0
-        );
-
-    }
-
-
-    // ========================================================
-    // PIVOT PAI
-    //
-    // Referência do Pivot Avô.
-    // ========================================================
-
-    const pivotPaiPosition =
-        config.pivotPai?.position;
-
-
-    const pivotPaiRotation =
-        config.pivotPai?.rotation;
-
-
-    pivotPai.object3D.position.set(
-
-        Number(
-            pivotPaiPosition?.x ?? 0
-        ),
-
-        Number(
-            pivotPaiPosition?.y ?? 0
-        ),
-
-        Number(
-            pivotPaiPosition?.z ?? 0
-        )
-
-    );
-
-
-    pivotPai.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(
-                pivotPaiRotation?.x ?? 0
-            )
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(
-                pivotPaiRotation?.y ?? 0
-            )
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(
-                pivotPaiRotation?.z ?? 0
-            )
-        )
-
-    );
-
-
-    // ========================================================
-    // OBJETO
-    //
-    // Referência do Pivot Pai.
-    // ========================================================
-
-    objeto.object3D.position.set(
-
-        Number(
-            config.position?.x ?? 0
-        ),
-
-        Number(
-            config.position?.y ?? 0
-        ),
-
-        Number(
-            config.position?.z ?? 0
-        )
-
-    );
-
-
-    objeto.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            Number(
-                config.rotation?.x ?? 0
-            )
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(
-                config.rotation?.y ?? 0
-            )
-        ),
-
-        THREE.MathUtils.degToRad(
-            Number(
-                config.rotation?.z ?? 0
-            )
-        )
-
-    );
-
-
-    // ========================================================
-    // ESCALA
-    // ========================================================
-
-    const escala =
-        Number(
-            config.scale ?? 1
-        );
-
-
-    objeto.object3D.scale.set(
-        escala,
-        escala,
-        escala
-    );
-
-
-    // ========================================================
-    // ÁUDIO
-    // ========================================================
-
-    if (config.audio) {
-
-        audio.src =
-            `./marcadores/${pasta}/${config.audio}`;
-
-
-        audio.preload =
-            "auto";
-
-
-        audio.load();
-
-    }
-
-}
-
-
-// ============================================================
-// MARCADOR ENCONTRADO
-// ============================================================
 
 target.addEventListener(
     "targetFound",
@@ -415,21 +318,36 @@ target.addEventListener(
         );
 
 
+        /*
+         * A configuração é aplicada AQUI.
+         *
+         * Isso permite que cada marcador tenha
+         * sua própria posição, rotação e pivots.
+         */
+
+        aplicarConfiguracao();
+
+
         tocarAudio();
 
     }
 );
 
 
-// ============================================================
-// MARCADOR PERDIDO
-// ============================================================
+/* ============================================================
+   MARCADOR PERDIDO
+============================================================ */
+
 
 target.addEventListener(
     "targetLost",
     () => {
 
         marcadorVisivel =
+            false;
+
+
+        arrastando =
             false;
 
 
@@ -441,9 +359,10 @@ target.addEventListener(
 );
 
 
-// ============================================================
-// ÁUDIO
-// ============================================================
+/* ============================================================
+   ÁUDIO
+============================================================ */
+
 
 function tocarAudio() {
 
@@ -460,38 +379,34 @@ function tocarAudio() {
 
     audio.play()
 
-        .then(
-            () => {
+        .then(() => {
 
-                console.log(
-                    "AR: áudio reproduzindo"
-                );
+            console.log(
+                "AR: áudio reproduzindo"
+            );
 
-            }
-        )
+        })
 
-        .catch(
-            () => {
+        .catch(() => {
 
-                console.log(
-                    "AR: áudio aguardando interação"
-                );
+            console.log(
+                "AR: áudio aguardando interação"
+            );
 
-            }
-        );
+        });
 
 }
 
 
-// ============================================================
-// TOQUE
-//
-// Também permite iniciar o áudio depois
-// de uma interação do usuário.
-// ============================================================
+/* ============================================================
+   TOQUE PARA LIBERAR ÁUDIO
+============================================================ */
+
 
 document.addEventListener(
+
     "touchstart",
+
     () => {
 
         if (marcadorVisivel) {
@@ -501,23 +416,30 @@ document.addEventListener(
         }
 
     },
+
     {
         passive: true,
         once: false
     }
+
 );
 
 
-// ============================================================
-// INÍCIO DO ARRASTO
-//
-// O usuário arrasta horizontalmente para
-// girar o PIVOT PAI.
-// ============================================================
+/* ============================================================
+   INÍCIO DO ARRASTO
+============================================================ */
+
 
 document.addEventListener(
+
     "touchstart",
+
     evento => {
+
+        if (!marcadorVisivel) {
+            return;
+        }
+
 
         if (
             evento.touches.length !== 1
@@ -536,40 +458,30 @@ document.addEventListener(
             evento.touches[0].clientX;
 
     },
+
     {
         passive: true,
         capture: true
     }
+
 );
 
 
-// ============================================================
-// ARRASTO
-//
-// ANTES:
-//
-// calculava a posição do GLB
-// matematicamente.
-//
-// AGORA:
-//
-// gira diretamente o Pivot Pai.
-//
-// Portanto:
-//
-// Pivot Pai
-//     ↓
-//     GLB
-//
-// O GLB gira exatamente em torno
-// do eixo calibrado.
-// ============================================================
+/* ============================================================
+   ARRASTAR
+
+   O PIVOT PAI GIRA DIRETAMENTE NO EIXO Y.
+============================================================ */
+
 
 document.addEventListener(
+
     "touchmove",
+
     evento => {
 
         if (
+            !marcadorVisivel ||
             !arrastando ||
             evento.touches.length !== 1
         ) {
@@ -584,8 +496,7 @@ document.addEventListener(
 
 
         const deltaX =
-            atualX -
-            ultimoX;
+            atualX - ultimoX;
 
 
         ultimoX =
@@ -597,59 +508,80 @@ document.addEventListener(
             VELOCIDADE_ROTACAO;
 
 
+        /*
+         * Agora o giro acontece diretamente
+         * no Pivot Pai.
+         *
+         * O GLB está dentro dele.
+         */
+
         pivotPai.object3D.rotation.y +=
             angulo;
 
     },
+
     {
         passive: true,
         capture: true
     }
+
 );
 
 
-// ============================================================
-// FIM DO ARRASTO
-// ============================================================
+/* ============================================================
+   FIM DO ARRASTO
+============================================================ */
+
 
 document.addEventListener(
+
     "touchend",
+
     () => {
 
         arrastando =
             false;
 
     },
+
     {
         passive: true,
         capture: true
     }
+
 );
 
 
 document.addEventListener(
+
     "touchcancel",
+
     () => {
 
         arrastando =
             false;
 
     },
+
     {
         passive: true,
         capture: true
     }
+
 );
 
 
-// ============================================================
-// TELA CHEIA
-// ============================================================
+/* ============================================================
+   FULLSCREEN
+============================================================ */
+
 
 if (fullscreenButton) {
 
     fullscreenButton.addEventListener(
+
         "click",
+
         async evento => {
 
             evento.stopPropagation();
@@ -661,11 +593,14 @@ if (fullscreenButton) {
                     !document.fullscreenElement
                 ) {
 
-                    await document.documentElement.requestFullscreen();
+                    await document
+                        .documentElement
+                        .requestFullscreen();
 
                 } else {
 
-                    await document.exitFullscreen();
+                    await document
+                        .exitFullscreen();
 
                 }
 
@@ -679,13 +614,15 @@ if (fullscreenButton) {
             }
 
         }
+
     );
 
 }
 
 
-// ============================================================
-// INICIAR
-// ============================================================
+/* ============================================================
+   INÍCIO
+============================================================ */
+
 
 carregarConfig();
