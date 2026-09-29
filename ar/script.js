@@ -1,309 +1,231 @@
-const params = new URLSearchParams(window.location.search);
+```javascript
+/* =========================================================
+   PASTA
+========================================================= */
 
-const pasta = params.get("pasta") || "zelda";
+const parametros =
+    new URLSearchParams(
+        window.location.search
+    );
+
+
+const pasta =
+    parametros.get("pasta") || "zelda";
+
 
 const CONFIG_URL =
-    `./marcadores/${encodeURIComponent(pasta)}/config.json`;
-
-
-const scene = document.getElementById("scene");
-const target = document.getElementById("arTarget");
-const pivot = document.getElementById("arPivot");
-const model = document.getElementById("arModelObject");
-const modelAsset = document.getElementById("arModel");
-const fullscreenButton = document.getElementById("fullscreen");
-
-
-let config = null;
-let audio = null;
-let mindarStarted = false;
+    `./marcadores/${pasta}/config.json`;
 
 
 /* =========================================================
-   CAMINHOS
-   ========================================================= */
+   ELEMENTOS
+========================================================= */
+
+const container =
+    document.getElementById(
+        "ar-container"
+    );
+
+
+const botaoFullscreen =
+    document.getElementById(
+        "fullscreen"
+    );
+
+
+/* =========================================================
+   VARIÁVEIS AR
+========================================================= */
+
+let scene = null;
+
+let target = null;
+
+let pivot = null;
+
+let modelo = null;
+
+let audio = null;
+
+let config = null;
+
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+let marcadorEncontrado =
+    false;
+
+
+/* =========================================================
+   COPIAR CONFIG
+========================================================= */
+
+function copiar(obj) {
+
+    return JSON.parse(
+        JSON.stringify(obj)
+    );
+
+}
+
+
+/* =========================================================
+   CAMINHO DE ARQUIVO
+========================================================= */
 
 function caminhoArquivo(nome) {
 
-    if (!nome) return "";
+    if (!nome) {
+        return "";
+    }
 
-    return `./marcadores/${encodeURIComponent(pasta)}/${nome
-        .split("/")
-        .map(parte => encodeURIComponent(parte))
-        .join("/")}`;
+
+    return `./marcadores/${pasta}/${encodeURIComponent(nome)}`;
+
 }
 
 
 /* =========================================================
-   NÚMERO
-   ========================================================= */
+   CARREGAR CONFIG
+========================================================= */
 
-function numero(valor, padrao = 0) {
+async function carregarConfig() {
 
-    const n = Number(valor);
+    try {
 
-    return Number.isFinite(n) ? n : padrao;
+        console.log(
+            "Carregando:",
+            CONFIG_URL
+        );
+
+
+        const resposta =
+            await fetch(
+                `${CONFIG_URL}?${Date.now()}`
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
+
+        }
+
+
+        config =
+            await resposta.json();
+
+
+        console.log(
+            "Configuração carregada:",
+            config
+        );
+
+
+        document.title =
+            config.nome || "AR";
+
+
+        criarCena();
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar config.json:",
+            erro
+        );
+
+    }
+
 }
 
 
 /* =========================================================
-   APLICAR CONFIGURAÇÃO
-   ========================================================= */
+   CRIAR CENA
+========================================================= */
 
-function aplicarConfiguracao() {
-
-    if (!config) return;
-
-
-    /* -----------------------------------------------------
-       PIVÔ
-       ----------------------------------------------------- */
-
-    if (config.pivot) {
-
-        pivot.object3D.position.set(
-            numero(config.pivot.x),
-            numero(config.pivot.y),
-            numero(config.pivot.z)
-        );
-    }
-
-
-    if (config.pivotRotation) {
-
-        pivot.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                numero(config.pivotRotation.x)
-            ),
-
-            THREE.MathUtils.degToRad(
-                numero(config.pivotRotation.y)
-            ),
-
-            THREE.MathUtils.degToRad(
-                numero(config.pivotRotation.z)
-            )
-        );
-    }
-
-
-    /* -----------------------------------------------------
-       MODELO
-       ----------------------------------------------------- */
-
-    if (config.position) {
-
-        model.object3D.position.set(
-            numero(config.position.x),
-            numero(config.position.y),
-            numero(config.position.z)
-        );
-    }
-
-
-    if (config.rotation) {
-
-        model.object3D.rotation.set(
-
-            THREE.MathUtils.degToRad(
-                numero(config.rotation.x)
-            ),
-
-            THREE.MathUtils.degToRad(
-                numero(config.rotation.y)
-            ),
-
-            THREE.MathUtils.degToRad(
-                numero(config.rotation.z)
-            )
-        );
-    }
-
-
-    /* -----------------------------------------------------
-       ESCALA
-       ----------------------------------------------------- */
-
-    if (config.scale !== undefined) {
-
-        const escala = numero(config.scale, 1);
-
-        model.object3D.scale.set(
-            escala,
-            escala,
-            escala
-        );
-    }
-}
-
-
-/* =========================================================
-   ÁUDIO
-   ========================================================= */
-
-function prepararAudio() {
-
-    if (!config || !config.audio) {
-        return;
-    }
-
-
-    const audioURL =
-        caminhoArquivo(config.audio);
-
+function criarCena() {
 
     console.log(
-        "Áudio:",
-        audioURL
+        "Criando cena AR..."
     );
 
 
-    audio = new Audio(audioURL);
+    /* =====================================================
+       A-SCENE
+    ===================================================== */
 
-    audio.loop = true;
-    audio.preload = "auto";
-    audio.volume = 1;
+    scene =
+        document.createElement(
+            "a-scene"
+        );
 
 
-    audio.addEventListener(
-        "error",
-        () => {
-
-            console.error(
-                "Erro ao carregar áudio:",
-                audioURL
-            );
-        }
+    scene.setAttribute(
+        "id",
+        "scene"
     );
-}
 
 
-function tocarAudio() {
-
-    if (!audio) {
-        console.warn("Áudio não foi carregado.");
-        return;
-    }
+    scene.setAttribute(
+        "embedded",
+        ""
+    );
 
 
-    audio.play()
-        .then(() => {
-
-            console.log(
-                "Música iniciada."
-            );
-
-        })
-        .catch(erro => {
-
-            console.warn(
-                "Navegador bloqueou o áudio:",
-                erro
-            );
-        });
-}
+    scene.setAttribute(
+        "color-space",
+        "sRGB"
+    );
 
 
-function pararAudio() {
-
-    if (!audio) return;
-
-    audio.pause();
-}
-
-
-/* =========================================================
-   MARCADOR
-   ========================================================= */
-
-target.addEventListener(
-    "targetFound",
-    () => {
-
-        console.log(
-            "================================"
-        );
-
-        console.log(
-            "MARCADOR ENCONTRADO"
-        );
-
-        console.log(
-            "================================"
-        );
+    scene.setAttribute(
+        "renderer",
+        `
+        alpha: true;
+        colorManagement: true;
+        physicallyCorrectLights: true;
+        `
+    );
 
 
-        aplicarConfiguracao();
-
-        tocarAudio();
-    }
-);
-
-
-target.addEventListener(
-    "targetLost",
-    () => {
-
-        console.log(
-            "Marcador perdido."
-        );
-
-        pararAudio();
-    }
-);
+    scene.setAttribute(
+        "vr-mode-ui",
+        "enabled: false"
+    );
 
 
-/* =========================================================
-   INICIAR MINDAR
-   ========================================================= */
-
-async function iniciarMindAR() {
-
-    if (mindarStarted) {
-        return;
-    }
+    scene.setAttribute(
+        "device-orientation-permission-ui",
+        "enabled: false"
+    );
 
 
-    if (!config) {
-        return;
-    }
+    /* =====================================================
+       MINDAR
 
+       Igual à calibração.
+    ===================================================== */
 
     const marcador =
-        config.marcador;
+        config.marcador ||
+        "targets.mind";
 
 
-    if (!marcador) {
+    const caminhoMarcador =
+        `./marcadores/${pasta}/${marcador}`;
 
-        throw new Error(
-            "O config.json não possui o campo 'marcador'."
-        );
-    }
-
-
-    const marcadorURL =
-        caminhoArquivo(marcador);
-
-
-    console.log(
-        "Marcador:",
-        marcadorURL
-    );
-
-
-    /*
-     * O MindAR só é criado AGORA.
-     *
-     * Assim ele já recebe o marcador correto
-     * vindo do config.json.
-     */
 
     scene.setAttribute(
         "mindar-image",
         `
-        imageTargetSrc: ${marcadorURL};
-        autoStart: false;
+        imageTargetSrc: ${caminhoMarcador};
+        autoStart: true;
         missTolerance: 20;
         filterMinCF: 0.0001;
         filterBeta: 1000;
@@ -314,247 +236,618 @@ async function iniciarMindAR() {
     );
 
 
-    /*
-     * Pequena espera para o A-Frame
-     * registrar o sistema MindAR.
-     */
+    /* =====================================================
+       ASSETS
+    ===================================================== */
 
-    await new Promise(
-        resolve => setTimeout(resolve, 100)
+    const assets =
+        document.createElement(
+            "a-assets"
+        );
+
+
+    const assetModelo =
+        document.createElement(
+            "a-asset-item"
+        );
+
+
+    assetModelo.setAttribute(
+        "id",
+        "arModel"
     );
 
 
-    const sistema =
-        scene.systems["mindar-image-system"];
+    assetModelo.setAttribute(
+        "src",
+        caminhoArquivo(
+            config.modelo
+        )
+    );
 
 
-    if (!sistema) {
+    assets.appendChild(
+        assetModelo
+    );
 
-        throw new Error(
-            "Sistema MindAR não foi encontrado."
+
+    scene.appendChild(
+        assets
+    );
+
+
+    /* =====================================================
+       CÂMERA
+    ===================================================== */
+
+    const camera =
+        document.createElement(
+            "a-camera"
         );
-    }
 
 
-    try {
-
-        await sistema.start();
-
-
-        mindarStarted = true;
+    camera.setAttribute(
+        "position",
+        "0 0 0"
+    );
 
 
-        console.log(
-            "Câmera/MindAR iniciado normalmente."
+    camera.setAttribute(
+        "look-controls",
+        "enabled: false"
+    );
+
+
+    scene.appendChild(
+        camera
+    );
+
+
+    /* =====================================================
+       TARGET
+    ===================================================== */
+
+    target =
+        document.createElement(
+            "a-entity"
         );
 
-    } catch (erro) {
 
-        console.error(
-            "Erro ao iniciar MindAR:",
-            erro
+    target.setAttribute(
+        "id",
+        "arTarget"
+    );
+
+
+    target.setAttribute(
+        "mindar-image-target",
+        "targetIndex: 0"
+    );
+
+
+    /* =====================================================
+       PIVÔ
+
+       NÃO POSSUI NENHUM OBJETO VISUAL.
+
+       Ele existe somente para controlar
+       a rotação do modelo.
+    ===================================================== */
+
+    pivot =
+        document.createElement(
+            "a-entity"
         );
-    }
+
+
+    pivot.setAttribute(
+        "id",
+        "arPivot"
+    );
+
+
+    /* =====================================================
+       GLB
+    ===================================================== */
+
+    modelo =
+        document.createElement(
+            "a-gltf-model"
+        );
+
+
+    modelo.setAttribute(
+        "id",
+        "arModelObject"
+    );
+
+
+    modelo.setAttribute(
+        "src",
+        "#arModel"
+    );
+
+
+    modelo.setAttribute(
+        "visible",
+        "false"
+    );
+
+
+    /* =====================================================
+       PIVÔ → MODELO
+    ===================================================== */
+
+    pivot.appendChild(
+        modelo
+    );
+
+
+    target.appendChild(
+        pivot
+    );
+
+
+    scene.appendChild(
+        target
+    );
+
+
+    /* =====================================================
+       LUZ AMBIENTE
+    ===================================================== */
+
+    const luzAmbiente =
+        document.createElement(
+            "a-light"
+        );
+
+
+    luzAmbiente.setAttribute(
+        "type",
+        "ambient"
+    );
+
+
+    luzAmbiente.setAttribute(
+        "intensity",
+        "2"
+    );
+
+
+    scene.appendChild(
+        luzAmbiente
+    );
+
+
+    /* =====================================================
+       LUZ DIRECIONAL
+    ===================================================== */
+
+    const luzDirecional =
+        document.createElement(
+            "a-light"
+        );
+
+
+    luzDirecional.setAttribute(
+        "type",
+        "directional"
+    );
+
+
+    luzDirecional.setAttribute(
+        "intensity",
+        "3"
+    );
+
+
+    luzDirecional.setAttribute(
+        "position",
+        "1 3 2"
+    );
+
+
+    scene.appendChild(
+        luzDirecional
+    );
+
+
+    /* =====================================================
+       COLOCAR CENA
+    ===================================================== */
+
+    container.appendChild(
+        scene
+    );
+
+
+    /* =====================================================
+       CENA PRONTA
+    ===================================================== */
+
+    scene.addEventListener(
+        "loaded",
+        cenaPronta
+    );
+
 }
 
 
 /* =========================================================
-   CARREGAR CONFIG.JSON
-   ========================================================= */
+   CENA PRONTA
+========================================================= */
 
-async function carregarConfiguracao() {
+function cenaPronta() {
 
-    try {
+    console.log(
+        "Cena A-Frame carregada."
+    );
 
-        console.log(
-            "================================"
+
+    /* =====================================================
+       CONFIGURAR PIVÔ
+    ===================================================== */
+
+    if (config.pivot) {
+
+        pivot.object3D.position.set(
+
+            Number(config.pivot.x) || 0,
+
+            Number(config.pivot.y) || 0,
+
+            Number(config.pivot.z) || 0
+
         );
 
-        console.log(
-            "CARREGANDO CONFIGURAÇÃO"
+    }
+
+
+    /* =====================================================
+       ROTAÇÃO INICIAL DO PIVÔ
+    ===================================================== */
+
+    if (config.pivotRotation) {
+
+        pivot.object3D.rotation.set(
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation.x
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation.y
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.pivotRotation.z
+                ) || 0
+            )
+
         );
 
-        console.log(
-            CONFIG_URL
+    }
+
+
+    /* =====================================================
+       CONFIGURAR MODELO
+    ===================================================== */
+
+    if (config.position) {
+
+        modelo.object3D.position.set(
+
+            Number(
+                config.position.x
+            ) || 0,
+
+            Number(
+                config.position.y
+            ) || 0,
+
+            Number(
+                config.position.z
+            ) || 0
+
         );
 
-        console.log(
-            "================================"
+    }
+
+
+    if (config.rotation) {
+
+        modelo.object3D.rotation.set(
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation.x
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation.y
+                ) || 0
+            ),
+
+            THREE.MathUtils.degToRad(
+                Number(
+                    config.rotation.z
+                ) || 0
+            )
+
         );
 
+    }
 
-        const resposta =
-            await fetch(
-                CONFIG_URL,
-                {
-                    cache: "no-store"
-                }
+
+    /* =====================================================
+       ESCALA
+    ===================================================== */
+
+    const escala =
+        Number(
+            config.scale
+        ) || 1;
+
+
+    modelo.object3D.scale.set(
+        escala,
+        escala,
+        escala
+    );
+
+
+    /* =====================================================
+       MODELO CARREGADO
+    ===================================================== */
+
+    modelo.addEventListener(
+        "model-loaded",
+        () => {
+
+            console.log(
+                "GLB carregado:",
+                config.modelo
             );
 
 
-        if (!resposta.ok) {
+            /*
+             * O modelo fica invisível até
+             * o marcador ser encontrado.
+             */
 
-            throw new Error(
-                `Erro HTTP ${resposta.status}`
+            modelo.setAttribute(
+                "visible",
+                marcadorEncontrado
             );
+
         }
+    );
 
 
-        config =
-            await resposta.json();
+    /* =====================================================
+       ERRO NO GLB
+    ===================================================== */
 
+    modelo.addEventListener(
+        "model-error",
+        evento => {
 
-        console.log(
-            "Configuração:",
-            config
-        );
-
-
-        /* -------------------------------------------------
-           TÍTULO
-           ------------------------------------------------- */
-
-        document.title =
-            config.nome || "AR";
-
-
-        /* -------------------------------------------------
-           MODELO
-           ------------------------------------------------- */
-
-        if (!config.modelo) {
-
-            throw new Error(
-                "O config.json não possui 'modelo'."
+            console.error(
+                "Erro ao carregar GLB:",
+                evento
             );
+
         }
+    );
 
 
-        const modeloURL =
-            caminhoArquivo(config.modelo);
+    /* =====================================================
+       MARCADOR ENCONTRADO
+    ===================================================== */
 
+    target.addEventListener(
+        "targetFound",
+        () => {
+
+            console.log(
+                "MARCADOR ENCONTRADO"
+            );
+
+
+            marcadorEncontrado =
+                true;
+
+
+            modelo.setAttribute(
+                "visible",
+                "true"
+            );
+
+
+            tocarMusica();
+
+        }
+    );
+
+
+    /* =====================================================
+       MARCADOR PERDIDO
+    ===================================================== */
+
+    target.addEventListener(
+        "targetLost",
+        () => {
+
+            console.log(
+                "MARCADOR PERDIDO"
+            );
+
+
+            marcadorEncontrado =
+                false;
+
+
+            modelo.setAttribute(
+                "visible",
+                "false"
+            );
+
+
+            pararMusica();
+
+        }
+    );
+
+
+    /* =====================================================
+       ÁUDIO
+    ===================================================== */
+
+    prepararAudio();
+
+}
+
+
+/* =========================================================
+   ÁUDIO
+========================================================= */
+
+function prepararAudio() {
+
+    if (!config.audio) {
 
         console.log(
-            "Modelo:",
-            modeloURL
+            "Nenhum áudio configurado."
+        );
+
+        return;
+
+    }
+
+
+    const caminho =
+        caminhoArquivo(
+            config.audio
         );
 
 
-        modelAsset.setAttribute(
-            "src",
-            modeloURL
-        );
+    console.log(
+        "Áudio:",
+        caminho
+    );
 
 
-        /* -------------------------------------------------
-           ÁUDIO
-           ------------------------------------------------- */
-
-        prepararAudio();
+    audio =
+        new Audio(caminho);
 
 
-        /* -------------------------------------------------
-           MODELO CARREGADO
-           ------------------------------------------------- */
+    audio.loop = true;
 
-        model.addEventListener(
-            "model-loaded",
+    audio.preload = "auto";
+
+    audio.volume = 1;
+
+
+    audio.addEventListener(
+        "error",
+        evento => {
+
+            console.error(
+                "Erro ao carregar áudio:",
+                evento
+            );
+
+        }
+    );
+
+}
+
+
+function tocarMusica() {
+
+    if (!audio) {
+        return;
+    }
+
+
+    audio.play()
+        .then(
             () => {
 
                 console.log(
-                    "GLB carregado com sucesso."
+                    "Música iniciada."
                 );
 
-                aplicarConfiguracao();
+            }
+        )
+        .catch(
+            erro => {
 
-            },
-            { once: true }
-        );
-
-
-        model.addEventListener(
-            "model-error",
-            evento => {
-
-                console.error(
-                    "ERRO AO CARREGAR GLB:",
-                    evento
+                console.warn(
+                    "Áudio bloqueado pelo navegador:",
+                    erro
                 );
+
             }
         );
 
-
-        /* -------------------------------------------------
-           ESPERAR A-FRAME
-           ------------------------------------------------- */
-
-        if (!scene.hasLoaded) {
-
-            await new Promise(
-                resolve => {
-
-                    scene.addEventListener(
-                        "loaded",
-                        resolve,
-                        { once: true }
-                    );
-                }
-            );
-        }
+}
 
 
-        /* -------------------------------------------------
-           INICIAR MINDAR
-           ------------------------------------------------- */
+function pararMusica() {
 
-        await iniciarMindAR();
-
-
-    } catch (erro) {
-
-        console.error(
-            "================================"
-        );
-
-        console.error(
-            "ERRO NO AR"
-        );
-
-        console.error(
-            erro
-        );
-
-        console.error(
-            "================================"
-        );
+    if (!audio) {
+        return;
     }
+
+
+    audio.pause();
+
 }
 
 
 /* =========================================================
-   ROTAÇÃO COM O DEDO
-   ========================================================= */
+   TOQUE → ROTAÇÃO DO PIVÔ
+========================================================= */
 
-let tocandoTela = false;
-let ultimoX = 0;
+let tocando =
+    false;
 
-const VELOCIDADE_ROTACAO = 0.01;
+
+let ultimoX =
+    0;
+
+
+const VELOCIDADE_ROTACAO =
+    0.01;
 
 
 window.addEventListener(
     "touchstart",
     evento => {
 
-        if (evento.touches.length !== 1) {
+        if (
+            evento.touches.length !== 1
+        ) {
             return;
         }
 
 
-        tocandoTela = true;
+        tocando =
+            true;
 
 
         ultimoX =
             evento.touches[0].clientX;
+
     },
     {
         passive: true
@@ -566,12 +859,14 @@ window.addEventListener(
     "touchmove",
     evento => {
 
-        if (!tocandoTela) {
+        if (!tocando) {
             return;
         }
 
 
-        if (evento.touches.length !== 1) {
+        if (
+            evento.touches.length !== 1
+        ) {
             return;
         }
 
@@ -584,11 +879,21 @@ window.addEventListener(
             atualX - ultimoX;
 
 
-        ultimoX = atualX;
+        ultimoX =
+            atualX;
 
+
+        /*
+         * O PIVÔ gira.
+         *
+         * Como o GLB está dentro dele,
+         * o GLB acompanha a rotação.
+         */
 
         pivot.object3D.rotation.x -=
-            deltaX * VELOCIDADE_ROTACAO;
+            deltaX *
+            VELOCIDADE_ROTACAO;
+
     },
     {
         passive: true
@@ -600,7 +905,8 @@ window.addEventListener(
     "touchend",
     () => {
 
-        tocandoTela = false;
+        tocando =
+            false;
 
     },
     {
@@ -611,15 +917,17 @@ window.addEventListener(
 
 /* =========================================================
    TELA CHEIA
-   ========================================================= */
+========================================================= */
 
-fullscreenButton.addEventListener(
+botaoFullscreen.addEventListener(
     "click",
     async () => {
 
         try {
 
-            if (!document.fullscreenElement) {
+            if (
+                !document.fullscreenElement
+            ) {
 
                 await document.documentElement
                     .requestFullscreen();
@@ -627,34 +935,25 @@ fullscreenButton.addEventListener(
             } else {
 
                 await document.exitFullscreen();
+
             }
 
         } catch (erro) {
 
-            console.warn(
-                "Não foi possível ativar tela cheia:",
+            console.error(
+                "Erro na tela cheia:",
                 erro
             );
+
         }
+
     }
 );
 
 
 /* =========================================================
-   INÍCIO
-   ========================================================= */
+   INICIAR
+========================================================= */
 
-if (document.readyState === "loading") {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        carregarConfiguracao,
-        {
-            once: true
-        }
-    );
-
-} else {
-
-    carregarConfiguracao();
-}
+carregarConfig();
+```
