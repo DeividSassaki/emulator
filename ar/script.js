@@ -1,4 +1,3 @@
-const scene = document.getElementById("scene");
 const target = document.getElementById("targetZelda");
 const pivot = document.getElementById("pivotEntity");
 const objeto = document.getElementById("objectEntity");
@@ -15,9 +14,10 @@ const CONFIG_URL =
 const VELOCIDADE_ROTACAO = 0.01;
 
 let config = null;
+let marcadorVisivel = false;
 
 // ============================================================
-// CARREGAR CONFIG
+// CONFIG
 // ============================================================
 
 async function carregarConfig() {
@@ -28,7 +28,7 @@ try {
         await fetch(`${CONFIG_URL}?${Date.now()}`);
 
     if (!resposta.ok) {
-        throw new Error("Não foi possível carregar config.json");
+        throw new Error("Erro ao carregar config.json");
     }
 
     config = await resposta.json();
@@ -38,7 +38,7 @@ try {
 } catch (erro) {
 
     console.error(
-        "Erro ao carregar configuração:",
+        "Erro na configuração:",
         erro
     );
 
@@ -47,7 +47,7 @@ try {
 }
 
 // ============================================================
-// APLICAR CONFIGURAÇÃO
+// APLICAR CONFIG
 // ============================================================
 
 function aplicarConfiguracao() {
@@ -58,43 +58,7 @@ if (!config) {
 
 
 // --------------------------------------------------------
-// POSIÇÃO E ROTAÇÃO ORIGINAIS DO OBJETO
-// EXATAMENTE COMO NA CALIBRAÇÃO
-// --------------------------------------------------------
-
-const posicaoObjeto =
-    new THREE.Vector3(
-        Number(config.position?.x ?? 0),
-        Number(config.position?.y ?? 0),
-        Number(config.position?.z ?? 0)
-    );
-
-
-const rotacaoObjeto =
-    new THREE.Euler(
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.x ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.y ?? 0)
-        ),
-        THREE.MathUtils.degToRad(
-            Number(config.rotation?.z ?? 0)
-        ),
-        "XYZ"
-    );
-
-
-const quaternionObjeto =
-    new THREE.Quaternion();
-
-quaternionObjeto.setFromEuler(
-    rotacaoObjeto
-);
-
-
-// --------------------------------------------------------
-// POSIÇÃO E ROTAÇÃO DO PIVOT
+// PIVOT
 // --------------------------------------------------------
 
 const posicaoPivot =
@@ -121,29 +85,44 @@ const rotacaoPivot =
 
 
 const quaternionPivot =
-    new THREE.Quaternion();
-
-quaternionPivot.setFromEuler(
-    rotacaoPivot
-);
+    new THREE.Quaternion()
+        .setFromEuler(rotacaoPivot);
 
 
 // --------------------------------------------------------
-// CONFIGURA O PIVOT
+// OBJETO
 // --------------------------------------------------------
 
-pivot.object3D.position.copy(
-    posicaoPivot
-);
+const posicaoObjeto =
+    new THREE.Vector3(
+        Number(config.position?.x ?? 0),
+        Number(config.position?.y ?? 0),
+        Number(config.position?.z ?? 0)
+    );
 
-pivot.object3D.quaternion.copy(
-    quaternionPivot
-);
+
+const rotacaoObjeto =
+    new THREE.Euler(
+        THREE.MathUtils.degToRad(
+            Number(config.rotation?.x ?? 0)
+        ),
+        THREE.MathUtils.degToRad(
+            Number(config.rotation?.y ?? 0)
+        ),
+        THREE.MathUtils.degToRad(
+            Number(config.rotation?.z ?? 0)
+        ),
+        "XYZ"
+    );
+
+
+const quaternionObjeto =
+    new THREE.Quaternion()
+        .setFromEuler(rotacaoObjeto);
 
 
 // --------------------------------------------------------
-// CONVERTE A TRANSFORMAÇÃO DO OBJETO
-// PARA O SISTEMA LOCAL DO PIVOT
+// CONVERTER OBJETO PARA O SISTEMA DO PIVOT
 // --------------------------------------------------------
 
 const inversaPivot =
@@ -157,14 +136,27 @@ const posicaoLocal =
         .applyQuaternion(inversaPivot);
 
 
-const rotacaoLocal =
+const quaternionLocal =
     inversaPivot
         .clone()
         .multiply(quaternionObjeto);
 
 
 // --------------------------------------------------------
-// COLOCA O OBJETO DENTRO DO PIVOT
+// APLICAR PIVOT
+// --------------------------------------------------------
+
+pivot.object3D.position.copy(
+    posicaoPivot
+);
+
+pivot.object3D.quaternion.copy(
+    quaternionPivot
+);
+
+
+// --------------------------------------------------------
+// OBJETO VIRA FILHO DO PIVOT
 // --------------------------------------------------------
 
 pivot.object3D.add(
@@ -177,7 +169,7 @@ objeto.object3D.position.copy(
 );
 
 objeto.object3D.quaternion.copy(
-    rotacaoLocal
+    quaternionLocal
 );
 
 
@@ -218,24 +210,11 @@ target.addEventListener(
 "targetFound",
 () => {
 
+    marcadorVisivel = true;
+
     console.log("Marcador encontrado");
 
-    if (audio && audio.src) {
-
-        audio.currentTime = 0;
-
-        audio.play().catch(
-            erro => {
-
-                console.log(
-                    "Áudio bloqueado pelo navegador:",
-                    erro
-                );
-
-            }
-        );
-
-    }
+    tentarTocarAudio();
 
 }
 
@@ -249,6 +228,8 @@ target.addEventListener(
 "targetLost",
 () => {
 
+    marcadorVisivel = false;
+
     console.log("Marcador perdido");
 
 }
@@ -256,7 +237,29 @@ target.addEventListener(
 );
 
 // ============================================================
-// ROTAÇÃO POR TOQUE
+// ÁUDIO
+// ============================================================
+
+function tentarTocarAudio() {
+
+if (!audio.src) {
+    return;
+}
+
+audio.currentTime = 0;
+
+audio.play().catch(
+    () => {
+        console.log(
+            "Áudio aguardando interação do usuário."
+        );
+    }
+);
+
+}
+
+// ============================================================
+// TOQUE / ROTAÇÃO
 // ============================================================
 
 let tocando = false;
@@ -274,6 +277,12 @@ evento => {
 
     ultimoX =
         evento.touches[0].clientX;
+
+
+    // O primeiro toque também libera o áudio
+    if (marcadorVisivel) {
+        tentarTocarAudio();
+    }
 
 },
 {
@@ -293,18 +302,21 @@ evento => {
         return;
     }
 
+
     const atualX =
         evento.touches[0].clientX;
+
 
     const deltaX =
         atualX - ultimoX;
 
-    ultimoX = atualX;
+
+    ultimoX =
+        atualX;
 
 
     pivot.object3D.rotation.x -=
-        deltaX *
-        VELOCIDADE_ROTACAO;
+        deltaX * VELOCIDADE_ROTACAO;
 
 },
 {
