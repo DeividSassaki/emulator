@@ -25,12 +25,6 @@ const fullscreenButton =
 const freezeButton =
     document.getElementById("freezeButton");
 
-const ambientLight =
-    document.getElementById("ambientLight");
-
-const directionalLight =
-    document.getElementById("directionalLight");
-
 
 const parametros =
     new URLSearchParams(window.location.search);
@@ -43,19 +37,82 @@ const CONFIG_URL =
     `./marcadores/${pasta}/config.json`;
 
 
+/* ============================================================
+   CONTROLES
+   ============================================================ */
+
 const VELOCIDADE_ROTACAO =
     0.01;
 
+const VELOCIDADE_ESCALA =
+    0.005;
+
+const ESCALA_MINIMA =
+    0.2;
+
+const ESCALA_MAXIMA =
+    3.5;
+
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
 
 let config = null;
 
-let marcadorVisivel = false;
+let marcadorVisivel =
+    false;
 
-let arrastando = false;
+let congelado =
+    false;
 
-let ultimoX = 0;
 
-let congelado = false;
+/* ============================================================
+   CONTROLE DE TOQUE
+   ============================================================ */
+
+let arrastando =
+    false;
+
+let ultimoX =
+    0;
+
+let ultimoY =
+    0;
+
+
+/* ============================================================
+   CONTROLE DE PINÇA
+   ============================================================ */
+
+let usandoPinch =
+    false;
+
+let distanciaInicialPinch =
+    0;
+
+let escalaInicialPinch =
+    1;
+
+
+/* ============================================================
+   OBJETO CONGELADO
+   ============================================================ */
+
+let frozenPivot =
+    null;
+
+let frozenObject =
+    null;
+
+let frozenModel =
+    null;
+
+let frozenAmbientLight =
+    null;
+
+let frozenDirectionalLight =
+    null;
 
 
 /* ============================================================
@@ -84,6 +141,44 @@ function vetorZero() {
 
 
 /* ============================================================
+   PIVOT ATIVO
+   ============================================================ */
+
+function obterPivotAtivo() {
+
+    if (
+        congelado &&
+        frozenPivot
+    ) {
+
+        return frozenPivot.object3D;
+    }
+
+
+    return pivotPai.object3D;
+}
+
+
+/* ============================================================
+   OBJETO ATIVO
+   ============================================================ */
+
+function obterObjetoAtivo() {
+
+    if (
+        congelado &&
+        frozenObject
+    ) {
+
+        return frozenObject.object3D;
+    }
+
+
+    return objeto.object3D;
+}
+
+
+/* ============================================================
    APLICAR CONFIGURAÇÃO
    ============================================================ */
 
@@ -108,9 +203,13 @@ function aplicarConfiguracao() {
 
 
     pivotAvo.object3D.position.set(
+
         numero(avoPosition.x),
+
         numero(avoPosition.y),
+
         numero(avoPosition.z)
+
     );
 
 
@@ -145,9 +244,13 @@ function aplicarConfiguracao() {
 
 
     pivotPai.object3D.position.set(
+
         numero(paiPosition.x),
+
         numero(paiPosition.y),
+
         numero(paiPosition.z)
+
     );
 
 
@@ -182,9 +285,13 @@ function aplicarConfiguracao() {
 
 
     objeto.object3D.position.set(
+
         numero(objectPosition.x),
+
         numero(objectPosition.y),
+
         numero(objectPosition.z)
+
     );
 
 
@@ -219,9 +326,13 @@ function aplicarConfiguracao() {
 
 
     objeto.object3D.scale.set(
+
         escalaFinal,
+
         escalaFinal,
+
         escalaFinal
+
     );
 
 
@@ -288,7 +399,29 @@ async function carregarConfig() {
 
 
 /* ============================================================
-   CONGELAR OBJETO
+   DISTÂNCIA ENTRE OS DEDOS
+   ============================================================ */
+
+function distanciaEntreDedos(touches) {
+
+    const dx =
+        touches[0].clientX -
+        touches[1].clientX;
+
+    const dy =
+        touches[0].clientY -
+        touches[1].clientY;
+
+
+    return Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+}
+
+
+/* ============================================================
+   CRIAR OBJETO CONGELADO
    ============================================================ */
 
 function congelarObjeto() {
@@ -304,52 +437,214 @@ function congelarObjeto() {
 
 
     /*
-     * Atualiza as matrizes antes de capturar
-     * a posição atual.
+     * Garante que o GLB já carregou.
      */
 
-    scene.object3D.updateMatrixWorld(true);
+    if (
+        !modelo.object3D ||
+        !modelo.object3D.children.length
+    ) {
+
+        console.warn(
+            "AR: modelo ainda não está carregado"
+        );
+
+        return;
+    }
+
+
+    scene.object3D.updateMatrixWorld(
+        true
+    );
+
+
+    /* --------------------------------------------------------
+       CRIA O PIVOT CONGELADO
+       -------------------------------------------------------- */
+
+    const pivotElemento =
+        document.createElement("a-entity");
+
+
+    const objetoElemento =
+        document.createElement("a-entity");
+
+
+    scene.appendChild(
+        pivotElemento
+    );
+
+
+    pivotElemento.appendChild(
+        objetoElemento
+    );
+
+
+    frozenPivot =
+        pivotElemento;
+
+    frozenObject =
+        objetoElemento;
+
+
+    /* --------------------------------------------------------
+       COPIA A TRANSFORMAÇÃO MUNDIAL DO PIVOT PAI
+       -------------------------------------------------------- */
+
+    const posicaoMundo =
+        new THREE.Vector3();
+
+    const quaternionMundo =
+        new THREE.Quaternion();
+
+    const escalaMundo =
+        new THREE.Vector3();
+
+
+    pivotPai.object3D.getWorldPosition(
+        posicaoMundo
+    );
+
+
+    pivotPai.object3D.getWorldQuaternion(
+        quaternionMundo
+    );
+
+
+    pivotPai.object3D.getWorldScale(
+        escalaMundo
+    );
+
+
+    frozenPivot.object3D.position.copy(
+        posicaoMundo
+    );
+
+
+    frozenPivot.object3D.quaternion.copy(
+        quaternionMundo
+    );
+
+
+    frozenPivot.object3D.scale.copy(
+        escalaMundo
+    );
+
+
+    /* --------------------------------------------------------
+       COPIA A TRANSFORMAÇÃO LOCAL DO OBJETO
+       -------------------------------------------------------- */
+
+    frozenObject.object3D.position.copy(
+        objeto.object3D.position
+    );
+
+
+    frozenObject.object3D.quaternion.copy(
+        objeto.object3D.quaternion
+    );
+
+
+    frozenObject.object3D.scale.copy(
+        objeto.object3D.scale
+    );
+
+
+    /* --------------------------------------------------------
+       COPIA O GLB REALMENTE CARREGADO
+       -------------------------------------------------------- */
+
+    frozenModel =
+        modelo.object3D.clone(true);
+
+
+    frozenObject.object3D.add(
+        frozenModel
+    );
+
+
+    /* --------------------------------------------------------
+       CRIA LUZES PARA O OBJETO CONGELADO
+       -------------------------------------------------------- */
+
+    frozenAmbientLight =
+        new THREE.AmbientLight(
+            0xffffff,
+            2
+        );
+
+
+    frozenDirectionalLight =
+        new THREE.DirectionalLight(
+            0xffffff,
+            3
+        );
+
+
+    frozenDirectionalLight.position.set(
+        1,
+        3,
+        2
+    );
+
+
+    scene.object3D.add(
+        frozenAmbientLight
+    );
+
+
+    scene.object3D.add(
+        frozenDirectionalLight
+    );
+
+
+    /* --------------------------------------------------------
+       ESCONDE O OBJETO ORIGINAL
+       -------------------------------------------------------- */
+
+    objeto.object3D.visible =
+        false;
 
 
     /*
-     * O objeto deixa de ser filho do marcador.
-     *
-     * attach() mantém automaticamente:
-     * - posição
-     * - rotação
-     * - escala
-     * - transformação mundial
+     * Mantém as luzes originais
+     * desligadas enquanto congelado.
      */
 
-    scene.object3D.attach(
-        objeto.object3D
+    const luzes =
+        target.querySelectorAll(
+            "a-light"
+        );
+
+
+    luzes.forEach(
+        luz => {
+
+            luz.object3D.visible =
+                false;
+
+        }
     );
 
 
-    /*
-     * As luzes também saem do marcador.
-     *
-     * Assim o objeto continua iluminado
-     * mesmo depois que o marcador desaparecer.
-     */
-
-    scene.object3D.attach(
-        ambientLight.object3D
-    );
-
-    scene.object3D.attach(
-        directionalLight.object3D
-    );
+    congelado =
+        true;
 
 
-    congelado = true;
+    arrastando =
+        false;
 
-    arrastando = false;
+    usandoPinch =
+        false;
 
 
     freezeButton.classList.add(
         "frozen"
     );
+
+
+    freezeButton.disabled =
+        false;
 
 
     console.log(
@@ -359,7 +654,7 @@ function congelarObjeto() {
 
 
 /* ============================================================
-   DESCONGELAR OBJETO
+   DESCONGELAR
    ============================================================ */
 
 function descongelarObjeto() {
@@ -370,40 +665,209 @@ function descongelarObjeto() {
 
 
     /*
-     * Primeiro devolve as luzes para
-     * dentro do marcador.
+     * Para voltar ao marcador,
+     * precisamos que ele esteja visível.
      */
 
-    target.object3D.attach(
-        ambientLight.object3D
-    );
+    if (!marcadorVisivel) {
 
-    target.object3D.attach(
-        directionalLight.object3D
-    );
+        console.log(
+            "AR: encontre o marcador para descongelar"
+        );
+
+        return;
+    }
 
 
-    /*
-     * Depois devolve o objeto para o
-     * Pivot Pai.
-     */
-
-    pivotPai.object3D.attach(
-        objeto.object3D
+    scene.object3D.updateMatrixWorld(
+        true
     );
 
 
-    /*
-     * Ao voltar para o marcador,
-     * a configuração original é aplicada.
-     */
-
-    aplicarConfiguracao();
+    pivotAvo.object3D.updateMatrixWorld(
+        true
+    );
 
 
-    congelado = false;
+    frozenPivot.object3D.updateMatrixWorld(
+        true
+    );
 
-    arrastando = false;
+
+    /* --------------------------------------------------------
+       TRANSFORMAÇÃO DO PIVOT CONGELADO
+       PARA O SISTEMA DO PIVOT AVÔ
+       -------------------------------------------------------- */
+
+    const matrizLocal =
+        new THREE.Matrix4();
+
+
+    matrizLocal
+        .copy(
+            pivotAvo.object3D.matrixWorld
+        )
+        .invert()
+        .multiply(
+            frozenPivot.object3D.matrixWorld
+        );
+
+
+    const novaPosicao =
+        new THREE.Vector3();
+
+    const novoQuaternion =
+        new THREE.Quaternion();
+
+    const novaEscala =
+        new THREE.Vector3();
+
+
+    matrizLocal.decompose(
+        novaPosicao,
+        novoQuaternion,
+        novaEscala
+    );
+
+
+    /* --------------------------------------------------------
+       RESTAURA O PIVOT PAI
+       -------------------------------------------------------- */
+
+    pivotPai.object3D.position.copy(
+        novaPosicao
+    );
+
+
+    pivotPai.object3D.quaternion.copy(
+        novoQuaternion
+    );
+
+
+    pivotPai.object3D.scale.copy(
+        novaEscala
+    );
+
+
+    /* --------------------------------------------------------
+       RESTAURA O OBJETO
+       -------------------------------------------------------- */
+
+    objeto.object3D.position.copy(
+        frozenObject.object3D.position
+    );
+
+
+    objeto.object3D.quaternion.copy(
+        frozenObject.object3D.quaternion
+    );
+
+
+    objeto.object3D.scale.copy(
+        frozenObject.object3D.scale
+    );
+
+
+    /* --------------------------------------------------------
+       REMOVE O GLB CONGELADO
+       -------------------------------------------------------- */
+
+    if (frozenModel) {
+
+        frozenObject.object3D.remove(
+            frozenModel
+        );
+
+    }
+
+
+    /* --------------------------------------------------------
+       REMOVE AS LUZES CONGELADAS
+       -------------------------------------------------------- */
+
+    if (frozenAmbientLight) {
+
+        scene.object3D.remove(
+            frozenAmbientLight
+        );
+
+    }
+
+
+    if (frozenDirectionalLight) {
+
+        scene.object3D.remove(
+            frozenDirectionalLight
+        );
+
+    }
+
+
+    /* --------------------------------------------------------
+       REMOVE OS ELEMENTOS CONGELADOS
+       -------------------------------------------------------- */
+
+    if (
+        frozenPivot &&
+        frozenPivot.parentNode
+    ) {
+
+        frozenPivot.parentNode.removeChild(
+            frozenPivot
+        );
+
+    }
+
+
+    frozenPivot =
+        null;
+
+    frozenObject =
+        null;
+
+    frozenModel =
+        null;
+
+    frozenAmbientLight =
+        null;
+
+    frozenDirectionalLight =
+        null;
+
+
+    /* --------------------------------------------------------
+       MOSTRA O OBJETO ORIGINAL
+       -------------------------------------------------------- */
+
+    objeto.object3D.visible =
+        true;
+
+
+    const luzes =
+        target.querySelectorAll(
+            "a-light"
+        );
+
+
+    luzes.forEach(
+        luz => {
+
+            luz.object3D.visible =
+                true;
+
+        }
+    );
+
+
+    congelado =
+        false;
+
+
+    arrastando =
+        false;
+
+    usandoPinch =
+        false;
 
 
     freezeButton.classList.remove(
@@ -411,14 +875,8 @@ function descongelarObjeto() {
     );
 
 
-    /*
-     * Se o marcador ainda não estiver
-     * visível, o botão volta a ficar
-     * desativado.
-     */
-
     freezeButton.disabled =
-        !marcadorVisivel;
+        false;
 
 
     console.log(
@@ -473,8 +931,8 @@ target.addEventListener(
 
 
         /*
-         * Se o objeto estiver seguindo
-         * o marcador, aplica a configuração.
+         * Só aplica a configuração
+         * quando não estiver congelado.
          */
 
         if (!congelado) {
@@ -483,10 +941,6 @@ target.addEventListener(
 
         }
 
-
-        /*
-         * Libera o botão FREEZE.
-         */
 
         freezeButton.disabled =
             false;
@@ -515,9 +969,8 @@ target.addEventListener(
 
 
         /*
-         * Se não estiver congelado,
-         * o botão não pode congelar
-         * uma posição que não existe mais.
+         * Quando congelado, o FREEZE
+         * continua disponível.
          */
 
         if (!congelado) {
@@ -578,7 +1031,17 @@ function tocarAudio() {
 
 document.addEventListener(
     "touchstart",
-    () => {
+    evento => {
+
+        if (
+            evento.target.closest(
+                "#freezeButton, #fullscreenButton"
+            )
+        ) {
+
+            return;
+        }
+
 
         if (marcadorVisivel) {
 
@@ -589,13 +1052,13 @@ document.addEventListener(
     },
     {
         passive: true,
-        once: false
+        capture: true
     }
 );
 
 
 /* ============================================================
-   INÍCIO DO ARRASTO
+   INÍCIO DO TOQUE
    ============================================================ */
 
 document.addEventListener(
@@ -603,33 +1066,89 @@ document.addEventListener(
     evento => {
 
         /*
-         * Não permite girar enquanto
-         * o objeto estiver congelado.
+         * Ignora os botões.
          */
 
-        if (congelado) {
+        if (
+            evento.target.closest(
+                "#freezeButton, #fullscreenButton"
+            )
+        ) {
+
             return;
         }
 
 
-        if (!marcadorVisivel) {
-            return;
-        }
-
+        /*
+         * Sem marcador e sem freeze,
+         * não fazemos nada.
+         */
 
         if (
-            evento.touches.length !== 1
+            !marcadorVisivel &&
+            !congelado
         ) {
+
             return;
         }
 
 
-        arrastando =
-            true;
+        /* ----------------------------------------------------
+           DOIS DEDOS = PINÇA
+           ---------------------------------------------------- */
+
+        if (
+            evento.touches.length === 2
+        ) {
+
+            arrastando =
+                false;
 
 
-        ultimoX =
-            evento.touches[0].clientX;
+            usandoPinch =
+                true;
+
+
+            distanciaInicialPinch =
+                distanciaEntreDedos(
+                    evento.touches
+                );
+
+
+            escalaInicialPinch =
+                obterObjetoAtivo()
+                    .scale
+                    .x;
+
+
+            return;
+        }
+
+
+        /* ----------------------------------------------------
+           UM DEDO = ROTAÇÃO
+           ---------------------------------------------------- */
+
+        if (
+            evento.touches.length === 1
+        ) {
+
+            usandoPinch =
+                false;
+
+
+            arrastando =
+                true;
+
+
+            ultimoX =
+                evento.touches[0].clientX;
+
+
+            ultimoY =
+                evento.touches[0].clientY;
+
+        }
 
     },
     {
@@ -640,24 +1159,96 @@ document.addEventListener(
 
 
 /* ============================================================
-   ARRASTAR
-   PIVOT PAI GIRA NO EIXO Y
+   MOVIMENTO
    ============================================================ */
 
 document.addEventListener(
     "touchmove",
     evento => {
 
-        if (congelado) {
+        /*
+         * Sem marcador e sem freeze,
+         * não mexemos no objeto.
+         */
+
+        if (
+            !marcadorVisivel &&
+            !congelado
+        ) {
+
             return;
         }
 
 
+        /* ----------------------------------------------------
+           PINÇA = ESCALA
+           ---------------------------------------------------- */
+
         if (
-            !marcadorVisivel ||
-            !arrastando ||
-            evento.touches.length !== 1
+            evento.touches.length === 2 &&
+            usandoPinch
         ) {
+
+            const distanciaAtual =
+                distanciaEntreDedos(
+                    evento.touches
+                );
+
+
+            if (
+                distanciaInicialPinch <= 0
+            ) {
+
+                return;
+            }
+
+
+            const proporcao =
+                distanciaAtual /
+                distanciaInicialPinch;
+
+
+            let novaEscala =
+                escalaInicialPinch *
+                proporcao;
+
+
+            novaEscala =
+                Math.max(
+                    ESCALA_MINIMA,
+                    Math.min(
+                        ESCALA_MAXIMA,
+                        novaEscala
+                    )
+                );
+
+
+            /*
+             * Escala somente no objeto.
+             */
+
+            obterObjetoAtivo()
+                .scale
+                .set(
+                    novaEscala,
+                    novaEscala,
+                    novaEscala
+                );
+
+
+            return;
+        }
+
+
+        /* ----------------------------------------------------
+           UM DEDO = X / Y
+           ---------------------------------------------------- */
+
+        if (
+            evento.touches.length !== 1 ||
+            !arrastando
+        ) {
+
             return;
         }
 
@@ -666,21 +1257,48 @@ document.addEventListener(
             evento.touches[0].clientX;
 
 
+        const atualY =
+            evento.touches[0].clientY;
+
+
         const deltaX =
             atualX - ultimoX;
+
+
+        const deltaY =
+            atualY - ultimoY;
 
 
         ultimoX =
             atualX;
 
 
-        const angulo =
+        ultimoY =
+            atualY;
+
+
+        const pivot =
+            obterPivotAtivo();
+
+
+        /*
+         * ESQUERDA / DIREITA
+         * = Y
+         */
+
+        pivot.rotation.y +=
             deltaX *
             VELOCIDADE_ROTACAO;
 
 
-        pivotPai.object3D.rotation.y +=
-            angulo;
+        /*
+         * CIMA / BAIXO
+         * = X
+         */
+
+        pivot.rotation.x +=
+            deltaY *
+            VELOCIDADE_ROTACAO;
 
     },
     {
@@ -691,15 +1309,53 @@ document.addEventListener(
 
 
 /* ============================================================
-   FIM DO ARRASTO
+   FIM DO TOQUE
    ============================================================ */
 
 document.addEventListener(
     "touchend",
-    () => {
+    evento => {
 
-        arrastando =
-            false;
+        if (
+            evento.touches.length === 0
+        ) {
+
+            arrastando =
+                false;
+
+            usandoPinch =
+                false;
+
+
+            return;
+        }
+
+
+        /*
+         * Saiu da pinça e sobrou um dedo.
+         * Reinicia o arrasto sem salto.
+         */
+
+        if (
+            evento.touches.length === 1
+        ) {
+
+            usandoPinch =
+                false;
+
+
+            arrastando =
+                true;
+
+
+            ultimoX =
+                evento.touches[0].clientX;
+
+
+            ultimoY =
+                evento.touches[0].clientY;
+
+        }
 
     },
     {
@@ -709,11 +1365,18 @@ document.addEventListener(
 );
 
 
+/* ============================================================
+   CANCELAMENTO
+   ============================================================ */
+
 document.addEventListener(
     "touchcancel",
     () => {
 
         arrastando =
+            false;
+
+        usandoPinch =
             false;
 
     },
