@@ -1,1002 +1,145 @@
-const scene =
-    document.getElementById("scene");
+* {
+    box-sizing: border-box;
+}
 
-const target =
-    document.getElementById("targetZelda");
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, sans-serif;
+}
 
-const pivotAvo =
-    document.getElementById("pivotAvo");
+.example-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+}
 
-const pivotPai =
-    document.getElementById("pivotPai");
-
-const objeto =
-    document.getElementById("objectEntity");
-
-const modelo =
-    document.getElementById("heroModelObject");
-
-const audio =
-    document.getElementById("arAudio");
-
-const fullscreenButton =
-    document.getElementById("fullscreenButton");
-
-const freezeButton =
-    document.getElementById("freezeButton");
-
-const ambientLight =
-    document.getElementById("ambientLight");
-
-const directionalLight =
-    document.getElementById("directionalLight");
-
-
-const parametros =
-    new URLSearchParams(window.location.search);
-
-const pasta =
-    parametros.get("pasta") || "zelda";
-
-
-const CONFIG_URL =
-    `./marcadores/${pasta}/config.json`;
-
-
-/* ============================================================
-   CONTROLES
-   ============================================================ */
-
-const VELOCIDADE_ROTACAO =
-    0.01;
-
-const VELOCIDADE_ESCALA =
-    0.005;
-
-const ESCALA_MINIMA =
-    0.2;
-
-const ESCALA_MAXIMA =
-    3.5;
-
-
-/* ============================================================
-   ESTADO
-   ============================================================ */
-
-let config = null;
-
-let marcadorVisivel =
-    false;
-
-let congelado =
-    false;
-
-
-/*
- * Controle de 1 dedo
- */
-
-let arrastando =
-    false;
-
-let ultimoX =
-    0;
-
-let ultimoY =
-    0;
-
-
-/*
- * Controle de 2 dedos
- */
-
-let usandoPinch =
-    false;
-
-let distanciaInicialPinch =
-    0;
-
-let escalaInicialPinch =
-    1;
-
-
-/* ============================================================
-   FUNÇÕES
-   ============================================================ */
-
-function numero(valor) {
-
-    const n =
-        Number(valor);
-
-    return Number.isFinite(n)
-        ? n
-        : 0;
+a-scene {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    background: transparent !important;
 }
 
 
-function vetorZero() {
-
-    return {
-        x: 0,
-        y: 0,
-        z: 0
-    };
-}
-
-
-/* ============================================================
-   APLICAR CONFIGURAÇÃO
-   ============================================================ */
-
-function aplicarConfiguracao() {
-
-    if (!config) {
-        return;
-    }
-
-
-    /* --------------------------------------------------------
-       PIVOT AVÔ
-       -------------------------------------------------------- */
-
-    const avoPosition =
-        config.pivotAvo?.position ||
-        vetorZero();
-
-    const avoRotation =
-        config.pivotAvo?.rotation ||
-        vetorZero();
-
-
-    pivotAvo.object3D.position.set(
-        numero(avoPosition.x),
-        numero(avoPosition.y),
-        numero(avoPosition.z)
-    );
-
-
-    pivotAvo.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            numero(avoRotation.x)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(avoRotation.y)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(avoRotation.z)
-        )
-
-    );
-
-
-    /* --------------------------------------------------------
-       PIVOT PAI
-       -------------------------------------------------------- */
-
-    const paiPosition =
-        config.pivotPai?.position ||
-        vetorZero();
-
-    const paiRotation =
-        config.pivotPai?.rotation ||
-        vetorZero();
-
-
-    pivotPai.object3D.position.set(
-        numero(paiPosition.x),
-        numero(paiPosition.y),
-        numero(paiPosition.z)
-    );
-
-
-    pivotPai.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            numero(paiRotation.x)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(paiRotation.y)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(paiRotation.z)
-        )
-
-    );
-
-
-    /* --------------------------------------------------------
-       OBJETO
-       -------------------------------------------------------- */
-
-    const objectPosition =
-        config.position ||
-        vetorZero();
-
-    const objectRotation =
-        config.rotation ||
-        vetorZero();
-
-
-    objeto.object3D.position.set(
-        numero(objectPosition.x),
-        numero(objectPosition.y),
-        numero(objectPosition.z)
-    );
-
-
-    objeto.object3D.rotation.set(
-
-        THREE.MathUtils.degToRad(
-            numero(objectRotation.x)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(objectRotation.y)
-        ),
-
-        THREE.MathUtils.degToRad(
-            numero(objectRotation.z)
-        )
-
-    );
-
-
-    /* --------------------------------------------------------
-       ESCALA DO GLB
-       -------------------------------------------------------- */
-
-    const escala =
-        Number(config.scale);
-
-    const escalaFinal =
-        Number.isFinite(escala)
-            ? escala
-            : 1;
-
-
-    objeto.object3D.scale.set(
-        escalaFinal,
-        escalaFinal,
-        escalaFinal
-    );
-
-
-    /* --------------------------------------------------------
-       ÁUDIO
-       -------------------------------------------------------- */
-
-    if (config.audio) {
-
-        audio.src =
-            `./marcadores/${pasta}/${config.audio}`;
-
-        audio.preload =
-            "auto";
-
-        audio.load();
-    }
-
-
-    console.log(
-        "AR: configuração aplicada ao marcador"
-    );
-}
-
-
-/* ============================================================
-   CARREGAR CONFIGURAÇÃO
-   ============================================================ */
-
-async function carregarConfig() {
-
-    try {
-
-        const resposta =
-            await fetch(
-                `${CONFIG_URL}?${Date.now()}`
-            );
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                "config.json não encontrado"
-            );
-        }
-
-
-        config =
-            await resposta.json();
-
-
-        console.log(
-            "AR: config.json carregado"
-        );
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar config.json:",
-            erro
-        );
-    }
-}
-
-
-/* ============================================================
-   DISTÂNCIA ENTRE DOIS DEDOS
-   ============================================================ */
-
-function distanciaEntreDedos(touches) {
-
-    const dx =
-        touches[0].clientX -
-        touches[1].clientX;
-
-    const dy =
-        touches[0].clientY -
-        touches[1].clientY;
-
-
-    return Math.sqrt(
-        dx * dx +
-        dy * dy
-    );
-}
-
-
-/* ============================================================
-   FREEZE
-   ============================================================ */
-
-function congelarObjeto() {
-
-    if (congelado) {
-        return;
-    }
-
-
-    if (!marcadorVisivel) {
-        return;
-    }
-
-
-    /*
-     * Atualiza a posição mundial antes
-     * de retirar o Pivot Pai do marcador.
-     */
-
-    scene.object3D.updateMatrixWorld(
-        true
-    );
-
-
-    /*
-     * IMPORTANTE:
-     *
-     * Congelamos o PIVOT PAI inteiro.
-     *
-     * Assim:
-     *
-     * Pivot Pai
-     *   └── objeto
-     *        └── GLB
-     *
-     * continua funcionando.
-     *
-     * Isso permite continuar usando
-     * X, Y e escala depois do FREEZE.
-     */
-
-    scene.object3D.attach(
-        pivotPai.object3D
-    );
-
-
-    /*
-     * As luzes também passam para a cena.
-     */
-
-    scene.object3D.attach(
-        ambientLight.object3D
-    );
-
-    scene.object3D.attach(
-        directionalLight.object3D
-    );
-
-
-    congelado =
-        true;
-
-
-    arrastando =
-        false;
-
-    usandoPinch =
-        false;
-
-
-    freezeButton.classList.add(
-        "frozen"
-    );
-
-
-    console.log(
-        "AR: objeto congelado"
-    );
-}
-
-
-/* ============================================================
-   DESCONGELAR
-   ============================================================ */
-
-function descongelarObjeto() {
-
-    if (!congelado) {
-        return;
-    }
-
-
-    /*
-     * Primeiro devolve as luzes
-     * para o marcador.
-     */
-
-    target.object3D.attach(
-        ambientLight.object3D
-    );
-
-    target.object3D.attach(
-        directionalLight.object3D
-    );
-
-
-    /*
-     * Devolve o Pivot Pai para
-     * dentro do Pivot Avô.
-     */
-
-    pivotAvo.object3D.attach(
-        pivotPai.object3D
-    );
-
-
-    /*
-     * Reaplica a configuração original.
-     */
-
-    aplicarConfiguracao();
-
-
-    congelado =
-        false;
-
-
-    arrastando =
-        false;
-
-    usandoPinch =
-        false;
-
-
-    freezeButton.classList.remove(
-        "frozen"
-    );
-
-
-    freezeButton.disabled =
-        !marcadorVisivel;
-
-
-    console.log(
-        "AR: objeto descongelado"
-    );
-}
-
-
-/* ============================================================
+/* =========================================================
    BOTÃO FREEZE
-   ============================================================ */
+   ========================================================= */
 
-if (freezeButton) {
+#freezeButton {
+    position: fixed;
 
-    freezeButton.addEventListener(
-        "click",
-        evento => {
+    top: 15px;
+    left: 15px;
 
-            evento.stopPropagation();
+    z-index: 99999;
 
+    min-width: 100px;
+    height: 48px;
 
-            if (congelado) {
+    padding: 0 18px;
 
-                descongelarObjeto();
+    border: 2px solid #fff;
+    border-radius: 10px;
 
-            } else {
+    background: rgba(0, 0, 0, .45);
 
-                congelarObjeto();
+    color: #fff;
 
-            }
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 1px;
 
-        }
-    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+
+    transition:
+        background .15s ease,
+        color .15s ease,
+        box-shadow .15s ease,
+        transform .1s ease;
 }
 
 
-/* ============================================================
-   MARCADOR ENCONTRADO
-   ============================================================ */
-
-target.addEventListener(
-    "targetFound",
-    () => {
-
-        marcadorVisivel =
-            true;
-
-
-        console.log(
-            "AR: marcador encontrado"
-        );
-
-
-        /*
-         * Se não estiver congelado,
-         * aplica a configuração normalmente.
-         */
-
-        if (!congelado) {
-
-            aplicarConfiguracao();
-
-        }
-
-
-        freezeButton.disabled =
-            false;
-
-
-        tocarAudio();
-
-    }
-);
-
-
-/* ============================================================
-   MARCADOR PERDIDO
-   ============================================================ */
-
-target.addEventListener(
-    "targetLost",
-    () => {
-
-        marcadorVisivel =
-            false;
-
-
-        arrastando =
-            false;
-
-        usandoPinch =
-            false;
-
-
-        /*
-         * Se estiver congelado, o botão
-         * continua disponível.
-         */
-
-        if (!congelado) {
-
-            freezeButton.disabled =
-                true;
-
-        }
-
-
-        console.log(
-            "AR: marcador perdido"
-        );
-
-    }
-);
-
-
-/* ============================================================
-   ÁUDIO
-   ============================================================ */
-
-function tocarAudio() {
-
-    if (!audio.src) {
-
-        console.log(
-            "AR: nenhum áudio configurado"
-        );
-
-        return;
-    }
-
-
-    audio.play()
-
-        .then(() => {
-
-            console.log(
-                "AR: áudio reproduzindo"
-            );
-
-        })
-
-        .catch(() => {
-
-            console.log(
-                "AR: áudio aguardando interação"
-            );
-
-        });
+#freezeButton:disabled {
+    opacity: .35;
+    cursor: default;
 }
 
 
-/* ============================================================
-   SISTEMA DE TOQUE
-   ============================================================ */
-
-
-/*
- * COMEÇOU O TOQUE
- */
-
-document.addEventListener(
-    "touchstart",
-    evento => {
-
-        /*
-         * Não deixa os botões iniciarem
-         * um movimento do objeto.
-         */
-
-        if (
-            evento.target.closest(
-                "#freezeButton, #fullscreenButton"
-            )
-        ) {
-            return;
-        }
-
-
-        /*
-         * O áudio pode ser liberado
-         * com o toque.
-         */
-
-        if (marcadorVisivel) {
-
-            tocarAudio();
-
-        }
-
-
-        /*
-         * Dois dedos = PINÇA
-         */
-
-        if (
-            evento.touches.length === 2
-        ) {
-
-            arrastando =
-                false;
-
-            usandoPinch =
-                true;
-
-
-            distanciaInicialPinch =
-                distanciaEntreDedos(
-                    evento.touches
-                );
-
-
-            escalaInicialPinch =
-                objeto.object3D.scale.x;
-
-
-            return;
-        }
-
-
-        /*
-         * Um dedo = ROTAÇÃO
-         */
-
-        if (
-            evento.touches.length === 1
-        ) {
-
-            usandoPinch =
-                false;
-
-            arrastando =
-                true;
-
-
-            ultimoX =
-                evento.touches[0].clientX;
-
-            ultimoY =
-                evento.touches[0].clientY;
-
-        }
-
-    },
-    {
-        passive: true,
-        capture: true
-    }
-);
-
-
-/*
- * MOVIMENTO
- */
-
-document.addEventListener(
-    "touchmove",
-    evento => {
-
-        /*
-         * Dois dedos = ESCALA
-         */
-
-        if (
-            evento.touches.length === 2 &&
-            usandoPinch
-        ) {
-
-            const distanciaAtual =
-                distanciaEntreDedos(
-                    evento.touches
-                );
-
-
-            if (
-                distanciaInicialPinch <= 0
-            ) {
-                return;
-            }
-
-
-            const proporcao =
-                distanciaAtual /
-                distanciaInicialPinch;
-
-
-            let novaEscala =
-                escalaInicialPinch *
-                proporcao;
-
-
-            novaEscala =
-                Math.max(
-                    ESCALA_MINIMA,
-                    Math.min(
-                        ESCALA_MAXIMA,
-                        novaEscala
-                    )
-                );
-
-
-            /*
-             * Escala aplicada SOMENTE
-             * no objectEntity / GLB.
-             */
-
-            objeto.object3D.scale.set(
-                novaEscala,
-                novaEscala,
-                novaEscala
-            );
-
-
-            return;
-        }
-
-
-        /*
-         * Se não for um dedo,
-         * não gira.
-         */
-
-        if (
-            evento.touches.length !== 1 ||
-            !arrastando
-        ) {
-            return;
-        }
-
-
-        /*
-         * Um dedo pode continuar
-         * funcionando mesmo congelado.
-         *
-         * Isso é proposital.
-         */
-
-        const atualX =
-            evento.touches[0].clientX;
-
-        const atualY =
-            evento.touches[0].clientY;
-
-
-        const deltaX =
-            atualX - ultimoX;
-
-        const deltaY =
-            atualY - ultimoY;
-
-
-        ultimoX =
-            atualX;
-
-        ultimoY =
-            atualY;
-
-
-        /*
-         * ESQUERDA / DIREITA
-         * = ROTAÇÃO Y
-         */
-
-        pivotPai.object3D.rotation.y +=
-            deltaX *
-            VELOCIDADE_ROTACAO;
-
-
-        /*
-         * CIMA / BAIXO
-         * = ROTAÇÃO X
-         */
-
-        pivotPai.object3D.rotation.x +=
-            deltaY *
-            VELOCIDADE_ROTACAO;
-
-    },
-    {
-        passive: true,
-        capture: true
-    }
-);
-
-
-/*
- * FIM DO TOQUE
- */
-
-document.addEventListener(
-    "touchend",
-    evento => {
-
-        if (
-            evento.touches.length === 0
-        ) {
-
-            arrastando =
-                false;
-
-            usandoPinch =
-                false;
-
-        } else if (
-            evento.touches.length === 1
-        ) {
-
-            /*
-             * Se sair da pinça e ficar
-             * apenas um dedo, começa
-             * novamente a rotação.
-             */
-
-            usandoPinch =
-                false;
-
-            arrastando =
-                true;
-
-
-            ultimoX =
-                evento.touches[0].clientX;
-
-            ultimoY =
-                evento.touches[0].clientY;
-        }
-
-    },
-    {
-        passive: true,
-        capture: true
-    }
-);
-
-
-/*
- * CANCELAMENTO
- */
-
-document.addEventListener(
-    "touchcancel",
-    () => {
-
-        arrastando =
-            false;
-
-        usandoPinch =
-            false;
-
-    },
-    {
-        passive: true,
-        capture: true
-    }
-);
-
-
-/* ============================================================
-   FULLSCREEN
-   ============================================================ */
-
-if (fullscreenButton) {
-
-    fullscreenButton.addEventListener(
-        "click",
-        async evento => {
-
-            evento.stopPropagation();
-
-
-            try {
-
-                if (
-                    !document.fullscreenElement
-                ) {
-
-                    await document
-                        .documentElement
-                        .requestFullscreen();
-
-                } else {
-
-                    await document
-                        .exitFullscreen();
-
-                }
-
-            } catch (erro) {
-
-                console.error(
-                    "Erro no fullscreen:",
-                    erro
-                );
-
-            }
-
-        }
-    );
+#freezeButton.frozen {
+    background: #fff;
+    color: #000;
+
+    box-shadow:
+        0 0 8px rgba(255, 255, 255, .8),
+        0 0 20px rgba(255, 255, 255, .5);
 }
 
 
-/* ============================================================
-   INÍCIO
-   ============================================================ */
+#freezeButton:not(:disabled):active {
+    transform: scale(.94);
+}
 
-carregarConfig();
+
+/* =========================================================
+   BOTÃO TELA CHEIA
+   ========================================================= */
+
+#fullscreenButton {
+    position: fixed;
+
+    top: 15px;
+    right: 15px;
+
+    z-index: 99999;
+
+    width: 48px;
+    height: 48px;
+
+    border: 0;
+    border-radius: 10px;
+
+    background: rgba(0, 0, 0, .70);
+
+    color: #fff;
+
+    font-size: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    touch-action: manipulation;
+}
+
+#fullscreenButton:active {
+    transform: scale(.94);
+}
+
+
+/* =========================================================
+   ESCONDE BOTÕES DO A-FRAME
+   ========================================================= */
+
+.a-enter-vr,
+.a-enter-ar {
+    display: none !important;
+}
