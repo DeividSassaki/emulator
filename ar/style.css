@@ -10,6 +10,7 @@ body {
     overflow: hidden;
     background: #000;
     font-family: Arial, sans-serif;
+    touch-action: none;
 }
 
 .example-container {
@@ -19,6 +20,7 @@ body {
     height: 100%;
     overflow: hidden;
     background: #000;
+    touch-action: none;
 }
 
 a-scene {
@@ -29,6 +31,7 @@ a-scene {
     height: 100% !important;
     margin: 0 !important;
     background: transparent !important;
+    touch-action: none;
 }
 
 
@@ -38,6 +41,7 @@ a-scene {
 
 #freezeButton {
     position: fixed;
+
     top: 15px;
     left: 15px;
 
@@ -75,7 +79,7 @@ a-scene {
 }
 
 
-/* Botão desativado */
+/* FREEZE desativado */
 
 #freezeButton:disabled {
     opacity: .35;
@@ -83,7 +87,7 @@ a-scene {
 }
 
 
-/* Estado congelado */
+/* FREEZE ativado */
 
 #freezeButton.frozen {
     background: #fff;
@@ -95,7 +99,7 @@ a-scene {
 }
 
 
-/* Toque */
+/* toque */
 
 #freezeButton:not(:disabled):active {
     transform: scale(.94);
