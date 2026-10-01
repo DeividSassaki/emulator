@@ -1,6 +1,5 @@
 const parametros = new URLSearchParams(window.location.search);
-const pasta = parametros.get("pasta") || "zelda";
-const configURL = `../marcadores/${pasta}/config.json`;
+const pasta = parametros.get("pasta");
 
 const sceneContainer = document.getElementById("sceneContainer");
 const titulo = document.getElementById("titulo");
@@ -41,9 +40,17 @@ let pivotAvo = null;
 let pivotPai = null;
 let objeto = null;
 let modelo = null;
-
+let marcadorEncontrado = false;
+let modeloCarregado = false;
 let elementoSelecionado = "pivotAvo";
 let modoControle = "rotacao";
+
+const pastaURL = pasta ? encodeURIComponent(pasta) : "";
+const configURL = pasta ? `../marcadores/${pastaURL}/config.json` : null;
+
+function arquivoURL(nomeArquivo) {
+    return `../marcadores/${pastaURL}/${encodeURIComponent(nomeArquivo || "")}`;
+}
 
 function numero(valor) {
     const n = Number(valor);
@@ -56,10 +63,6 @@ function arredondar(valor, casas = 2) {
 
 function vetorZero() {
     return { x: 0, y: 0, z: 0 };
-}
-
-function arquivoURL(nomeArquivo) {
-    return `../marcadores/${pasta}/${encodeURIComponent(nomeArquivo || "")}`;
 }
 
 function obterElementoSelecionado() {
@@ -362,7 +365,7 @@ function criarCena() {
 
     const camera = document.createElement("a-camera");
     camera.setAttribute("position", "0 0 0");
-    camera.setAttribute("look-controls", "enabled:false");
+    camera.setAttribute("look-controls", "enabled: false");
     scene.appendChild(camera);
 
     const assets = document.createElement("a-assets");
@@ -373,94 +376,23 @@ function criarCena() {
     scene.appendChild(assets);
 
     target = document.createElement("a-entity");
-    target.id = "targetZelda";
+    target.id = "target";
     target.setAttribute("mindar-image-target", "targetIndex: 0");
 
     pivotAvo = document.createElement("a-entity");
     pivotAvo.id = "pivotAvo";
-    pivotAvo.setAttribute("position", "0 0 0");
-    pivotAvo.setAttribute("rotation", "0 0 0");
-
-    const visualPivotAvo = document.createElement("a-entity");
-    visualPivotAvo.id = "visualPivotAvo";
-
-    const avoX = document.createElement("a-box");
-    avoX.setAttribute("position", "0.075 0 0");
-    avoX.setAttribute("width", "0.15");
-    avoX.setAttribute("height", "0.008");
-    avoX.setAttribute("depth", "0.008");
-    avoX.setAttribute("color", "red");
-
-    const avoY = document.createElement("a-box");
-    avoY.setAttribute("position", "0 0.075 0");
-    avoY.setAttribute("width", "0.008");
-    avoY.setAttribute("height", "0.15");
-    avoY.setAttribute("depth", "0.008");
-    avoY.setAttribute("color", "green");
-
-    const avoZ = document.createElement("a-box");
-    avoZ.setAttribute("position", "0 0 0.075");
-    avoZ.setAttribute("width", "0.008");
-    avoZ.setAttribute("height", "0.008");
-    avoZ.setAttribute("depth", "0.15");
-    avoZ.setAttribute("color", "blue");
-
-    const avoCentro = document.createElement("a-sphere");
-    avoCentro.setAttribute("radius", "0.025");
-    avoCentro.setAttribute("color", "yellow");
-
-    visualPivotAvo.appendChild(avoX);
-    visualPivotAvo.appendChild(avoY);
-    visualPivotAvo.appendChild(avoZ);
-    visualPivotAvo.appendChild(avoCentro);
-    pivotAvo.appendChild(visualPivotAvo);
-
     pivotPai = document.createElement("a-entity");
     pivotPai.id = "pivotPai";
-    pivotPai.setAttribute("position", "0 0 0");
-    pivotPai.setAttribute("rotation", "0 0 0");
-
-    const visualPivotPai = document.createElement("a-entity");
-    visualPivotPai.id = "visualPivotPai";
-
-    const paiX = document.createElement("a-box");
-    paiX.setAttribute("position", "0.055 0 0");
-    paiX.setAttribute("width", "0.11");
-    paiX.setAttribute("height", "0.005");
-    paiX.setAttribute("depth", "0.005");
-    paiX.setAttribute("color", "orange");
-
-    const paiY = document.createElement("a-box");
-    paiY.setAttribute("position", "0 0.055 0");
-    paiY.setAttribute("width", "0.005");
-    paiY.setAttribute("height", "0.11");
-    paiY.setAttribute("depth", "0.005");
-    paiY.setAttribute("color", "cyan");
-
-    const paiZ = document.createElement("a-box");
-    paiZ.setAttribute("position", "0 0 0.055");
-    paiZ.setAttribute("width", "0.005");
-    paiZ.setAttribute("height", "0.005");
-    paiZ.setAttribute("depth", "0.11");
-    paiZ.setAttribute("color", "magenta");
-
-    const paiCentro = document.createElement("a-sphere");
-    paiCentro.setAttribute("radius", "0.018");
-    paiCentro.setAttribute("color", "white");
-
-    visualPivotPai.appendChild(paiX);
-    visualPivotPai.appendChild(paiY);
-    visualPivotPai.appendChild(paiZ);
-    visualPivotPai.appendChild(paiCentro);
-    pivotPai.appendChild(visualPivotPai);
-
     objeto = document.createElement("a-entity");
     objeto.id = "objectEntity";
-    objeto.setAttribute("gltf-model", "#heroModel");
     objeto.setAttribute("position", "0 0 0");
     objeto.setAttribute("rotation", "0 0 0");
     objeto.setAttribute("scale", "1 1 1");
 
+    modelo = document.createElement("a-gltf-model");
+    modelo.id = "heroModelObject";
+    modelo.setAttribute("src", "#heroModel");
+    objeto.appendChild(modelo);
     pivotPai.appendChild(objeto);
     pivotAvo.appendChild(pivotPai);
     target.appendChild(pivotAvo);
@@ -468,46 +400,53 @@ function criarCena() {
     const luzAmbient = document.createElement("a-light");
     luzAmbient.setAttribute("type", "ambient");
     luzAmbient.setAttribute("intensity", "2");
-
     const luzDirectional = document.createElement("a-light");
     luzDirectional.setAttribute("type", "directional");
     luzDirectional.setAttribute("intensity", "3");
     luzDirectional.setAttribute("position", "1 3 2");
-
     target.appendChild(luzAmbient);
     target.appendChild(luzDirectional);
+
     scene.appendChild(target);
 
     if (configuracaoBase.nome) {
         titulo.textContent = `Calibração AR — ${configuracaoBase.nome}`;
+    } else {
+        titulo.textContent = `Calibração AR — ${pasta}`;
     }
 
+    status.textContent = "Aponte a câmera para o marcador.";
+
+    modelo.addEventListener("model-loaded", () => {
+        modeloCarregado = true;
+        status.textContent = marcadorEncontrado
+            ? "Marcador encontrado. Modelo carregado."
+            : "Modelo carregado. Aponte para o marcador.";
+        if (marcadorEncontrado) {
+            aplicarConfiguracao(configuracaoBase);
+        }
+    });
+
+    modelo.addEventListener("model-error", evento => {
+        console.error("Erro ao carregar modelo:", evento);
+        status.textContent = "Erro ao carregar o modelo.";
+    });
+
     target.addEventListener("targetFound", () => {
-        status.textContent = "Marcador encontrado.";
+        marcadorEncontrado = true;
+        status.textContent = modeloCarregado
+            ? "Marcador encontrado."
+            : "Marcador encontrado. Carregando modelo...";
+
         aplicarConfiguracao(configuracaoBase);
     });
 
     target.addEventListener("targetLost", () => {
+        marcadorEncontrado = false;
         status.textContent = "Marcador não encontrado.";
     });
 
-    scene.addEventListener("loaded", () => {
-        aplicarConfiguracao(configuracaoBase);
-        atualizarModeloDeInterface();
-        status.textContent = "Configuração carregada. Aponte para o marcador.";
-    }, { once: true });
-
     sceneContainer.appendChild(scene);
-
-    modelo = objeto;
-}
-
-function atualizarModeloDeInterface() {
-    atualizarInterface();
-}
-
-function arquivoURL(nomeArquivo) {
-    return `../marcadores/${pasta}/${encodeURIComponent(nomeArquivo || "")}`;
 }
 
 sliderX.addEventListener("input", () => alterarEixo("x", sliderX.value));
@@ -552,6 +491,12 @@ botaoRotacao.addEventListener("click", () => selecionarModo("rotacao"));
 botaoMovimento.addEventListener("click", () => selecionarModo("movimento"));
 
 async function carregarConfiguracao() {
+    if (!pasta) {
+        titulo.textContent = "Calibração AR";
+        status.textContent = "Use /ar/calibracao/?pasta=nome-da-pasta";
+        return;
+    }
+
     try {
         const resposta = await fetch(`${configURL}?${Date.now()}`);
 
@@ -560,7 +505,6 @@ async function carregarConfiguracao() {
         }
 
         configuracaoBase = await resposta.json();
-
         criarCena();
     } catch (erro) {
         console.error("Erro ao carregar configuração:", erro);

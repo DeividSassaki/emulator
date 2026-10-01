@@ -1,6 +1,13 @@
 const parametros = new URLSearchParams(window.location.search);
-const pasta = parametros.get("pasta") || "zelda";
-const configURL = `./marcadores/${pasta}/config.json`;
+const pasta = parametros.get("pasta");
+
+if (!pasta) {
+    document.body.innerHTML = "<div style=\"color:white;font-family:Arial;text-align:center;padding:30px;\">Use /ar/?pasta=nome-da-pasta</div>";
+    throw new Error("Nenhuma pasta foi informada na URL.");
+}
+
+const pastaURL = encodeURIComponent(pasta);
+const configURL = `./marcadores/${pastaURL}/config.json`;
 
 const container = document.getElementById("arContainer");
 const audio = document.getElementById("arAudio");
@@ -47,7 +54,7 @@ function vetorZero() {
 }
 
 function arquivoURL(nomeArquivo) {
-    return `./marcadores/${pasta}/${encodeURIComponent(nomeArquivo || "")}`;
+    return `./marcadores/${pastaURL}/${encodeURIComponent(nomeArquivo || "")}`;
 }
 
 function obterPivotAtivo() {
