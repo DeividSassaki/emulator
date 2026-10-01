@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1, viewport-fit=cover"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Calibração AR</title>
 
     <link rel="stylesheet" href="style.css">
@@ -16,375 +10,73 @@
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 </head>
-
 <body>
 
-    <div class="example-container">
+<div id="sceneContainer" class="example-container"></div>
 
-        <a-scene
-            id="scene"
-            mindar-image="
-                imageTargetSrc: ../marcadores/zelda/targets.mind;
-                autoStart: true;
-                missTolerance: 20;
-                filterMinCF: 0.0001;
-                filterBeta: 1000;
-                uiLoading: no;
-                uiError: no;
-                uiScanning: no;
-            "
-            embedded
-            color-space="sRGB"
-            renderer="
-                alpha: true;
-                colorManagement: true;
-                physicallyCorrectLights: true;
-            "
-            vr-mode-ui="enabled: false"
-            device-orientation-permission-ui="enabled: false"
-        >
+<div class="painel">
+    <h1 id="titulo">Calibração AR</h1>
+    <div id="status">Carregando configuração...</div>
 
-            <a-camera
-                position="0 0 0"
-                look-controls="enabled:false"
-            ></a-camera>
+    <div class="grupo-titulo">ELEMENTO</div>
 
-            <a-assets id="assets">
-
-                <a-asset-item
-                    id="heroModel"
-                    src="../marcadores/zelda/Hero%20of%20Time.glb"
-                ></a-asset-item>
-
-            </a-assets>
-
-
-            <!--
-                MARCADOR
-                    ↓
-                PIVOT AVÔ
-                    ↓
-                PIVOT PAI
-                    ↓
-                GLB
-            -->
-
-            <a-entity
-                id="targetZelda"
-                mindar-image-target="targetIndex: 0"
-            >
-
-                <!-- =========================
-                     PIVOT AVÔ
-                     Referência do marcador
-                ========================== -->
-
-                <a-entity
-                    id="pivotAvo"
-                    position="0 0 0"
-                    rotation="0 0 0"
-                >
-
-                    <!-- Indicador visual do PIVOT AVÔ -->
-                    <a-entity id="visualPivotAvo">
-
-                        <!-- eixo X -->
-                        <a-box
-                            position="0.075 0 0"
-                            width="0.15"
-                            height="0.008"
-                            depth="0.008"
-                            color="red"
-                        ></a-box>
-
-                        <!-- eixo Y -->
-                        <a-box
-                            position="0 0.075 0"
-                            width="0.008"
-                            height="0.15"
-                            depth="0.008"
-                            color="green"
-                        ></a-box>
-
-                        <!-- eixo Z -->
-                        <a-box
-                            position="0 0 0.075"
-                            width="0.008"
-                            height="0.008"
-                            depth="0.15"
-                            color="blue"
-                        ></a-box>
-
-                        <!-- centro -->
-                        <a-sphere
-                            radius="0.025"
-                            color="yellow"
-                        ></a-sphere>
-
-                    </a-entity>
-
-
-                    <!-- =========================
-                         PIVOT PAI
-                         Referência do PIVOT AVÔ
-                    ========================== -->
-
-                    <a-entity
-                        id="pivotPai"
-                        position="0 0 0"
-                        rotation="0 0 0"
-                    >
-
-                        <!-- Indicador visual do PIVOT PAI -->
-                        <a-entity id="visualPivotPai">
-
-                            <!-- eixo X -->
-                            <a-box
-                                position="0.055 0 0"
-                                width="0.11"
-                                height="0.005"
-                                depth="0.005"
-                                color="orange"
-                            ></a-box>
-
-                            <!-- eixo Y -->
-                            <a-box
-                                position="0 0.055 0"
-                                width="0.005"
-                                height="0.11"
-                                depth="0.005"
-                                color="cyan"
-                            ></a-box>
-
-                            <!-- eixo Z -->
-                            <a-box
-                                position="0 0 0.055"
-                                width="0.005"
-                                height="0.005"
-                                depth="0.11"
-                                color="magenta"
-                            ></a-box>
-
-                            <!-- centro -->
-                            <a-sphere
-                                radius="0.018"
-                                color="white"
-                            ></a-sphere>
-
-                        </a-entity>
-
-
-                        <!-- =========================
-                             GLB
-                             Referência do PIVOT PAI
-                        ========================== -->
-
-                        <a-entity
-                            id="objectEntity"
-                            gltf-model="#heroModel"
-                            position="0 0 0"
-                            rotation="0 0 0"
-                            scale="1 1 1"
-                        ></a-entity>
-
-                    </a-entity>
-
-                </a-entity>
-
-
-                <!-- Luzes -->
-
-                <a-light
-                    type="ambient"
-                    intensity="2"
-                ></a-light>
-
-                <a-light
-                    type="directional"
-                    intensity="3"
-                    position="1 3 2"
-                ></a-light>
-
-            </a-entity>
-
-        </a-scene>
-
+    <div class="seletor">
+        <button id="botaoPivotAvo" class="ativo">PIVOT AVÔ</button>
+        <button id="botaoPivotPai">PIVOT PAI</button>
+        <button id="botaoObjeto">OBJETO</button>
     </div>
 
+    <div class="grupo-titulo">CONTROLE</div>
 
-    <!-- =========================
-         PAINEL
-    ========================== -->
-
-    <div class="painel">
-
-        <h1>Calibração AR</h1>
-
-        <div id="status">
-            Carregando configuração...
-        </div>
-
-
-        <div class="grupo-titulo">
-            ELEMENTO
-        </div>
-
-        <div class="seletor">
-
-            <button
-                id="botaoPivotAvo"
-                class="ativo"
-            >
-                PIVOT AVÔ
-            </button>
-
-            <button
-                id="botaoPivotPai"
-            >
-                PIVOT PAI
-            </button>
-
-            <button
-                id="botaoObjeto"
-            >
-                OBJETO
-            </button>
-
-        </div>
-
-
-        <div class="grupo-titulo">
-            CONTROLE
-        </div>
-
-        <div class="seletor">
-
-            <button
-                id="botaoRotacao"
-                class="ativo"
-            >
-                ROTAÇÃO
-            </button>
-
-            <button
-                id="botaoMovimento"
-            >
-                MOVIMENTO
-            </button>
-
-        </div>
-
-
-        <div class="controle">
-
-            <label>
-                <span id="labelX">Rotação X</span>
-                <span id="valorX">0.00</span>
-            </label>
-
-            <input
-                id="sliderX"
-                type="range"
-                min="-360"
-                max="360"
-                step="0.1"
-                value="0"
-            >
-
-        </div>
-
-
-        <div class="controle">
-
-            <label>
-                <span id="labelY">Rotação Y</span>
-                <span id="valorY">0.00</span>
-            </label>
-
-            <input
-                id="sliderY"
-                type="range"
-                min="-360"
-                max="360"
-                step="0.1"
-                value="0"
-            >
-
-        </div>
-
-
-        <div class="controle">
-
-            <label>
-                <span id="labelZ">Rotação Z</span>
-                <span id="valorZ">0.00</span>
-            </label>
-
-            <input
-                id="sliderZ"
-                type="range"
-                min="-360"
-                max="360"
-                step="0.1"
-                value="0"
-            >
-
-        </div>
-
-
-        <div
-            class="grupo-titulo"
-            id="grupoEscala"
-        >
-            TAMANHO DO OBJETO
-        </div>
-
-        <div
-            class="controle"
-            id="controleEscala"
-        >
-
-            <label>
-                <span>Escala</span>
-                <span id="valorEscala">1.00</span>
-            </label>
-
-            <input
-                id="sliderEscala"
-                type="range"
-                min="0.1"
-                max="5"
-                step="0.01"
-                value="1"
-            >
-
-        </div>
-
-
-        <div class="botoes">
-
-            <button id="resetar">
-                ↺ Resetar
-            </button>
-
-            <button id="copiarJSON">
-                📋 Copiar JSON
-            </button>
-
-        </div>
-
-
-        <div class="grupo-titulo">
-            JSON
-        </div>
-
-        <pre id="configuracao"></pre>
-
+    <div class="seletor">
+        <button id="botaoRotacao" class="ativo">ROTAÇÃO</button>
+        <button id="botaoMovimento">MOVIMENTO</button>
     </div>
 
+    <div class="controle">
+        <label>
+            <span id="labelX">Rotação X</span>
+            <span id="valorX">0.00</span>
+        </label>
+        <input id="sliderX" type="range" min="-360" max="360" step="0.1" value="0">
+    </div>
 
-    <script src="script.js"></script>
+    <div class="controle">
+        <label>
+            <span id="labelY">Rotação Y</span>
+            <span id="valorY">0.00</span>
+        </label>
+        <input id="sliderY" type="range" min="-360" max="360" step="0.1" value="0">
+    </div>
+
+    <div class="controle">
+        <label>
+            <span id="labelZ">Rotação Z</span>
+            <span id="valorZ">0.00</span>
+        </label>
+        <input id="sliderZ" type="range" min="-360" max="360" step="0.1" value="0">
+    </div>
+
+    <div class="grupo-titulo" id="grupoEscala">TAMANHO DO OBJETO</div>
+
+    <div class="controle" id="controleEscala">
+        <label>
+            <span>Escala</span>
+            <span id="valorEscala">1.00</span>
+        </label>
+        <input id="sliderEscala" type="range" min="0.1" max="5" step="0.01" value="1">
+    </div>
+
+    <div class="botoes">
+        <button id="resetar">↺ Resetar</button>
+        <button id="copiarJSON">📋 Copiar JSON</button>
+    </div>
+
+    <div class="grupo-titulo">JSON</div>
+    <pre id="configuracao"></pre>
+</div>
+
+<script src="script.js"></script>
 
 </body>
-
 </html>
