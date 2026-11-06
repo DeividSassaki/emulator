@@ -155,17 +155,23 @@ function cancelarVitoria() {
 
 function zerarPartida() {
 
+    // Zera os pontos da partida atual
     placarNos = 0;
     placarEles = 0;
 
+    // Zera o histórico de vitórias
+    vitoriasNos = 0;
+    vitoriasEles = 0;
+
+    // Cancela uma confirmação pendente
     vencedorPendente = null;
 
     document.getElementById("confirmacao")
         .classList.add("oculto");
 
+    // Atualiza todos os placares e símbolos
     atualizarPlacar();
 }
-
 
 function obterNome(time) {
 
