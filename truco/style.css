@@ -67,6 +67,7 @@ input {
 /* Configuração comum das 3 imagens */
 
 .logo {
+    display: block;
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
